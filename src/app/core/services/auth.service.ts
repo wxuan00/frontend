@@ -31,4 +31,14 @@ export class AuthService {
   getAllUsers(): Observable<any> {
     return this.http.get('http://localhost:8080/api/users');
   }
+
+  // Create User
+  createUser(user: any): Observable<any> {
+    return this.http.post('http://localhost:8080/api/users', user);
+  }
+
+  // Delete User
+  deleteUser(id: number): Observable<any> {
+    return this.http.delete(`http://localhost:8080/api/users/${id}`);
+  }
 }
