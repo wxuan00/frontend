@@ -52,6 +52,7 @@ export class LoginComponent {
         console.log('Login Success! Token:', res.token);
         //alert('Login Successful!');
         localStorage.setItem('token', res.token);
+        localStorage.setItem('role', res.role);
         this.router.navigate(['/dashboard']);
       },
       error: (err) => {

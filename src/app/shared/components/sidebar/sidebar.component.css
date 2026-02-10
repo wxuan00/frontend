@@ -1,0 +1,90 @@
+.sidebar {
+  width: 260px;
+  height: 100vh;
+  background-color: #1e1e2d; /* Dark Blue-Grey */
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+}
+
+.logo-area {
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid #2d2d3f;
+}
+
+.logo-area h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #569df5;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.nav-links {
+  flex: 1;
+  padding: 20px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  overflow-y: auto;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 15px;
+  color: #a2a3b7;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: all 0.2s ease-in-out;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.nav-item:hover {
+  background-color: #2b2b40;
+  color: white;
+}
+
+.nav-item.active {
+  background-color: #3699ff; /* Active Blue */
+  color: white;
+}
+
+.nav-item span {
+  margin-left: 12px;
+}
+
+.footer {
+  padding: 20px;
+  border-top: 1px solid #2d2d3f;
+  background-color: #1e1e2d;
+}
+
+.logout-btn {
+  width: 100%;
+  background: #f64e60; /* Danger Red */
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.3s;
+}
+
+.logout-btn:hover {
+  background: #d63d50;
+}

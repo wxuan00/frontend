@@ -41,4 +41,18 @@ export class AuthService {
   deleteUser(id: number): Observable<any> {
     return this.http.delete(`http://localhost:8080/api/users/${id}`);
   }
+
+  // Helper method to get user role from localStorage
+  getUserRole(): string {
+    // Check if code is running in browser to avoid errors
+    if (typeof localStorage !== 'undefined') {
+      return localStorage.getItem('role') || ''; 
+    }
+    return '';
+  }
+
+  // Optional: Helper to check if user is Admin
+  isAdmin(): boolean {
+    return this.getUserRole() === 'ADMIN';
+  }
 }

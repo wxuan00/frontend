@@ -1,1 +1,37 @@
-<p>sidebar works!</p>
+<div class="sidebar">
+  <div class="logo-area">
+    <h2>MSP Admin</h2>
+  </div>
+
+  <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">
+      <span>📊 Dashboard</span>
+    </a>
+
+    @if (userRole === 'ADMIN') {
+      <a routerLink="/users" routerLinkActive="active" class="nav-item">
+        <span>👥 User Management</span>
+      </a>
+
+      <a routerLink="/merchants" routerLinkActive="active" class="nav-item">
+        <span>🛍️ All Merchants</span>
+      </a>
+    }
+
+    <!--<a routerLink="/users" routerLinkActive="active" class="nav-item">
+        <span>👥 User Management</span>
+      </a>
+
+      <a routerLink="/merchants" routerLinkActive="active" class="nav-item">
+        <span>🛍️ All Merchants</span>
+      </a>-->
+      
+    <a routerLink="/profile" routerLinkActive="active" class="nav-item">
+      <span>⚙️ My Profile</span>
+    </a>
+
+  <div class="footer">
+    <button (click)="logout()" class="logout-btn">
+      🚪 Logout
+    </button>
+  </div>
+</div>

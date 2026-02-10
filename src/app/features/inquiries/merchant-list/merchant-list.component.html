@@ -1,1 +1,54 @@
-<p>merchant-list works!</p>
+<div class="page-container">
+  
+  <div class="header-row">
+    <h1>Merchant Account Inquiry</h1>
+  </div>
+
+  <div class="search-bar">
+    <input 
+      type="text" 
+      placeholder="Search by Business Name..." 
+      [(ngModel)]="searchTerm"
+      (keyup.enter)="search()"
+    >
+    <button (click)="search()" class="btn-search">Search</button>
+  </div>
+
+  <div class="card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Business Name</th>
+          <th>Reg No.</th>
+          <th>Email</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let m of merchants">
+          <td>#{{ m.id }}</td>
+          <td><strong>{{ m.businessName }}</strong></td>
+          <td>{{ m.businessRegistrationNumber }}</td>
+          <td>{{ m.email }}</td>
+          <td>
+            <span class="badge" [ngClass]="m.status?.toLowerCase()">
+              {{ m.status }}
+            </span>
+          </td>
+          <td>
+            <button (click)="viewDetails(m.id)" class="btn-view">
+              View Details
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    
+    <div *ngIf="merchants.length === 0" class="no-data">
+      No merchants found.
+    </div>
+  </div>
+
+</div>
