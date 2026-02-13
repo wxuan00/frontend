@@ -20,12 +20,12 @@ export class SidebarComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    // Decode token to get role 
+    // Get role from localStorage (set during login)
     this.userRole = this.authService.getUserRole();
   }
 
   logout() {
-    localStorage.removeItem('token');
+    this.authService.logout();
     this.router.navigate(['/login']);
   }
 

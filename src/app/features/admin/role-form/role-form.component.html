@@ -1,1 +1,35 @@
-<p>role-form works!</p>
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h1>{{ isEditMode ? 'Edit Role' : 'Create Role' }}</h1>
+      <div class="breadcrumb">Administration › Roles › {{ isEditMode ? 'Edit' : 'New' }}</div>
+    </div>
+    <a routerLink="/roles" class="btn btn-secondary">← Back to Roles</a>
+  </div>
+
+  <div class="card" style="max-width:560px;">
+    <div class="card-header">
+      <h3>{{ isEditMode ? 'Update Role' : 'New Role Details' }}</h3>
+    </div>
+
+    <form (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label>Role Name *</label>
+        <input type="text" class="form-control" [(ngModel)]="formData.name" name="name" placeholder="e.g., ADMIN, MERCHANT, VIEWER" required>
+      </div>
+
+      <div class="form-group">
+        <label>Description</label>
+        <input type="text" class="form-control" [(ngModel)]="formData.description" name="description" placeholder="What this role can do...">
+      </div>
+
+      <div class="form-actions">
+        <button type="button" (click)="cancel()" class="btn btn-secondary">Cancel</button>
+        <button type="submit" class="btn btn-primary">{{ isEditMode ? 'Update' : 'Create' }}</button>
+      </div>
+    </form>
+
+    <p *ngIf="message" class="success-msg">✅ {{ message }}</p>
+    <p *ngIf="errorMessage" class="error-msg">⚠️ {{ errorMessage }}</p>
+  </div>
+</div>

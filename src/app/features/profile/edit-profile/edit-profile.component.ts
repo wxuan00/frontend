@@ -1,15 +1,55 @@
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-edit-profile',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
   templateUrl: './edit-profile.component.html',
   styleUrls: ['./edit-profile.component.css']
 })
 export class EditProfileComponent implements OnInit {
 
-  constructor() { }
+  profile = {
+    firstName: '',
+    lastName: '',
+    displayName: '',
+    phoneNumber: ''
+  };
+  message = '';
+  errorMessage = '';
+
+  constructor(private authService: AuthService, private router: Router) { }
 
   ngOnInit(): void {
+    this.authService.getProfile().subscribe({
+      next: (data) => {
+        this.profile.firstName = data.firstName || '';
+        this.profile.lastName = data.lastName || '';
+        this.profile.displayName = data.displayName || '';
+        this.profile.phoneNumber = data.phoneNumber || '';
+      },
+      error: (err) => console.error('Error loading profile', err)
+    });
+  }
+
+  onSave() {
+    this.authService.updateProfile(this.profile).subscribe({
+      next: () => {
+        this.message = 'Profile updated successfully!';
+        setTimeout(() => this.router.navigate(['/profile']), 1500);
+      },
+      error: (err) => {
+        this.errorMessage = 'Error updating profile';
+      }
+    });
+  }
+
+  cancel() {
+    this.router.navigate(['/profile']);
   }
 
 }

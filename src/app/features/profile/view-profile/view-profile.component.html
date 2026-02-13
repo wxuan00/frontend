@@ -1,1 +1,59 @@
-<p>view-profile works!</p>
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h1>My Profile</h1>
+      <div class="breadcrumb">Account › Profile</div>
+    </div>
+    <div class="actions">
+      <a routerLink="/profile/edit" class="btn btn-primary">✏️ Edit Profile</a>
+      <a routerLink="/profile/change-password" class="btn btn-secondary">🔒 Change Password</a>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="no-data">Loading profile...</div>
+
+  <div *ngIf="user && !loading" class="profile-grid">
+    <!-- Profile Card -->
+    <div class="card profile-main">
+      <div class="profile-avatar-area">
+        <div class="avatar-large">{{ (user.firstName || 'U').charAt(0) }}</div>
+        <h2>{{ user.firstName }} {{ user.lastName }}</h2>
+        <span class="badge badge-primary">{{ user.role }}</span>
+      </div>
+    </div>
+
+    <!-- Details Card -->
+    <div class="card profile-details">
+      <div class="card-header">
+        <h3>Account Details</h3>
+      </div>
+      <div class="detail-row">
+        <label>First Name</label>
+        <span>{{ user.firstName }}</span>
+      </div>
+      <div class="detail-row">
+        <label>Last Name</label>
+        <span>{{ user.lastName }}</span>
+      </div>
+      <div class="detail-row">
+        <label>Display Name</label>
+        <span>{{ user.displayName || '-' }}</span>
+      </div>
+      <div class="detail-row">
+        <label>Email</label>
+        <span>{{ user.email }}</span>
+      </div>
+      <div class="detail-row">
+        <label>Phone</label>
+        <span>{{ user.phoneNumber || '-' }}</span>
+      </div>
+      <div class="detail-row">
+        <label>Status</label>
+        <span class="badge" [ngClass]="{
+          'badge-success': user.status === 'ACTIVE',
+          'badge-danger': user.status === 'SUSPENDED' || user.status === 'INACTIVE'
+        }">{{ user.status }}</span>
+      </div>
+    </div>
+  </div>
+</div>

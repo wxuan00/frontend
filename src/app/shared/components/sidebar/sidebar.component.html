@@ -1,37 +1,104 @@
 <div class="sidebar">
+  <!-- Logo -->
   <div class="logo-area">
-    <h2>MSP Admin</h2>
+    <span class="logo-icon">🏦</span>
+    @if (userRole === 'ADMIN') {
+      <span class="logo-text">MSP Admin</span>
+    } @else {
+      <span class="logo-text">MSP Portal</span>
+    }
   </div>
 
-  <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">
-      <span>📊 Dashboard</span>
+  <!-- Navigation -->
+  <nav class="nav-links">
+    <div class="nav-section-label">MAIN MENU</div>
+
+    <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">
+      <span class="nav-icon">📊</span>
+      <span class="nav-label">Dashboard</span>
     </a>
 
     @if (userRole === 'ADMIN') {
+      <div class="nav-section-label">ADMINISTRATION</div>
+
       <a routerLink="/users" routerLinkActive="active" class="nav-item">
-        <span>👥 User Management</span>
+        <span class="nav-icon">👥</span>
+        <span class="nav-label">User Management</span>
       </a>
 
+      <a routerLink="/roles" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">🔑</span>
+        <span class="nav-label">Role Management</span>
+      </a>
+
+      <div class="nav-section-label">INQUIRIES</div>
+
       <a routerLink="/merchants" routerLinkActive="active" class="nav-item">
-        <span>🛍️ All Merchants</span>
+        <span class="nav-icon">🏢</span>
+        <span class="nav-label">All Merchants</span>
+      </a>
+
+      <a routerLink="/transactions" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">💳</span>
+        <span class="nav-label">All Transactions</span>
+      </a>
+
+      <a routerLink="/refunds" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">🔄</span>
+        <span class="nav-label">Refund Inquiry</span>
+      </a>
+
+      <a routerLink="/settlements" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">📋</span>
+        <span class="nav-label">Settlements</span>
+      </a>
+
+      <a routerLink="/credit-advices" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">📄</span>
+        <span class="nav-label">Credit Advice</span>
+      </a>
+    } @else {
+      <div class="nav-section-label">MY BUSINESS</div>
+
+      <a routerLink="/merchants" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">🏢</span>
+        <span class="nav-label">My Merchant</span>
+      </a>
+
+      <a routerLink="/transactions" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">💳</span>
+        <span class="nav-label">My Transactions</span>
+      </a>
+
+      <a routerLink="/refunds" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">🔄</span>
+        <span class="nav-label">My Refunds</span>
+      </a>
+
+      <a routerLink="/settlements" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">📋</span>
+        <span class="nav-label">My Settlements</span>
+      </a>
+
+      <a routerLink="/credit-advices" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">📄</span>
+        <span class="nav-label">My Credit Advice</span>
       </a>
     }
 
-    <!--<a routerLink="/users" routerLinkActive="active" class="nav-item">
-        <span>👥 User Management</span>
-      </a>
+    <div class="nav-section-label">ACCOUNT</div>
 
-      <a routerLink="/merchants" routerLinkActive="active" class="nav-item">
-        <span>🛍️ All Merchants</span>
-      </a>-->
-      
     <a routerLink="/profile" routerLinkActive="active" class="nav-item">
-      <span>⚙️ My Profile</span>
+      <span class="nav-icon">👤</span>
+      <span class="nav-label">My Profile</span>
     </a>
+  </nav>
 
-  <div class="footer">
+  <!-- Footer -->
+  <div class="sidebar-footer">
     <button (click)="logout()" class="logout-btn">
-      🚪 Logout
+      <span>🚪</span>
+      <span>Logout</span>
     </button>
   </div>
 </div>

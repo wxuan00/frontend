@@ -7,57 +7,222 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule], // Import FormsModule for [(ngModel)]
+  imports: [CommonModule, FormsModule],
   template: `
-    <div class="login-container">
-      <h2>Merchant Portal Login</h2>
-      
-      <form (ngSubmit)="onLogin()">
-        <div class="form-group">
-          <label>Email</label>
-          <input type="email" [(ngModel)]="email" name="email" required>
+    <div class="login-page">
+      <div class="login-left">
+        <div class="brand-area">
+          <div class="brand-logo">🏦</div>
+          <h1>Merchant Service Portal</h1>
+          <p>Manage your merchant accounts, transactions, and business operations in one secure platform.</p>
         </div>
+      </div>
 
-        <div class="form-group">
-          <label>Password</label>
-          <input type="password" [(ngModel)]="password" name="password" required>
+      <div class="login-right">
+        <div class="login-card">
+          <div class="login-card-header">
+            <h2>Welcome Back</h2>
+            <p>Sign in to your account</p>
+          </div>
+
+          <form (ngSubmit)="onLogin()">
+            <div class="form-group">
+              <label>Email Address</label>
+              <input 
+                type="email" 
+                class="form-control" 
+                [(ngModel)]="email" 
+                name="email" 
+                placeholder="Enter your email"
+                required>
+            </div>
+
+            <div class="form-group">
+              <label>Password</label>
+              <input 
+                type="password" 
+                class="form-control" 
+                [(ngModel)]="password" 
+                name="password" 
+                placeholder="Enter your password"
+                required>
+            </div>
+
+            <button type="submit" class="btn-login" [disabled]="loading">
+              {{ loading ? 'Signing in...' : 'Sign In' }}
+            </button>
+          </form>
+
+          <div *ngIf="errorMessage" class="error-alert">
+            ⚠️ {{ errorMessage }}
+          </div>
         </div>
-
-        <button type="submit">Login</button>
-      </form>
-
-      <p *ngIf="errorMessage" class="error">{{ errorMessage }}</p>
+      </div>
     </div>
   `,
   styles: [`
-    .login-container { max-width: 400px; margin: 50px auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; }
-    .form-group { margin-bottom: 15px; }
-    input { width: 100%; padding: 8px; margin-top: 5px; }
-    button { width: 100%; padding: 10px; background: #007bff; color: white; border: none; cursor: pointer; }
-    .error { color: red; margin-top: 10px; }
+    .login-page {
+      display: flex;
+      min-height: 100vh;
+      background: #f5f5f5;
+    }
+
+    .login-left {
+      flex: 1;
+      background: #111;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 60px;
+    }
+
+    .brand-area {
+      max-width: 420px;
+      color: #fff;
+      text-align: center;
+    }
+
+    .brand-logo {
+      font-size: 3.5rem;
+      margin-bottom: 24px;
+    }
+
+    .brand-area h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      letter-spacing: -0.5px;
+    }
+
+    .brand-area p {
+      font-size: 1rem;
+      line-height: 1.7;
+      color: rgba(255,255,255,0.75);
+    }
+
+    .login-right {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 420px;
+      background: #fff;
+      border-radius: 12px;
+      padding: 40px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    }
+
+    .login-card-header {
+      margin-bottom: 32px;
+    }
+
+    .login-card-header h2 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #111;
+      margin-bottom: 6px;
+    }
+
+    .login-card-header p {
+      color: #888;
+      font-size: 0.9rem;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 600;
+      font-size: 0.82rem;
+      color: #1a1a1a;
+      margin-bottom: 8px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-family: inherit;
+      color: #1a1a1a;
+      transition: border-color 0.2s;
+      box-sizing: border-box;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: #111;
+      box-shadow: 0 0 0 3px rgba(0,0,0,0.06);
+    }
+
+    .form-control::placeholder {
+      color: #b5b5c3;
+    }
+
+    .btn-login {
+      width: 100%;
+      padding: 13px;
+      background: #111;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-top: 8px;
+      font-family: inherit;
+    }
+
+    .btn-login:hover { background: #333; }
+    .btn-login:disabled { background: #bbb; cursor: not-allowed; }
+
+    .error-alert {
+      margin-top: 20px;
+      padding: 12px 16px;
+      background: #fff5f8;
+      color: #f64e60;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+
+    @media (max-width: 900px) {
+      .login-left { display: none; }
+      .login-right { padding: 20px; }
+    }
   `]
 })
 export class LoginComponent {
   email = '';
   password = '';
   errorMessage = '';
+  loading = false;
 
   constructor(private authService: AuthService, private router: Router) {}
 
   onLogin() {
+    this.loading = true;
+    this.errorMessage = '';
     const credentials = { email: this.email, password: this.password };
     
     this.authService.login(credentials).subscribe({
       next: (res) => {
-        console.log('Login Success! Token:', res.token);
-        //alert('Login Successful!');
         localStorage.setItem('token', res.token);
         localStorage.setItem('role', res.role);
         this.router.navigate(['/dashboard']);
       },
       error: (err) => {
-        console.error('Login Failed', err);
-        this.errorMessage = 'Invalid Email or Password';
+        this.loading = false;
+        this.errorMessage = 'Invalid email or password. Please try again.';
       }
     });
   }

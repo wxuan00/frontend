@@ -1,0 +1,86 @@
+.detail-grid {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 24px;
+}
+
+.merchant-identity {
+  text-align: center;
+  padding: 36px 24px;
+}
+
+.identity-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar-large {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: #111;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.merchant-identity h2 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #111;
+  margin: 0;
+}
+
+.detail-row {
+  display: flex;
+  padding: 14px 24px;
+  border-bottom: 1px solid #f0f1f5;
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+}
+
+.detail-row label {
+  width: 180px;
+  font-weight: 600;
+  font-size: 0.82rem;
+  color: #888;
+  flex-shrink: 0;
+}
+
+.detail-row span {
+  color: #1a1a1a;
+  font-size: 0.9rem;
+}
+
+.id-cell {
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+  color: #111;
+}
+
+.breadcrumb a {
+  color: #111;
+  text-decoration: none;
+}
+
+.breadcrumb a:hover {
+  text-decoration: underline;
+}
+
+.header-actions {
+  display: flex;
+  gap: 10px;
+}
+
+@media (max-width: 768px) {
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+}

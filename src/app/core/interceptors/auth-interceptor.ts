@@ -1,9 +1,11 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { AuthService } from '../services/auth.service';
+import { Router } from '@angular/router';
+import { catchError, throwError } from 'rxjs';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  
+  const router = inject(Router);
+
   // 1. SKIP LOGIN: If the URL is for login/register, let it pass untouched
   if (req.url.includes('/auth/login') || req.url.includes('/auth/register')) {
     return next(req);
@@ -13,14 +15,24 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const token = localStorage.getItem('token');
 
   // 3. If token exists, attach it
+  let request = req;
   if (token) {
-    const clonedRequest = req.clone({
+    request = req.clone({
       setHeaders: {
         Authorization: `Bearer ${token}`
       }
     });
-    return next(clonedRequest);
   }
 
-  return next(req);
+  return next(request).pipe(
+    catchError((error) => {
+      // 4. Auto-logout on 401 Unauthorized (expired/invalid token)
+      if (error.status === 401) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('role');
+        router.navigate(['/login']);
+      }
+      return throwError(() => error);
+    })
+  );
 };

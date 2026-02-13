@@ -1,20 +1,39 @@
 <div class="page-container">
-  
-  <div class="header-row">
-    <h1>Merchant Account Inquiry</h1>
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <h1>Merchant Account Inquiry</h1>
+      <div class="breadcrumb">Inquiries › Merchants</div>
+    </div>
+    @if (isAdmin) {
+      <a routerLink="/merchants/new" class="btn btn-primary">+ Add Merchant</a>
+    }
   </div>
 
-  <div class="search-bar">
-    <input 
-      type="text" 
-      placeholder="Search by Business Name..." 
-      [(ngModel)]="searchTerm"
-      (keyup.enter)="search()"
-    >
-    <button (click)="search()" class="btn-search">Search</button>
+  <!-- Search & Filters -->
+  <div class="filter-row">
+    <div class="search-bar" style="flex:1; margin-bottom:0;">
+      <input 
+        type="text" 
+        placeholder="Search by Business Name..." 
+        [(ngModel)]="searchTerm"
+        (keyup.enter)="search()"
+      >
+      <button (click)="search()" class="btn-search">🔍 Search</button>
+    </div>
+    <select class="form-control filter-select" [(ngModel)]="filterStatus" (change)="applyFilters()">
+      <option value="">All Statuses</option>
+      <option value="ACTIVE">Active</option>
+      <option value="PENDING">Pending</option>
+      <option value="SUSPENDED">Suspended</option>
+    </select>
   </div>
 
+  <!-- Table -->
   <div class="card">
+    <div class="card-header">
+      <h3>Merchants ({{ merchants.length }})</h3>
+    </div>
     <table class="data-table">
       <thead>
         <tr>
@@ -23,24 +42,30 @@
           <th>Reg No.</th>
           <th>Email</th>
           <th>Status</th>
-          <th>Action</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let m of merchants">
-          <td>#{{ m.id }}</td>
+          <td class="id-cell">#{{ m.id }}</td>
           <td><strong>{{ m.businessName }}</strong></td>
           <td>{{ m.businessRegistrationNumber }}</td>
           <td>{{ m.email }}</td>
           <td>
-            <span class="badge" [ngClass]="m.status?.toLowerCase()">
-              {{ m.status }}
-            </span>
+            <span class="badge" [ngClass]="{
+              'badge-success': m.status === 'ACTIVE',
+              'badge-warning': m.status === 'PENDING',
+              'badge-danger': m.status === 'SUSPENDED'
+            }">{{ m.status }}</span>
           </td>
           <td>
-            <button (click)="viewDetails(m.id)" class="btn-view">
-              View Details
-            </button>
+            <div class="action-btns">
+              <button (click)="viewDetails(m.id)" class="btn btn-sm btn-outline">View</button>
+              @if (isAdmin) {
+                <button (click)="editMerchant(m.id)" class="btn btn-sm btn-outline">Edit</button>
+                <button (click)="deleteMerchant(m.id, m.businessName)" class="btn btn-sm btn-danger">Delete</button>
+              }
+            </div>
           </td>
         </tr>
       </tbody>
@@ -50,5 +75,4 @@
       No merchants found.
     </div>
   </div>
-
 </div>

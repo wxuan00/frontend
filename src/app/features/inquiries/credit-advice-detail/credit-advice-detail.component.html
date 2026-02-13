@@ -1,1 +1,79 @@
-<p>credit-advice-detail works!</p>
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h1>Credit Advice Detail</h1>
+      <div class="breadcrumb">
+        <a routerLink="/credit-advices">Inquiries › Credit Advice</a> › #{{ creditAdviceId }}
+      </div>
+    </div>
+    <a routerLink="/credit-advices" class="btn btn-secondary">← Back to List</a>
+  </div>
+
+  <div *ngIf="loading" class="no-data">Loading credit advice...</div>
+  <div *ngIf="!loading && !creditAdvice" class="no-data">Credit advice not found.</div>
+
+  <div *ngIf="creditAdvice && !loading" class="detail-grid">
+    <!-- Summary Card -->
+    <div class="card summary-card">
+      <div class="summary-header">
+        <div class="summary-amount">{{ creditAdvice.currency }} {{ creditAdvice.amount | number:'1.2-2' }}</div>
+        <span class="badge" [ngClass]="{
+          'badge-warning': creditAdvice.status === 'PENDING',
+          'badge-info': creditAdvice.status === 'ISSUED',
+          'badge-success': creditAdvice.status === 'ACKNOWLEDGED'
+        }">{{ creditAdvice.status }}</span>
+      </div>
+      <div class="summary-meta">
+        <span class="summary-label">Credit Advice Amount</span>
+        <span class="summary-date">{{ formatDate(creditAdvice.issuedAt) }}</span>
+      </div>
+    </div>
+
+    <!-- Details Card -->
+    <div class="card">
+      <div class="card-header">
+        <h3>Credit Advice Information</h3>
+      </div>
+      <div class="detail-row">
+        <label>Advice ID</label>
+        <span class="id-cell">#{{ creditAdvice.id }}</span>
+      </div>
+      <div class="detail-row">
+        <label>Advice Ref</label>
+        <span class="id-cell">{{ creditAdvice.adviceRef || '-' }}</span>
+      </div>
+      <div class="detail-row">
+        <label>Merchant</label>
+        <span>{{ creditAdvice.merchantName }}</span>
+      </div>
+      <div class="detail-row">
+        <label>Amount</label>
+        <span class="amount-cell">{{ creditAdvice.currency }} {{ creditAdvice.amount | number:'1.2-2' }}</span>
+      </div>
+      <div class="detail-row">
+        <label>Bank Name</label>
+        <span>{{ creditAdvice.bankName || '-' }}</span>
+      </div>
+      <div class="detail-row">
+        <label>Bank Account</label>
+        <span>{{ creditAdvice.bankAccount || '-' }}</span>
+      </div>
+      <div class="detail-row">
+        <label>Settlement ID</label>
+        <span class="id-cell">{{ creditAdvice.settlementId ? '#' + creditAdvice.settlementId : '-' }}</span>
+      </div>
+      <div class="detail-row">
+        <label>Remarks</label>
+        <span>{{ creditAdvice.remarks || '-' }}</span>
+      </div>
+      <div class="detail-row">
+        <label>Issued At</label>
+        <span>{{ formatDate(creditAdvice.issuedAt) }}</span>
+      </div>
+      <div class="detail-row">
+        <label>Created At</label>
+        <span>{{ formatDate(creditAdvice.createdAt) }}</span>
+      </div>
+    </div>
+  </div>
+</div>

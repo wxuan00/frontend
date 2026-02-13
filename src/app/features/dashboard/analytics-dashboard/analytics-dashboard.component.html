@@ -1,1 +1,151 @@
-<p>analytics-dashboard works!</p>
+<div class="page-container">
+  <!-- Welcome Banner -->
+  <div class="welcome-banner">
+    <div class="welcome-text">
+      <h1>Welcome back, {{ userName }}! 👋</h1>
+      <p>Here's what's happening with your portal today.</p>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-row">
+    @if (userRole === 'ADMIN') {
+      <div class="stat-card">
+        <div class="stat-icon blue">👥</div>
+        <div class="stat-info">
+          <h4>Total Users</h4>
+          <div class="stat-value">{{ totalUsers }}</div>
+        </div>
+      </div>
+    }
+
+    <div class="stat-card">
+      <div class="stat-icon green">🏢</div>
+      <div class="stat-info">
+        <h4>{{ userRole === 'ADMIN' ? 'Total Merchants' : 'My Merchants' }}</h4>
+        <div class="stat-value">{{ totalMerchants }}</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon orange">✅</div>
+      <div class="stat-info">
+        <h4>Active Merchants</h4>
+        <div class="stat-value">{{ activeMerchants }}</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon red">⏳</div>
+      <div class="stat-info">
+        <h4>Pending Approval</h4>
+        <div class="stat-value">{{ pendingMerchants }}</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon purple">💳</div>
+      <div class="stat-info">
+        <h4>{{ userRole === 'ADMIN' ? 'Total Transactions' : 'My Transactions' }}</h4>
+        <div class="stat-value">{{ totalTransactions }}</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon teal">📋</div>
+      <div class="stat-info">
+        <h4>{{ userRole === 'ADMIN' ? 'Total Settlements' : 'My Settlements' }}</h4>
+        <div class="stat-value">{{ totalSettlements }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Quick Actions</h3>
+    </div>
+    <div class="quick-actions">
+      @if (userRole === 'ADMIN') {
+        <a routerLink="/users" class="action-card">
+          <div class="action-icon blue">👥</div>
+          <span>Manage Users</span>
+        </a>
+        <a routerLink="/merchants" class="action-card">
+          <div class="action-icon green">🏢</div>
+          <span>View Merchants</span>
+        </a>
+        <a routerLink="/transactions" class="action-card">
+          <div class="action-icon orange">💳</div>
+          <span>View Transactions</span>
+        </a>
+        <a routerLink="/settlements" class="action-card">
+          <div class="action-icon teal">📋</div>
+          <span>View Settlements</span>
+        </a>
+        <a routerLink="/refunds" class="action-card">
+          <div class="action-icon red">↩️</div>
+          <span>View Refunds</span>
+        </a>
+      } @else {
+        <a routerLink="/merchants" class="action-card">
+          <div class="action-icon green">🏢</div>
+          <span>My Merchant</span>
+        </a>
+        <a routerLink="/transactions" class="action-card">
+          <div class="action-icon orange">💳</div>
+          <span>My Transactions</span>
+        </a>
+        <a routerLink="/settlements" class="action-card">
+          <div class="action-icon teal">📋</div>
+          <span>My Settlements</span>
+        </a>
+        <a routerLink="/refunds" class="action-card">
+          <div class="action-icon red">↩️</div>
+          <span>My Refunds</span>
+        </a>
+      }
+      <a routerLink="/profile" class="action-card">
+        <div class="action-icon purple">👤</div>
+        <span>My Profile</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Admin: Recent Users -->
+  @if (userRole === 'ADMIN' && recentUsers.length > 0) {
+    <div class="card">
+      <div class="card-header">
+        <h3>Recent Users</h3>
+        <a routerLink="/users" class="btn btn-sm btn-outline">View All →</a>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of recentUsers">
+            <td>
+              <strong>{{ user.firstName }} {{ user.lastName }}</strong>
+              <span *ngIf="!user.firstName">{{ user.displayName }}</span>
+            </td>
+            <td>{{ user.email }}</td>
+            <td><span class="badge badge-primary">{{ user.role }}</span></td>
+            <td>
+              <span class="badge" [ngClass]="{
+                'badge-success': user.status === 'ACTIVE',
+                'badge-danger': user.status === 'SUSPENDED' || user.status === 'INACTIVE',
+                'badge-warning': user.status === 'PENDING'
+              }">{{ user.status || 'Unknown' }}</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

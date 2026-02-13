@@ -1,1 +1,73 @@
-<p>refund-list works!</p>
+<div class="page-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <h1>Refund Inquiry</h1>
+      <div class="breadcrumb">Inquiries › Refunds</div>
+    </div>
+  </div>
+
+  <!-- Search & Filters -->
+  <div class="filter-row">
+    <div class="search-bar" style="flex:1; margin-bottom:0;">
+      <input
+        type="text"
+        placeholder="Search by Merchant Name, RRN..."
+        [(ngModel)]="searchTerm"
+        (keyup.enter)="search()"
+      >
+      <button (click)="search()" class="btn-search">🔍 Search</button>
+    </div>
+    <select class="form-control filter-select" [(ngModel)]="filterStatus" (change)="applyFilters()">
+      <option value="">All Statuses</option>
+      <option value="APPROVED">Approved</option>
+      <option value="PENDING">Pending</option>
+      <option value="DECLINED">Declined</option>
+    </select>
+  </div>
+
+  <!-- Table -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Refunds ({{ refunds.length }})</h3>
+    </div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Txn ID</th>
+          <th>Merchant</th>
+          <th>Amount</th>
+          <th>Card</th>
+          <th>RRN</th>
+          <th>Status</th>
+          <th>Date</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let r of refunds">
+          <td class="id-cell">#{{ r.id }}</td>
+          <td><strong>{{ r.merchantName }}</strong></td>
+          <td class="amount-cell refund-amount">{{ r.currency }} {{ r.amount | number:'1.2-2' }}</td>
+          <td>{{ r.cardBrand }} •••• {{ r.cardLast4 }}</td>
+          <td class="id-cell">{{ r.rrn || '-' }}</td>
+          <td>
+            <span class="badge" [ngClass]="{
+              'badge-success': r.status === 'APPROVED',
+              'badge-warning': r.status === 'PENDING',
+              'badge-danger': r.status === 'DECLINED'
+            }">{{ r.status }}</span>
+          </td>
+          <td class="date-cell">{{ formatDate(r.createdAt) }}</td>
+          <td>
+            <button (click)="viewDetails(r.id)" class="btn btn-sm btn-outline">View</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div *ngIf="refunds.length === 0" class="no-data">
+      No refund transactions found.
+    </div>
+  </div>
+</div>

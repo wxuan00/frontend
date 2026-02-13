@@ -1,0 +1,85 @@
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+.summary-card {
+  padding: 32px;
+  text-align: center;
+  background: #111;
+  color: #fff;
+}
+
+.summary-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.summary-amount {
+  font-size: 2rem;
+  font-weight: 800;
+  font-family: 'Courier New', monospace;
+}
+
+.summary-meta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.summary-date {
+  font-size: 0.85rem;
+  opacity: 0.7;
+}
+
+.detail-row {
+  display: flex;
+  padding: 14px 24px;
+  border-bottom: 1px solid #f0f1f5;
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+}
+
+.detail-row label {
+  width: 160px;
+  font-weight: 600;
+  font-size: 0.82rem;
+  color: #888;
+  flex-shrink: 0;
+}
+
+.detail-row span {
+  color: #1a1a1a;
+  font-size: 0.9rem;
+}
+
+.id-cell {
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+  color: #111;
+}
+
+.amount-cell {
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+}
+
+.refund-amount {
+  color: #e74c3c;
+}
+
+.breadcrumb a {
+  color: #111;
+  text-decoration: none;
+}
+
+.breadcrumb a:hover {
+  text-decoration: underline;
+}

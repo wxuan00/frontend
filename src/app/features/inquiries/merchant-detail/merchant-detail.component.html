@@ -1,1 +1,77 @@
-<p>merchant-detail works!</p>
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h1>Merchant Detail</h1>
+      <div class="breadcrumb">
+        <a routerLink="/merchants">Inquiries › Merchants</a> › #{{ merchantId }}
+      </div>
+    </div>
+    <div class="header-actions">
+      @if (isAdmin && merchant) {
+        <a [routerLink]="['/merchants', merchantId, 'edit']" class="btn btn-primary">✏️ Edit</a>
+      }
+      <a routerLink="/merchants" class="btn btn-secondary">← Back to List</a>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="no-data">Loading merchant details...</div>
+  <div *ngIf="!loading && !merchant" class="no-data">Merchant not found.</div>
+
+  <div *ngIf="merchant && !loading" class="detail-grid">
+    <!-- Merchant Identity Card -->
+    <div class="card merchant-identity">
+      <div class="identity-area">
+        <div class="avatar-large">{{ (merchant.businessName || 'M').charAt(0) }}</div>
+        <h2>{{ merchant.businessName }}</h2>
+        <span class="badge" [ngClass]="{
+          'badge-success': merchant.status === 'ACTIVE',
+          'badge-warning': merchant.status === 'PENDING',
+          'badge-danger': merchant.status === 'SUSPENDED'
+        }">{{ merchant.status }}</span>
+      </div>
+    </div>
+
+    <!-- Details Card -->
+    <div class="card">
+      <div class="card-header">
+        <h3>Business Information</h3>
+      </div>
+      <div class="detail-row">
+        <label>Merchant ID</label>
+        <span class="id-cell">#{{ merchant.id }}</span>
+      </div>
+      <div class="detail-row">
+        <label>Business Name</label>
+        <span>{{ merchant.businessName }}</span>
+      </div>
+      <div class="detail-row">
+        <label>Registration No.</label>
+        <span>{{ merchant.businessRegistrationNumber || '-' }}</span>
+      </div>
+      <div class="detail-row">
+        <label>Email</label>
+        <span>{{ merchant.email || '-' }}</span>
+      </div>
+      <div class="detail-row">
+        <label>Phone</label>
+        <span>{{ merchant.phoneNumber || '-' }}</span>
+      </div>
+      <div class="detail-row">
+        <label>Address</label>
+        <span>{{ merchant.address || '-' }}</span>
+      </div>
+      <div class="detail-row">
+        <label>Status</label>
+        <span class="badge" [ngClass]="{
+          'badge-success': merchant.status === 'ACTIVE',
+          'badge-warning': merchant.status === 'PENDING',
+          'badge-danger': merchant.status === 'SUSPENDED'
+        }">{{ merchant.status }}</span>
+      </div>
+      <div class="detail-row">
+        <label>Joined At</label>
+        <span>{{ merchant.joinedAt ? (merchant.joinedAt | date:'medium') : '-' }}</span>
+      </div>
+    </div>
+  </div>
+</div>

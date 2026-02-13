@@ -1,0 +1,32 @@
+.filter-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.filter-select {
+  width: 180px;
+  flex-shrink: 0;
+}
+
+.id-cell {
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+  color: #111;
+}
+
+.amount-cell {
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+}
+
+.refund-amount {
+  color: #e74c3c;
+}
+
+.date-cell {
+  color: #888;
+  font-size: 0.82rem;
+  white-space: nowrap;
+}

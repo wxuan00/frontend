@@ -1,0 +1,66 @@
+.welcome-banner {
+  background: #111;
+  border-radius: 8px;
+  padding: 32px 36px;
+  margin-bottom: 24px;
+  color: #fff;
+}
+
+.welcome-text h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.welcome-text p {
+  font-size: 0.9rem;
+  opacity: 0.65;
+}
+
+/* Quick Actions */
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+}
+
+.action-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 24px 16px;
+  background: #fafafa;
+  border-radius: 8px;
+  border: 1px solid #e5e5e5;
+  transition: all 0.2s;
+  cursor: pointer;
+  text-decoration: none;
+  color: #333;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.action-card:hover {
+  background: #f0f0f0;
+  border-color: #111;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.action-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+}
+
+.action-icon.blue { background: #f0f0f0; }
+.action-icon.green { background: #f0f0f0; }
+.action-icon.orange { background: #f0f0f0; }
+.action-icon.purple { background: #f0f0f0; }
+.action-icon.teal { background: #f0f0f0; }
+.action-icon.red { background: #f0f0f0; }

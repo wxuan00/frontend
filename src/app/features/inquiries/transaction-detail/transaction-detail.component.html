@@ -1,1 +1,79 @@
-<p>transaction-detail works!</p>
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h1>Transaction Detail</h1>
+      <div class="breadcrumb">
+        <a routerLink="/transactions">Inquiries › Transactions</a> › #{{ transactionId }}
+      </div>
+    </div>
+    <a routerLink="/transactions" class="btn btn-secondary">← Back to List</a>
+  </div>
+
+  <div *ngIf="loading" class="no-data">Loading transaction...</div>
+  <div *ngIf="!loading && !transaction" class="no-data">Transaction not found.</div>
+
+  <div *ngIf="transaction && !loading" class="detail-grid">
+    <!-- Transaction Summary Card -->
+    <div class="card summary-card">
+      <div class="summary-header">
+        <div class="summary-amount">{{ transaction.currency }} {{ transaction.amount | number:'1.2-2' }}</div>
+        <span class="badge" [ngClass]="{
+          'badge-success': transaction.status === 'APPROVED',
+          'badge-warning': transaction.status === 'PENDING',
+          'badge-danger': transaction.status === 'DECLINED'
+        }">{{ transaction.status }}</span>
+      </div>
+      <div class="summary-meta">
+        <span class="badge" [ngClass]="{
+          'badge-info': transaction.type === 'SALE',
+          'badge-warning': transaction.type === 'REFUND',
+          'badge-danger': transaction.type === 'VOID'
+        }">{{ transaction.type }}</span>
+        <span class="summary-date">{{ formatDate(transaction.createdAt) }}</span>
+      </div>
+    </div>
+
+    <!-- Details Card -->
+    <div class="card">
+      <div class="card-header">
+        <h3>Transaction Information</h3>
+      </div>
+      <div class="detail-row">
+        <label>Transaction ID</label>
+        <span class="id-cell">#{{ transaction.id }}</span>
+      </div>
+      <div class="detail-row">
+        <label>Merchant</label>
+        <span>{{ transaction.merchantName }}</span>
+      </div>
+      <div class="detail-row">
+        <label>Type</label>
+        <span>{{ transaction.type }}</span>
+      </div>
+      <div class="detail-row">
+        <label>Amount</label>
+        <span>{{ transaction.currency }} {{ transaction.amount | number:'1.2-2' }}</span>
+      </div>
+      <div class="detail-row">
+        <label>Card</label>
+        <span>{{ transaction.cardBrand }} •••• {{ transaction.cardLast4 }}</span>
+      </div>
+      <div class="detail-row">
+        <label>Auth Code</label>
+        <span>{{ transaction.authCode || '-' }}</span>
+      </div>
+      <div class="detail-row">
+        <label>RRN</label>
+        <span class="id-cell">{{ transaction.rrn }}</span>
+      </div>
+      <div class="detail-row">
+        <label>Created At</label>
+        <span>{{ formatDate(transaction.createdAt) }}</span>
+      </div>
+      <div class="detail-row">
+        <label>Settled At</label>
+        <span>{{ formatDate(transaction.settledAt) }}</span>
+      </div>
+    </div>
+  </div>
+</div>

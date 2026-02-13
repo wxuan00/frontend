@@ -1,1 +1,82 @@
-<p>user-form works!</p>
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h1>{{ isEditMode ? 'Edit User' : 'Create User' }}</h1>
+      <div class="breadcrumb">Administration › Users › {{ isEditMode ? 'Edit' : 'New' }}</div>
+    </div>
+    <a routerLink="/users" class="btn btn-secondary">← Back to Users</a>
+  </div>
+
+  <div class="card" style="max-width:700px;">
+    <div class="card-header">
+      <h3>{{ isEditMode ? 'Update User Information' : 'New User Details' }}</h3>
+    </div>
+
+    <form (ngSubmit)="onSubmit()">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>First Name *</label>
+          <input type="text" class="form-control" [(ngModel)]="formData.firstName" name="firstName" placeholder="Enter first name" required>
+        </div>
+
+        <div class="form-group">
+          <label>Last Name *</label>
+          <input type="text" class="form-control" [(ngModel)]="formData.lastName" name="lastName" placeholder="Enter last name" required>
+        </div>
+
+        <div class="form-group">
+          <label>Display Name</label>
+          <input type="text" class="form-control" [(ngModel)]="formData.displayName" name="displayName" placeholder="Optional display name">
+        </div>
+
+        <div class="form-group">
+          <label>Email Address *</label>
+          <input type="email" class="form-control" [(ngModel)]="formData.email" name="email" placeholder="user@example.com" [readonly]="isEditMode" required>
+        </div>
+
+        <div class="form-group">
+          <label>Phone Number</label>
+          <input type="tel" class="form-control" [(ngModel)]="formData.phoneNumber" name="phoneNumber" placeholder="+60 12-345 6789">
+        </div>
+
+        <div class="form-group">
+          <label>{{ isEditMode ? 'New Password (leave blank to keep)' : 'Password *' }}</label>
+          <input type="password" class="form-control" [(ngModel)]="formData.password" name="password" placeholder="Enter password" [required]="!isEditMode">
+        </div>
+
+        <div class="form-group">
+          <label>Role *</label>
+          <select class="form-control" [(ngModel)]="formData.role" name="role">
+            <option value="MERCHANT">Merchant User</option>
+            <option value="ADMIN">Admin User</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Status *</label>
+          <select class="form-control" [(ngModel)]="formData.status" name="status">
+            <option value="ACTIVE">Active</option>
+            <option value="INACTIVE">Inactive</option>
+            <option value="SUSPENDED">Suspended</option>
+          </select>
+        </div>
+
+        <div class="form-group" *ngIf="formData.role === 'MERCHANT'">
+          <label>Linked Merchant</label>
+          <select class="form-control" [(ngModel)]="formData.merchantId" name="merchantId">
+            <option [ngValue]="null">— No merchant linked —</option>
+            <option *ngFor="let m of merchants" [ngValue]="m.id">{{ m.businessName }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" (click)="cancel()" class="btn btn-secondary">Cancel</button>
+        <button type="submit" class="btn btn-primary">{{ isEditMode ? 'Save Changes' : 'Create User' }}</button>
+      </div>
+    </form>
+
+    <p *ngIf="message" class="success-msg">✅ {{ message }}</p>
+    <p *ngIf="errorMessage" class="error-msg">⚠️ {{ errorMessage }}</p>
+  </div>
+</div>
