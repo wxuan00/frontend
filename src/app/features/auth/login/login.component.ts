@@ -216,9 +216,16 @@ export class LoginComponent {
     
     this.authService.login(credentials).subscribe({
       next: (res) => {
-        localStorage.setItem('token', res.token);
-        localStorage.setItem('role', res.role);
-        this.router.navigate(['/dashboard']);
+        this.loading = false;
+        
+        // Check if MFA is required
+        if (res.mfaRequired) {
+          // Token is already saved by the service, redirect to MFA
+          this.router.navigate(['/mfa']);
+        } else {
+          // No MFA required, go to dashboard
+          this.router.navigate(['/dashboard']);
+        }
       },
       error: (err) => {
         this.loading = false;

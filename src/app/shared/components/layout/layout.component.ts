@@ -2,13 +2,14 @@ import { Component } from '@angular/core';
 import { SidebarComponent } from '../sidebar/sidebar.component';
 import { HeaderComponent } from '../header/header.component';
 import { FooterComponent } from '../footer/footer.component';
+import { ToastComponent } from '../toast/toast.component';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [CommonModule, RouterModule, SidebarComponent, HeaderComponent, FooterComponent],
+  imports: [CommonModule, RouterModule, SidebarComponent, HeaderComponent, FooterComponent, ToastComponent],
   template: `
     <div class="app-container">
       <app-sidebar></app-sidebar>
@@ -20,6 +21,7 @@ import { RouterModule } from '@angular/router';
         <app-footer></app-footer>
       </div>
     </div>
+    <app-toast></app-toast>
   `,
   styleUrls: ['./layout.component.css']
 })

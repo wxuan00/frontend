@@ -87,6 +87,10 @@
           <div class="action-icon red">↩️</div>
           <span>View Refunds</span>
         </a>
+        <a routerLink="/reports" class="action-card">
+          <div class="action-icon purple">📊</div>
+          <span>View Reports</span>
+        </a>
       } @else {
         <a routerLink="/merchants" class="action-card">
           <div class="action-icon green">🏢</div>
@@ -104,6 +108,10 @@
           <div class="action-icon red">↩️</div>
           <span>My Refunds</span>
         </a>
+        <a routerLink="/reports" class="action-card">
+          <div class="action-icon teal">📊</div>
+          <span>My Reports</span>
+        </a>
       }
       <a routerLink="/profile" class="action-card">
         <div class="action-icon purple">👤</div>
@@ -111,6 +119,82 @@
       </a>
     </div>
   </div>
+
+  <!-- Charts Section -->
+  <div class="section-header">
+    <h2>📊 Analytics</h2>
+  </div>
+
+  @if (chartsLoading) {
+    <div class="charts-loading">
+      <div class="spinner"></div>
+      <p>Loading charts...</p>
+    </div>
+  }
+
+  @if (!chartsLoading && chartData) {
+    <!-- Row 1: Daily Volume (wide) + Transaction Status -->
+    <div class="chart-row">
+      <div class="chart-card chart-wide">
+        <div class="chart-card-header">
+          <h3>Transaction Volume (Last 7 Days)</h3>
+        </div>
+        <div class="chart-body">
+          <canvas #dailyVolumeChart></canvas>
+        </div>
+      </div>
+      <div class="chart-card chart-small">
+        <div class="chart-card-header">
+          <h3>Transaction Status</h3>
+        </div>
+        <div class="chart-body">
+          <canvas #txnStatusChart></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 2: Amount by Currency + Payment Channel -->
+    <div class="chart-row">
+      <div class="chart-card chart-wide">
+        <div class="chart-card-header">
+          <h3>Amount by Currency</h3>
+        </div>
+        <div class="chart-body">
+          <canvas #amountByCurrencyChart></canvas>
+        </div>
+      </div>
+      <div class="chart-card chart-small">
+        <div class="chart-card-header">
+          <h3>Payment Channel Distribution</h3>
+        </div>
+        <div class="chart-body">
+          <canvas #paymentChannelChart></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 3: Top Merchants (admin) + Settlement Status -->
+    <div class="chart-row">
+      @if (userRole === 'ADMIN' && chartData.topMerchants) {
+        <div class="chart-card chart-wide">
+          <div class="chart-card-header">
+            <h3>Top 5 Merchants by Volume</h3>
+          </div>
+          <div class="chart-body">
+            <canvas #topMerchantsChart></canvas>
+          </div>
+        </div>
+      }
+      <div class="chart-card" [ngClass]="userRole === 'ADMIN' && chartData.topMerchants ? 'chart-small' : 'chart-full'">
+        <div class="chart-card-header">
+          <h3>Settlement Types</h3>
+        </div>
+        <div class="chart-body">
+          <canvas #settlementTypesChart></canvas>
+        </div>
+      </div>
+    </div>
+  }
 
   <!-- Admin: Recent Users -->
   @if (userRole === 'ADMIN' && recentUsers.length > 0) {
@@ -148,4 +232,24 @@
       </table>
     </div>
   }
+
+  <!-- AI Insights Section -->
+  <div class="card">
+    <div class="card-header">
+      <h3>🤖 AI-Powered Insights</h3>
+    </div>
+    <div *ngIf="insightsLoading" class="no-data">Analyzing data...</div>
+    <div *ngIf="!insightsLoading && insights.length === 0" class="no-data">No insights available yet.</div>
+    <div *ngIf="!insightsLoading && insights.length > 0" class="insights-list">
+      <div *ngFor="let insight of insights" class="insight-card" [ngClass]="{
+        'insight-success': insight.severity === 'success',
+        'insight-warning': insight.severity === 'warning',
+        'insight-danger': insight.severity === 'danger',
+        'insight-info': insight.severity === 'info'
+      }">
+        <div class="insight-title">{{ insight.title }}</div>
+        <div class="insight-message">{{ insight.message }}</div>
+      </div>
+    </div>
+  </div>
 </div>

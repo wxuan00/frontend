@@ -6,27 +6,49 @@
         <a routerLink="/settlements">Inquiries › Settlements</a> › #{{ settlementId }}
       </div>
     </div>
-    <a routerLink="/settlements" class="btn btn-secondary">← Back to List</a>
+    <div class="header-actions">
+      <button (click)="printDetail()" class="btn btn-ghost">🖨️ Print</button>
+      <a routerLink="/settlements" class="btn btn-secondary">← Back to List</a>
+    </div>
   </div>
 
-  <div *ngIf="loading" class="no-data">Loading settlement...</div>
-  <div *ngIf="!loading && !settlement" class="no-data">Settlement not found.</div>
+  @if (loading) {
+    <div class="detail-grid">
+      <div class="card summary-card skeleton-summary">
+        <div class="skeleton-line" style="width:200px;height:32px;margin:0 auto 12px;"></div>
+        <div class="skeleton-line" style="width:80px;height:24px;margin:0 auto;"></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="skeleton-line" style="width:180px;height:18px;"></div></div>
+        @for (i of [1,2,3,4,5,6,7,8,9,10]; track i) {
+          <div class="detail-row">
+            <label><div class="skeleton-line" style="width:100px;height:14px;"></div></label>
+            <span><div class="skeleton-line" style="width:160px;height:14px;"></div></span>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  @if (!loading && !settlement) {
+    <div class="card" style="padding:48px;text-align:center;">
+      <div style="font-size:3rem;margin-bottom:12px;">🔍</div>
+      <h3 style="color:#888;">Settlement Not Found</h3>
+      <p style="color:#aaa;margin:8px 0 20px;">The settlement #{{ settlementId }} could not be found.</p>
+      <a routerLink="/settlements" class="btn btn-primary">← Back to Settlements</a>
+    </div>
+  }
 
   <div *ngIf="settlement && !loading" class="detail-grid">
     <!-- Settlement Summary Card -->
     <div class="card summary-card">
       <div class="summary-header">
-        <div class="summary-amount">{{ settlement.currency }} {{ settlement.netAmount | number:'1.2-2' }}</div>
-        <span class="badge" [ngClass]="{
-          'badge-warning': settlement.status === 'PENDING',
-          'badge-info': settlement.status === 'PROCESSED',
-          'badge-success': settlement.status === 'PAID',
-          'badge-danger': settlement.status === 'FAILED'
-        }">{{ settlement.status }}</span>
+        <div class="summary-amount">{{ settlement.currency }} {{ settlement.settlementAmount | number:'1.2-2' }}</div>
+        <span class="badge badge-info">{{ settlement.settlementType }}</span>
       </div>
       <div class="summary-meta">
-        <span class="summary-label">Net Settlement Amount</span>
-        <span class="summary-date">{{ formatDate(settlement.createdAt) }}</span>
+        <span class="summary-label">Settlement Amount</span>
+        <span class="summary-date">{{ formatDate(settlement.settlementDate) }}</span>
       </div>
     </div>
 
@@ -37,47 +59,35 @@
       </div>
       <div class="detail-row">
         <label>Settlement ID</label>
-        <span class="id-cell">#{{ settlement.id }}</span>
+        <span class="id-cell">#{{ settlement.settlementId }}</span>
       </div>
       <div class="detail-row">
-        <label>Settlement Ref</label>
-        <span class="id-cell">{{ settlement.settlementRef || '-' }}</span>
+        <label>Settlement No</label>
+        <span class="id-cell">{{ settlement.settlementNo || '-' }}</span>
       </div>
       <div class="detail-row">
         <label>Merchant</label>
-        <span>{{ settlement.merchantName }}</span>
+        <span>{{ settlement.merchantName || '-' }}</span>
       </div>
       <div class="detail-row">
-        <label>Total Amount</label>
-        <span class="amount-cell">{{ settlement.currency }} {{ settlement.totalAmount | number:'1.2-2' }}</span>
+        <label>Settlement Type</label>
+        <span>{{ settlement.settlementType || '-' }}</span>
       </div>
       <div class="detail-row">
-        <label>Fee Amount</label>
-        <span class="amount-cell fee-cell">{{ settlement.currency }} {{ settlement.feeAmount | number:'1.2-2' }}</span>
+        <label>Settlement Amount</label>
+        <span class="amount-cell">{{ settlement.currency }} {{ settlement.settlementAmount | number:'1.2-2' }}</span>
       </div>
       <div class="detail-row">
-        <label>Net Amount</label>
-        <span class="amount-cell net-cell">{{ settlement.currency }} {{ settlement.netAmount | number:'1.2-2' }}</span>
+        <label>Payment Amount</label>
+        <span class="amount-cell">{{ settlement.currency }} {{ settlement.paymentAmount | number:'1.2-2' }}</span>
       </div>
       <div class="detail-row">
-        <label>Transaction Count</label>
-        <span>{{ settlement.transactionCount || '-' }}</span>
+        <label>Credit Advice ID</label>
+        <span>{{ settlement.creditAdviceId || '-' }}</span>
       </div>
       <div class="detail-row">
-        <label>Period Start</label>
-        <span>{{ formatDate(settlement.periodStart) }}</span>
-      </div>
-      <div class="detail-row">
-        <label>Period End</label>
-        <span>{{ formatDate(settlement.periodEnd) }}</span>
-      </div>
-      <div class="detail-row">
-        <label>Settled At</label>
-        <span>{{ formatDate(settlement.settledAt) }}</span>
-      </div>
-      <div class="detail-row">
-        <label>Created At</label>
-        <span>{{ formatDate(settlement.createdAt) }}</span>
+        <label>Settlement Date</label>
+        <span>{{ formatDate(settlement.settlementDate) }}</span>
       </div>
     </div>
   </div>

@@ -18,7 +18,8 @@ export class RoleFormComponent implements OnInit {
   errorMessage = '';
 
   formData = {
-    name: '',
+    roleName: '',
+    roleType: '',
     description: ''
   };
 
@@ -35,7 +36,7 @@ export class RoleFormComponent implements OnInit {
       this.roleId = +idParam;
       this.roleService.getRoleById(this.roleId).subscribe({
         next: (role) => {
-          this.formData = { name: role.name, description: role.description || '' };
+          this.formData = { roleName: role.roleName, roleType: role.roleType || '', description: role.description || '' };
         },
         error: () => this.errorMessage = 'Error loading role'
       });

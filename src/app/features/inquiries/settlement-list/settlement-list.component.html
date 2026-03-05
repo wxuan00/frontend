@@ -1,77 +1,96 @@
 <div class="page-container">
-  <!-- Page Header -->
   <div class="page-header">
     <div>
       <h1>Settlement Inquiry</h1>
       <div class="breadcrumb">Inquiries › Settlements</div>
     </div>
+    <div class="header-actions">
+      <button class="btn btn-sm btn-ghost" (click)="clearFilters()">✕ Clear Filters</button>
+    </div>
   </div>
 
-  <!-- Search & Filters -->
   <div class="filter-row">
-    <div class="search-bar" style="flex:1; margin-bottom:0;">
-      <input
-        type="text"
-        placeholder="Search by Merchant Name, Settlement Ref..."
-        [(ngModel)]="searchTerm"
-        (keyup.enter)="search()"
-      >
+    <div class="search-bar">
+      <input type="text" placeholder="Search by Merchant Name, Settlement Ref..." [(ngModel)]="searchTerm" (keyup.enter)="search()">
       <button (click)="search()" class="btn-search">🔍 Search</button>
     </div>
     <select class="form-control filter-select" [(ngModel)]="filterStatus" (change)="applyFilters()">
-      <option value="">All Statuses</option>
-      <option value="PENDING">Pending</option>
-      <option value="PROCESSED">Processed</option>
-      <option value="PAID">Paid</option>
-      <option value="FAILED">Failed</option>
+      <option value="">All Types</option>
+      <option value="NORMAL">Normal</option>
+      <option value="ADJUSTMENT">Adjustment</option>
+      <option value="CHARGEBACK">Chargeback</option>
     </select>
   </div>
 
-  <!-- Table -->
-  <div class="card">
-    <div class="card-header">
-      <h3>Settlements ({{ settlements.length }})</h3>
-    </div>
-    <table class="data-table">
-      <thead>
-        <tr>
-          <th>Ref</th>
-          <th>Merchant</th>
-          <th>Total Amount</th>
-          <th>Fee</th>
-          <th>Net Amount</th>
-          <th>Txn Count</th>
-          <th>Period</th>
-          <th>Status</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let s of settlements">
-          <td class="id-cell">{{ s.settlementRef || '#' + s.id }}</td>
-          <td><strong>{{ s.merchantName }}</strong></td>
-          <td class="amount-cell">{{ s.currency }} {{ s.totalAmount | number:'1.2-2' }}</td>
-          <td class="amount-cell fee-cell">{{ s.currency }} {{ s.feeAmount | number:'1.2-2' }}</td>
-          <td class="amount-cell net-cell">{{ s.currency }} {{ s.netAmount | number:'1.2-2' }}</td>
-          <td>{{ s.transactionCount || '-' }}</td>
-          <td class="date-cell">{{ formatDate(s.periodStart) }} – {{ formatDate(s.periodEnd) }}</td>
-          <td>
-            <span class="badge" [ngClass]="{
-              'badge-warning': s.status === 'PENDING',
-              'badge-info': s.status === 'PROCESSED',
-              'badge-success': s.status === 'PAID',
-              'badge-danger': s.status === 'FAILED'
-            }">{{ s.status }}</span>
-          </td>
-          <td>
-            <button (click)="viewDetails(s.id)" class="btn btn-sm btn-outline">View</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-
-    <div *ngIf="settlements.length === 0" class="no-data">
-      No settlements found.
-    </div>
+  <div class="filter-row date-row">
+    <label class="date-label">Date Range:</label>
+    <input type="date" class="form-control date-input" [(ngModel)]="dateFrom" (change)="applyFilters()">
+    <span class="date-separator">to</span>
+    <input type="date" class="form-control date-input" [(ngModel)]="dateTo" (change)="applyFilters()">
   </div>
+
+  @if (loading) {
+    <div class="card">
+      <div class="skeleton-table">
+        @for (row of [1,2,3,4,5,6,7,8]; track row) {
+          <div class="skeleton-row">
+            <div class="skeleton-cell short"></div>
+            <div class="skeleton-cell medium"></div>
+            <div class="skeleton-cell medium"></div>
+            <div class="skeleton-cell short"></div>
+            <div class="skeleton-cell medium"></div>
+            <div class="skeleton-cell short"></div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  @if (!loading) {
+    <div class="card">
+      <div class="card-header">
+        <h3>Settlements ({{ filteredSettlements.length }})</h3>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th class="sortable" (click)="sortBy('settlementNo')">Settlement No {{ getSortIcon('settlementNo') }}</th>
+            <th class="sortable" (click)="sortBy('merchantName')">Merchant {{ getSortIcon('merchantName') }}</th>
+            <th class="sortable" (click)="sortBy('settlementType')">Type {{ getSortIcon('settlementType') }}</th>
+            <th class="sortable" (click)="sortBy('settlementAmount')">Settlement Amt {{ getSortIcon('settlementAmount') }}</th>
+            <th>Payment Amt</th>
+            <th class="sortable" (click)="sortBy('settlementDate')">Date {{ getSortIcon('settlementDate') }}</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (s of pagedSettlements; track s.settlementId) {
+            <tr>
+              <td class="id-cell">{{ s.settlementNo || '#' + s.settlementId }}</td>
+              <td><strong>{{ s.merchantName || '-' }}</strong></td>
+              <td><span class="badge badge-info">{{ s.settlementType }}</span></td>
+              <td class="amount-cell">{{ s.currency }} {{ s.settlementAmount | number:'1.2-2' }}</td>
+              <td class="amount-cell">{{ s.currency }} {{ s.paymentAmount | number:'1.2-2' }}</td>
+              <td class="date-cell">{{ formatDate(s.settlementDate!) }}</td>
+              <td>
+                <button (click)="viewDetails(s.settlementId)" class="btn btn-sm btn-outline">View</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      <div *ngIf="filteredSettlements.length === 0" class="no-data">
+        No settlements found.
+      </div>
+
+      <app-pagination
+        [currentPage]="currentPage"
+        [pageSize]="pageSize"
+        [totalItems]="filteredSettlements.length"
+        (pageChange)="onPageChange($event)"
+        (pageSizeChange)="onPageSizeChange($event)">
+      </app-pagination>
+    </div>
+  }
 </div>

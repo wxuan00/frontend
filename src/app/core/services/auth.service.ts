@@ -11,7 +11,7 @@ export class AuthService {
 
   constructor(private http: HttpClient) { }
 
-  // 1. Login Method
+  // 1. Login Method - now handles MFA flow
   login(credentials: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/login`, credentials).pipe(
       tap((response: any) => {
@@ -19,9 +19,29 @@ export class AuthService {
         if (response && response.token) {
           localStorage.setItem('token', response.token);
           localStorage.setItem('role', response.role);
+          
+          // Check if MFA is required
+          if (response.mfaRequired) {
+            sessionStorage.setItem('mfa_pending', 'true');
+          }
         }
       })
     );
+  }
+
+  // MFA verification
+  verifyMfa(code: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/mfa/verify`, { code });
+  }
+
+  // Check if MFA verification is pending
+  isMfaPending(): boolean {
+    return sessionStorage.getItem('mfa_pending') === 'true';
+  }
+
+  // Clear MFA pending status
+  clearMfaPending(): void {
+    sessionStorage.removeItem('mfa_pending');
   }
 
   // 3. Helper to get the token later
@@ -71,6 +91,28 @@ export class AuthService {
     return this.http.put('http://localhost:8080/api/profile/password', passwords);
   }
 
+  // ============ MFA Setup Methods ============
+
+  // Get MFA status
+  getMfaStatus(): Observable<any> {
+    return this.http.get('http://localhost:8080/api/profile/mfa/status');
+  }
+
+  // Generate MFA setup (secret + QR code)
+  setupMfa(): Observable<any> {
+    return this.http.post('http://localhost:8080/api/profile/mfa/setup', {});
+  }
+
+  // Enable MFA with secret and verification code
+  enableMfa(secret: string, code: string): Observable<any> {
+    return this.http.post('http://localhost:8080/api/profile/mfa/enable', { secret, code });
+  }
+
+  // Disable MFA
+  disableMfa(password: string, code: string): Observable<any> {
+    return this.http.post('http://localhost:8080/api/profile/mfa/disable', { password, code });
+  }
+
   // Helper method to get user role from localStorage
   getUserRole(): string {
     if (typeof localStorage !== 'undefined') {
@@ -88,5 +130,6 @@ export class AuthService {
   logout(): void {
     localStorage.removeItem('token');
     localStorage.removeItem('role');
+    sessionStorage.removeItem('mfa_pending');
   }
 }

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MerchantService } from '../../../core/services/merchant.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
   selector: 'app-merchant-form',
@@ -18,18 +19,21 @@ export class MerchantFormComponent implements OnInit {
   errorMessage = '';
 
   formData: any = {
-    businessName: '',
-    businessRegistrationNumber: '',
-    email: '',
-    phoneNumber: '',
-    address: '',
+    merchantName: '',
+    contact: '',
+    addressLine1: '',
+    addressLine2: '',
+    postcode: '',
+    city: '',
+    country: 'Malaysia',
     status: 'ACTIVE'
   };
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private merchantService: MerchantService
+    private merchantService: MerchantService,
+    private toast: ToastService
   ) {}
 
   ngOnInit(): void {
@@ -41,11 +45,13 @@ export class MerchantFormComponent implements OnInit {
         next: (merchant) => {
           if (merchant) {
             this.formData = {
-              businessName: merchant.businessName || '',
-              businessRegistrationNumber: merchant.businessRegistrationNumber || '',
-              email: merchant.email || '',
-              phoneNumber: merchant.phoneNumber || '',
-              address: merchant.address || '',
+              merchantName: merchant.merchantName || '',
+              contact: merchant.contact || '',
+              addressLine1: merchant.addressLine1 || '',
+              addressLine2: merchant.addressLine2 || '',
+              postcode: merchant.postcode || '',
+              city: merchant.city || '',
+              country: merchant.country || 'Malaysia',
               status: merchant.status || 'ACTIVE'
             };
           }
@@ -56,24 +62,21 @@ export class MerchantFormComponent implements OnInit {
   }
 
   onSubmit() {
-    this.message = '';
-    this.errorMessage = '';
-
     if (this.isEditMode && this.merchantId) {
       this.merchantService.updateMerchant(this.merchantId, this.formData).subscribe({
         next: () => {
-          this.message = 'Merchant updated successfully';
+          this.toast.success('Merchant updated successfully');
           setTimeout(() => this.router.navigate(['/merchants', this.merchantId]), 1000);
         },
-        error: (err) => this.errorMessage = err.error?.message || 'Error updating merchant'
+        error: (err) => this.toast.error(err.error?.message || 'Error updating merchant')
       });
     } else {
       this.merchantService.createMerchant(this.formData).subscribe({
         next: () => {
-          this.message = 'Merchant created successfully';
+          this.toast.success('Merchant created successfully');
           setTimeout(() => this.router.navigate(['/merchants']), 1000);
         },
-        error: (err) => this.errorMessage = err.error?.message || 'Error creating merchant'
+        error: (err) => this.toast.error(err.error?.message || 'Error creating merchant')
       });
     }
   }

@@ -29,50 +29,100 @@
     </select>
   </div>
 
+  <!-- Loading Skeleton -->
+  @if (loading) {
+    <div class="card">
+      <div class="skeleton-table">
+        @for (i of [1,2,3,4,5,6]; track i) {
+          <div class="skeleton-row">
+            <div class="skeleton-cell short"></div>
+            <div class="skeleton-cell medium"></div>
+            <div class="skeleton-cell medium"></div>
+            <div class="skeleton-cell medium"></div>
+            <div class="skeleton-cell short"></div>
+            <div class="skeleton-cell short"></div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
   <!-- Table -->
-  <div class="card">
-    <div class="card-header">
-      <h3>Merchants ({{ merchants.length }})</h3>
+  @if (!loading) {
+    <div class="card">
+      <div class="card-header">
+        <h3>Merchants ({{ pagination.totalItems }})</h3>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th class="sortable" (click)="sort('merchantId')">
+              ID
+              <span class="sort-icon">{{ sortColumn === 'merchantId' ? (sortDirection === 'asc' ? '▲' : '▼') : '⇅' }}</span>
+            </th>
+            <th class="sortable" (click)="sort('merchantName')">
+              Merchant Name
+              <span class="sort-icon">{{ sortColumn === 'merchantName' ? (sortDirection === 'asc' ? '▲' : '▼') : '⇅' }}</span>
+            </th>
+            <th>Contact</th>
+            <th class="sortable" (click)="sort('city')">
+              City
+              <span class="sort-icon">{{ sortColumn === 'city' ? (sortDirection === 'asc' ? '▲' : '▼') : '⇅' }}</span>
+            </th>
+            <th class="sortable" (click)="sort('status')">
+              Status
+              <span class="sort-icon">{{ sortColumn === 'status' ? (sortDirection === 'asc' ? '▲' : '▼') : '⇅' }}</span>
+            </th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let m of merchants">
+            <td class="id-cell">#{{ m.merchantId }}</td>
+            <td><strong>{{ m.merchantName }}</strong></td>
+            <td>{{ m.contact || '-' }}</td>
+            <td>{{ m.city || '-' }}</td>
+            <td>
+              <span class="badge" [ngClass]="{
+                'badge-success': m.status === 'ACTIVE',
+                'badge-warning': m.status === 'PENDING',
+                'badge-danger': m.status === 'SUSPENDED'
+              }">{{ m.status }}</span>
+            </td>
+            <td>
+              <div class="action-btns">
+                <button (click)="viewDetails(m.merchantId)" class="btn btn-sm btn-outline">View</button>
+                @if (isAdmin) {
+                  <button (click)="editMerchant(m.merchantId)" class="btn btn-sm btn-outline">Edit</button>
+                  <button (click)="deleteMerchant(m.merchantId, m.merchantName)" class="btn btn-sm btn-danger">Delete</button>
+                }
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      
+      <div *ngIf="merchants.length === 0" class="no-data">
+        No merchants found.
+      </div>
+
+      <app-pagination
+        [currentPage]="pagination.currentPage"
+        [pageSize]="pagination.pageSize"
+        [totalItems]="pagination.totalItems"
+        (pageChange)="onPageChange($event)"
+        (pageSizeChange)="onPageSizeChange($event)">
+      </app-pagination>
     </div>
-    <table class="data-table">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Business Name</th>
-          <th>Reg No.</th>
-          <th>Email</th>
-          <th>Status</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let m of merchants">
-          <td class="id-cell">#{{ m.id }}</td>
-          <td><strong>{{ m.businessName }}</strong></td>
-          <td>{{ m.businessRegistrationNumber }}</td>
-          <td>{{ m.email }}</td>
-          <td>
-            <span class="badge" [ngClass]="{
-              'badge-success': m.status === 'ACTIVE',
-              'badge-warning': m.status === 'PENDING',
-              'badge-danger': m.status === 'SUSPENDED'
-            }">{{ m.status }}</span>
-          </td>
-          <td>
-            <div class="action-btns">
-              <button (click)="viewDetails(m.id)" class="btn btn-sm btn-outline">View</button>
-              @if (isAdmin) {
-                <button (click)="editMerchant(m.id)" class="btn btn-sm btn-outline">Edit</button>
-                <button (click)="deleteMerchant(m.id, m.businessName)" class="btn btn-sm btn-danger">Delete</button>
-              }
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    
-    <div *ngIf="merchants.length === 0" class="no-data">
-      No merchants found.
-    </div>
-  </div>
+  }
+
+  <app-confirm-dialog
+    [visible]="showDeleteDialog"
+    title="Delete Merchant"
+    [message]="'Are you sure you want to delete merchant \'' + deleteTargetName + '\'? This action cannot be undone.'"
+    confirmText="Delete"
+    type="danger"
+    (confirmed)="confirmDeleteMerchant()"
+    (cancelled)="cancelDeleteMerchant()">
+  </app-confirm-dialog>
 </div>

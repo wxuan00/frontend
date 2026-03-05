@@ -35,8 +35,8 @@
         </div>
 
         <div class="form-group">
-          <label>Phone Number</label>
-          <input type="tel" class="form-control" [(ngModel)]="formData.phoneNumber" name="phoneNumber" placeholder="+60 12-345 6789">
+          <label>Contact Number</label>
+          <input type="tel" class="form-control" [(ngModel)]="formData.contactNumber" name="contactNumber" placeholder="+60 12-345 6789">
         </div>
 
         <div class="form-group">
@@ -58,14 +58,6 @@
             <option value="ACTIVE">Active</option>
             <option value="INACTIVE">Inactive</option>
             <option value="SUSPENDED">Suspended</option>
-          </select>
-        </div>
-
-        <div class="form-group" *ngIf="formData.role === 'MERCHANT'">
-          <label>Linked Merchant</label>
-          <select class="form-control" [(ngModel)]="formData.merchantId" name="merchantId">
-            <option [ngValue]="null">— No merchant linked —</option>
-            <option *ngFor="let m of merchants" [ngValue]="m.id">{{ m.businessName }}</option>
           </select>
         </div>
       </div>

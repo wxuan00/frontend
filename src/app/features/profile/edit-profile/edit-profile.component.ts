@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
   selector: 'app-edit-profile',
@@ -17,12 +18,12 @@ export class EditProfileComponent implements OnInit {
     firstName: '',
     lastName: '',
     displayName: '',
-    phoneNumber: ''
+    contactNumber: ''
   };
   message = '';
   errorMessage = '';
 
-  constructor(private authService: AuthService, private router: Router) { }
+  constructor(private authService: AuthService, private router: Router, private toast: ToastService) { }
 
   ngOnInit(): void {
     this.authService.getProfile().subscribe({
@@ -30,7 +31,7 @@ export class EditProfileComponent implements OnInit {
         this.profile.firstName = data.firstName || '';
         this.profile.lastName = data.lastName || '';
         this.profile.displayName = data.displayName || '';
-        this.profile.phoneNumber = data.phoneNumber || '';
+        this.profile.contactNumber = data.contactNumber || '';
       },
       error: (err) => console.error('Error loading profile', err)
     });
@@ -39,11 +40,11 @@ export class EditProfileComponent implements OnInit {
   onSave() {
     this.authService.updateProfile(this.profile).subscribe({
       next: () => {
-        this.message = 'Profile updated successfully!';
+        this.toast.success('Profile updated successfully!');
         setTimeout(() => this.router.navigate(['/profile']), 1500);
       },
       error: (err) => {
-        this.errorMessage = 'Error updating profile';
+        this.toast.error('Error updating profile');
       }
     });
   }

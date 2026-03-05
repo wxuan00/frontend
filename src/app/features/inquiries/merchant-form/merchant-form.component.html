@@ -17,23 +17,38 @@
     <form (ngSubmit)="onSubmit()">
       <div class="form-grid">
         <div class="form-group">
-          <label>Business Name *</label>
-          <input type="text" class="form-control" [(ngModel)]="formData.businessName" name="businessName" placeholder="Enter business name" required>
+          <label>Merchant Name *</label>
+          <input type="text" class="form-control" [(ngModel)]="formData.merchantName" name="merchantName" placeholder="Enter merchant name" required>
         </div>
 
         <div class="form-group">
-          <label>Registration Number</label>
-          <input type="text" class="form-control" [(ngModel)]="formData.businessRegistrationNumber" name="businessRegistrationNumber" placeholder="e.g. 202312345A">
+          <label>Contact Number</label>
+          <input type="tel" class="form-control" [(ngModel)]="formData.contact" name="contact" placeholder="+60 12-345 6789">
         </div>
 
         <div class="form-group">
-          <label>Email Address</label>
-          <input type="email" class="form-control" [(ngModel)]="formData.email" name="email" placeholder="merchant@example.com">
+          <label>Address Line 1</label>
+          <input type="text" class="form-control" [(ngModel)]="formData.addressLine1" name="addressLine1" placeholder="Street address">
         </div>
 
         <div class="form-group">
-          <label>Phone Number</label>
-          <input type="tel" class="form-control" [(ngModel)]="formData.phoneNumber" name="phoneNumber" placeholder="+60 12-345 6789">
+          <label>Address Line 2</label>
+          <input type="text" class="form-control" [(ngModel)]="formData.addressLine2" name="addressLine2" placeholder="Unit, floor, etc.">
+        </div>
+
+        <div class="form-group">
+          <label>Postcode</label>
+          <input type="text" class="form-control" [(ngModel)]="formData.postcode" name="postcode" placeholder="e.g. 50100">
+        </div>
+
+        <div class="form-group">
+          <label>City</label>
+          <input type="text" class="form-control" [(ngModel)]="formData.city" name="city" placeholder="e.g. Kuala Lumpur">
+        </div>
+
+        <div class="form-group">
+          <label>Country</label>
+          <input type="text" class="form-control" [(ngModel)]="formData.country" name="country" placeholder="e.g. Malaysia">
         </div>
 
         <div class="form-group">
@@ -43,11 +58,6 @@
             <option value="PENDING">Pending</option>
             <option value="SUSPENDED">Suspended</option>
           </select>
-        </div>
-
-        <div class="form-group full-width">
-          <label>Address</label>
-          <textarea class="form-control" [(ngModel)]="formData.address" name="address" placeholder="Enter business address" rows="3"></textarea>
         </div>
       </div>
 

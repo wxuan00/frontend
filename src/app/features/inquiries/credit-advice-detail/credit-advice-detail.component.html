@@ -6,26 +6,48 @@
         <a routerLink="/credit-advices">Inquiries › Credit Advice</a> › #{{ creditAdviceId }}
       </div>
     </div>
-    <a routerLink="/credit-advices" class="btn btn-secondary">← Back to List</a>
+    <div class="header-actions">
+      <button (click)="printDetail()" class="btn btn-ghost">🖨️ Print</button>
+      <a routerLink="/credit-advices" class="btn btn-secondary">← Back to List</a>
+    </div>
   </div>
 
-  <div *ngIf="loading" class="no-data">Loading credit advice...</div>
-  <div *ngIf="!loading && !creditAdvice" class="no-data">Credit advice not found.</div>
+  @if (loading) {
+    <div class="detail-grid">
+      <div class="card summary-card skeleton-summary">
+        <div class="skeleton-line" style="width:200px;height:32px;margin:0 auto 12px;"></div>
+        <div class="skeleton-line" style="width:80px;height:24px;margin:0 auto;"></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="skeleton-line" style="width:180px;height:18px;"></div></div>
+        @for (i of [1,2,3,4,5,6,7,8,9]; track i) {
+          <div class="detail-row">
+            <label><div class="skeleton-line" style="width:100px;height:14px;"></div></label>
+            <span><div class="skeleton-line" style="width:160px;height:14px;"></div></span>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  @if (!loading && !creditAdvice) {
+    <div class="card" style="padding:48px;text-align:center;">
+      <div style="font-size:3rem;margin-bottom:12px;">🔍</div>
+      <h3 style="color:#888;">Credit Advice Not Found</h3>
+      <p style="color:#aaa;margin:8px 0 20px;">The credit advice #{{ creditAdviceId }} could not be found.</p>
+      <a routerLink="/credit-advices" class="btn btn-primary">← Back to Credit Advices</a>
+    </div>
+  }
 
   <div *ngIf="creditAdvice && !loading" class="detail-grid">
     <!-- Summary Card -->
     <div class="card summary-card">
       <div class="summary-header">
         <div class="summary-amount">{{ creditAdvice.currency }} {{ creditAdvice.amount | number:'1.2-2' }}</div>
-        <span class="badge" [ngClass]="{
-          'badge-warning': creditAdvice.status === 'PENDING',
-          'badge-info': creditAdvice.status === 'ISSUED',
-          'badge-success': creditAdvice.status === 'ACKNOWLEDGED'
-        }">{{ creditAdvice.status }}</span>
       </div>
       <div class="summary-meta">
         <span class="summary-label">Credit Advice Amount</span>
-        <span class="summary-date">{{ formatDate(creditAdvice.issuedAt) }}</span>
+        <span class="summary-date">{{ formatDate(creditAdvice.paymentDate) }}</span>
       </div>
     </div>
 
@@ -35,44 +57,28 @@
         <h3>Credit Advice Information</h3>
       </div>
       <div class="detail-row">
-        <label>Advice ID</label>
-        <span class="id-cell">#{{ creditAdvice.id }}</span>
-      </div>
-      <div class="detail-row">
-        <label>Advice Ref</label>
-        <span class="id-cell">{{ creditAdvice.adviceRef || '-' }}</span>
+        <label>Credit Advice ID</label>
+        <span class="id-cell">#{{ creditAdvice.creditAdviceId }}</span>
       </div>
       <div class="detail-row">
         <label>Merchant</label>
-        <span>{{ creditAdvice.merchantName }}</span>
+        <span>{{ creditAdvice.merchantName || '-' }}</span>
       </div>
       <div class="detail-row">
         <label>Amount</label>
         <span class="amount-cell">{{ creditAdvice.currency }} {{ creditAdvice.amount | number:'1.2-2' }}</span>
       </div>
       <div class="detail-row">
-        <label>Bank Name</label>
-        <span>{{ creditAdvice.bankName || '-' }}</span>
+        <label>Account No</label>
+        <span>{{ creditAdvice.accountNo || '-' }}</span>
       </div>
       <div class="detail-row">
-        <label>Bank Account</label>
-        <span>{{ creditAdvice.bankAccount || '-' }}</span>
+        <label>Account ID</label>
+        <span>{{ creditAdvice.accountId || '-' }}</span>
       </div>
       <div class="detail-row">
-        <label>Settlement ID</label>
-        <span class="id-cell">{{ creditAdvice.settlementId ? '#' + creditAdvice.settlementId : '-' }}</span>
-      </div>
-      <div class="detail-row">
-        <label>Remarks</label>
-        <span>{{ creditAdvice.remarks || '-' }}</span>
-      </div>
-      <div class="detail-row">
-        <label>Issued At</label>
-        <span>{{ formatDate(creditAdvice.issuedAt) }}</span>
-      </div>
-      <div class="detail-row">
-        <label>Created At</label>
-        <span>{{ formatDate(creditAdvice.createdAt) }}</span>
+        <label>Payment Date</label>
+        <span>{{ formatDate(creditAdvice.paymentDate) }}</span>
       </div>
     </div>
   </div>

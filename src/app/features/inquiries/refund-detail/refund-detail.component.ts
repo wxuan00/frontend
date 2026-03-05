@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { TransactionService } from '../../../core/services/transaction.service';
+import { RefundService } from '../../../core/services/refund.service';
 
 @Component({
   selector: 'app-refund-detail',
@@ -17,12 +17,12 @@ export class RefundDetailComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private transactionService: TransactionService
+    private refundService: RefundService
   ) {}
 
   ngOnInit(): void {
     this.refundId = +this.route.snapshot.paramMap.get('id')!;
-    this.transactionService.getTransactionById(this.refundId).subscribe({
+    this.refundService.getRefundById(this.refundId).subscribe({
       next: (data) => {
         this.refund = data;
         this.loading = false;
@@ -39,5 +39,9 @@ export class RefundDetailComponent implements OnInit {
       year: 'numeric', month: 'short', day: 'numeric',
       hour: '2-digit', minute: '2-digit'
     });
+  }
+
+  printDetail(): void {
+    window.print();
   }
 }

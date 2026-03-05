@@ -10,10 +10,6 @@
     </button>
   </div>
 
-  <!-- Success/Error Messages -->
-  <p *ngIf="message" class="success-msg">✅ {{ message }}</p>
-  <p *ngIf="errorMessage" class="error-msg">⚠️ {{ errorMessage }}</p>
-
   <!-- Create/Edit Role Form -->
   @if (showForm) {
     <div class="card" style="max-width:560px;">
@@ -23,7 +19,12 @@
       <form (ngSubmit)="saveRole()">
         <div class="form-group">
           <label>Role Name</label>
-          <input type="text" class="form-control" [(ngModel)]="formData.name" name="name" placeholder="e.g., ADMIN, MERCHANT, VIEWER" required>
+          <input type="text" class="form-control" [(ngModel)]="formData.roleName" name="roleName" placeholder="e.g., ADMIN, MERCHANT" required>
+        </div>
+
+        <div class="form-group">
+          <label>Role Type</label>
+          <input type="text" class="form-control" [(ngModel)]="formData.roleType" name="roleType" placeholder="e.g., SYSTEM, CUSTOM">
         </div>
 
         <div class="form-group">
@@ -49,19 +50,21 @@
         <tr>
           <th>ID</th>
           <th>Name</th>
+          <th>Type</th>
           <th>Description</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let role of roles">
-          <td class="id-cell">#{{ role.id }}</td>
-          <td><span class="badge badge-primary">{{ role.name }}</span></td>
+          <td class="id-cell">#{{ role.roleId }}</td>
+          <td><span class="badge badge-primary">{{ role.roleName }}</span></td>
+          <td>{{ role.roleType || '-' }}</td>
           <td>{{ role.description || '-' }}</td>
           <td>
             <div class="action-btns">
               <button (click)="startEdit(role)" class="btn btn-sm btn-outline">Edit</button>
-              <button (click)="deleteRole(role.id)" class="btn btn-sm btn-danger">Delete</button>
+              <button (click)="deleteRole(role.roleId, role.roleName)" class="btn btn-sm btn-danger">Delete</button>
             </div>
           </td>
         </tr>
@@ -72,4 +75,14 @@
       No roles defined yet.
     </div>
   </div>
+
+  <app-confirm-dialog
+    [visible]="showDeleteDialog"
+    title="Delete Role"
+    [message]="'Are you sure you want to delete role \'' + deleteTargetName + '\'? This action cannot be undone.'"
+    confirmText="Delete"
+    type="danger"
+    (confirmed)="confirmDeleteRole()"
+    (cancelled)="cancelDeleteRole()">
+  </app-confirm-dialog>
 </div>

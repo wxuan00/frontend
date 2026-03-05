@@ -13,4 +13,22 @@ export class ReportService {
   getSummaryReport(): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/summary`);
   }
+
+  exportSummaryReportCsv(): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/summary/export`, {
+      responseType: 'blob'
+    });
+  }
+
+  exportTransactionsCsv(): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/transactions/export`, {
+      responseType: 'blob'
+    });
+  }
+
+  exportSettlementsCsv(): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/settlements/export`, {
+      responseType: 'blob'
+    });
+  }
 }

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
   selector: 'app-change-password',
@@ -19,19 +20,16 @@ export class ChangePasswordComponent {
   message = '';
   errorMessage = '';
 
-  constructor(private authService: AuthService, private router: Router) { }
+  constructor(private authService: AuthService, private router: Router, private toast: ToastService) { }
 
   onSubmit() {
-    this.message = '';
-    this.errorMessage = '';
-
     if (this.newPassword !== this.confirmPassword) {
-      this.errorMessage = 'New passwords do not match';
+      this.toast.error('New passwords do not match');
       return;
     }
 
     if (this.newPassword.length < 6) {
-      this.errorMessage = 'Password must be at least 6 characters';
+      this.toast.error('Password must be at least 6 characters');
       return;
     }
 
@@ -40,11 +38,11 @@ export class ChangePasswordComponent {
       newPassword: this.newPassword
     }).subscribe({
       next: (res) => {
-        this.message = res.message || 'Password changed successfully!';
+        this.toast.success(res.message || 'Password changed successfully!');
         setTimeout(() => this.router.navigate(['/profile']), 1500);
       },
       error: (err) => {
-        this.errorMessage = err.error?.error || 'Error changing password';
+        this.toast.error(err.error?.error || 'Error changing password');
       }
     });
   }

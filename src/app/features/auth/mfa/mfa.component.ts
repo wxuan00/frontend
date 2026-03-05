@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
-import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-mfa',
@@ -19,14 +18,17 @@ export class MfaComponent implements OnInit {
 
   constructor(
     private authService: AuthService,
-    private http: HttpClient,
     private router: Router
   ) {}
 
   ngOnInit(): void {
-    // If user is already authenticated and MFA not required, redirect
-    if (this.authService.getToken() && !sessionStorage.getItem('mfa_pending')) {
-      this.router.navigate(['/dashboard']);
+    // If no MFA pending, redirect appropriately
+    if (!this.authService.isMfaPending()) {
+      if (this.authService.getToken()) {
+        this.router.navigate(['/dashboard']);
+      } else {
+        this.router.navigate(['/login']);
+      }
     }
   }
 
@@ -39,11 +41,11 @@ export class MfaComponent implements OnInit {
     this.loading = true;
     this.errorMessage = '';
 
-    this.http.post<any>('http://localhost:8080/api/auth/mfa/verify', { code: this.otpCode }).subscribe({
+    this.authService.verifyMfa(this.otpCode).subscribe({
       next: (res) => {
         this.loading = false;
         if (res.success) {
-          sessionStorage.removeItem('mfa_pending');
+          this.authService.clearMfaPending();
           this.router.navigate(['/dashboard']);
         } else {
           this.errorMessage = res.message || 'Verification failed. Please try again.';
@@ -58,7 +60,6 @@ export class MfaComponent implements OnInit {
 
   cancel() {
     this.authService.logout();
-    sessionStorage.removeItem('mfa_pending');
     this.router.navigate(['/login']);
   }
 }

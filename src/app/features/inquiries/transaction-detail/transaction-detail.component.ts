@@ -40,4 +40,8 @@ export class TransactionDetailComponent implements OnInit {
       hour: '2-digit', minute: '2-digit'
     });
   }
+
+  printDetail(): void {
+    window.print();
+  }
 }

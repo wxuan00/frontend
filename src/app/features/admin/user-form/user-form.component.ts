@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { MerchantService } from '../../../core/services/merchant.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
   selector: 'app-user-form',
@@ -24,18 +25,18 @@ export class UserFormComponent implements OnInit {
     lastName: '',
     email: '',
     password: '',
-    phoneNumber: '',
+    contactNumber: '',
     displayName: '',
     role: 'MERCHANT',
-    status: 'ACTIVE',
-    merchantId: null
+    status: 'ACTIVE'
   };
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private authService: AuthService,
-    private merchantService: MerchantService
+    private merchantService: MerchantService,
+    private toast: ToastService
   ) {}
 
   ngOnInit(): void {
@@ -58,11 +59,10 @@ export class UserFormComponent implements OnInit {
               lastName: user.lastName || '',
               email: user.email || '',
               password: '',
-              phoneNumber: user.phoneNumber || '',
+              contactNumber: user.contactNumber || '',
               displayName: user.displayName || '',
               role: user.role || 'MERCHANT',
-              status: user.status || 'ACTIVE',
-              merchantId: user.merchantId || null
+              status: user.status || 'ACTIVE'
             };
           }
         },
@@ -72,9 +72,6 @@ export class UserFormComponent implements OnInit {
   }
 
   onSubmit() {
-    this.message = '';
-    this.errorMessage = '';
-
     if (this.isEditMode && this.userId) {
       // Don't send password if empty
       const payload = { ...this.formData };
@@ -82,18 +79,18 @@ export class UserFormComponent implements OnInit {
 
       this.authService.updateUser(this.userId, payload).subscribe({
         next: () => {
-          this.message = 'User updated successfully';
+          this.toast.success('User updated successfully');
           setTimeout(() => this.router.navigate(['/users']), 1000);
         },
-        error: (err) => this.errorMessage = err.error?.message || 'Error updating user'
+        error: (err) => this.toast.error(err.error?.message || 'Error updating user')
       });
     } else {
       this.authService.createUser(this.formData).subscribe({
         next: () => {
-          this.message = 'User created successfully';
+          this.toast.success('User created successfully');
           setTimeout(() => this.router.navigate(['/users']), 1000);
         },
-        error: (err) => this.errorMessage = err.error?.message || 'Error creating user'
+        error: (err) => this.toast.error(err.error?.message || 'Error creating user')
       });
     }
   }

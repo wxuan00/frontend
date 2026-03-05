@@ -15,7 +15,12 @@
     <form (ngSubmit)="onSubmit()">
       <div class="form-group">
         <label>Role Name *</label>
-        <input type="text" class="form-control" [(ngModel)]="formData.name" name="name" placeholder="e.g., ADMIN, MERCHANT, VIEWER" required>
+        <input type="text" class="form-control" [(ngModel)]="formData.roleName" name="roleName" placeholder="e.g., ADMIN, MERCHANT" required>
+      </div>
+
+      <div class="form-group">
+        <label>Role Type</label>
+        <input type="text" class="form-control" [(ngModel)]="formData.roleType" name="roleType" placeholder="e.g., SYSTEM, CUSTOM">
       </div>
 
       <div class="form-group">

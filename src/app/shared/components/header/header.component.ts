@@ -19,7 +19,6 @@ export class HeaderComponent implements OnInit {
 
   ngOnInit(): void {
     this.userRole = this.authService.getUserRole();
-    // Load user info
     this.authService.getProfile().subscribe({
       next: (data) => {
         this.userName = data.firstName ? `${data.firstName} ${data.lastName}` : (data.displayName || data.email);

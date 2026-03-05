@@ -1,73 +1,93 @@
 <div class="page-container">
-  <!-- Page Header -->
   <div class="page-header">
     <div>
       <h1>Credit Advice Inquiry</h1>
       <div class="breadcrumb">Inquiries › Credit Advice</div>
     </div>
+    <div class="header-actions">
+      <button class="btn btn-sm btn-ghost" (click)="clearFilters()">✕ Clear Filters</button>
+    </div>
   </div>
 
-  <!-- Search & Filters -->
   <div class="filter-row">
-    <div class="search-bar" style="flex:1; margin-bottom:0;">
-      <input
-        type="text"
-        placeholder="Search by Merchant Name, Advice Ref..."
-        [(ngModel)]="searchTerm"
-        (keyup.enter)="search()"
-      >
+    <div class="search-bar">
+      <input type="text" placeholder="Search by Merchant Name, Advice Ref..." [(ngModel)]="searchTerm" (keyup.enter)="search()">
       <button (click)="search()" class="btn-search">🔍 Search</button>
     </div>
-    <select class="form-control filter-select" [(ngModel)]="filterStatus" (change)="applyFilters()">
-      <option value="">All Statuses</option>
-      <option value="PENDING">Pending</option>
-      <option value="ISSUED">Issued</option>
-      <option value="ACKNOWLEDGED">Acknowledged</option>
+    <select class="form-control filter-select" [(ngModel)]="filterStatus" (change)="applyFilters()" style="display:none;">
+      <option value="">All</option>
     </select>
   </div>
 
-  <!-- Table -->
-  <div class="card">
-    <div class="card-header">
-      <h3>Credit Advices ({{ creditAdvices.length }})</h3>
-    </div>
-    <table class="data-table">
-      <thead>
-        <tr>
-          <th>Advice Ref</th>
-          <th>Merchant</th>
-          <th>Amount</th>
-          <th>Bank</th>
-          <th>Account</th>
-          <th>Status</th>
-          <th>Issued</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let ca of creditAdvices">
-          <td class="id-cell">{{ ca.adviceRef || '#' + ca.id }}</td>
-          <td><strong>{{ ca.merchantName }}</strong></td>
-          <td class="amount-cell">{{ ca.currency }} {{ ca.amount | number:'1.2-2' }}</td>
-          <td>{{ ca.bankName || '-' }}</td>
-          <td>{{ ca.bankAccount || '-' }}</td>
-          <td>
-            <span class="badge" [ngClass]="{
-              'badge-warning': ca.status === 'PENDING',
-              'badge-info': ca.status === 'ISSUED',
-              'badge-success': ca.status === 'ACKNOWLEDGED'
-            }">{{ ca.status }}</span>
-          </td>
-          <td class="date-cell">{{ formatDate(ca.issuedAt) }}</td>
-          <td>
-            <button (click)="viewDetails(ca.id)" class="btn btn-sm btn-outline">View</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-
-    <div *ngIf="creditAdvices.length === 0" class="no-data">
-      No credit advices found.
-    </div>
+  <div class="filter-row date-row">
+    <label class="date-label">Date Range:</label>
+    <input type="date" class="form-control date-input" [(ngModel)]="dateFrom" (change)="applyFilters()">
+    <span class="date-separator">to</span>
+    <input type="date" class="form-control date-input" [(ngModel)]="dateTo" (change)="applyFilters()">
   </div>
+
+  @if (loading) {
+    <div class="card">
+      <div class="skeleton-table">
+        @for (row of [1,2,3,4,5,6]; track row) {
+          <div class="skeleton-row">
+            <div class="skeleton-cell short"></div>
+            <div class="skeleton-cell medium"></div>
+            <div class="skeleton-cell medium"></div>
+            <div class="skeleton-cell short"></div>
+            <div class="skeleton-cell short"></div>
+            <div class="skeleton-cell medium"></div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  @if (!loading) {
+    <div class="card">
+      <div class="card-header">
+        <h3>Credit Advices ({{ filteredCreditAdvices.length }})</h3>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th class="sortable" (click)="sortBy('creditAdviceId')">ID {{ getSortIcon('creditAdviceId') }}</th>
+            <th class="sortable" (click)="sortBy('merchantName')">Merchant {{ getSortIcon('merchantName') }}</th>
+            <th class="sortable" (click)="sortBy('amount')">Amount {{ getSortIcon('amount') }}</th>
+            <th>Account No</th>
+            <th>Account ID</th>
+            <th class="sortable" (click)="sortBy('paymentDate')">Payment Date {{ getSortIcon('paymentDate') }}</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (ca of pagedCreditAdvices; track ca.creditAdviceId) {
+            <tr>
+              <td class="id-cell">#{{ ca.creditAdviceId }}</td>
+              <td><strong>{{ ca.merchantName || '-' }}</strong></td>
+              <td class="amount-cell">{{ ca.currency }} {{ ca.amount | number:'1.2-2' }}</td>
+              <td>{{ ca.accountNo || '-' }}</td>
+              <td>{{ ca.accountId || '-' }}</td>
+              <td class="date-cell">{{ formatDate(ca.paymentDate!) }}</td>
+              <td>
+                <button (click)="viewDetails(ca.creditAdviceId)" class="btn btn-sm btn-outline">View</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      <div *ngIf="filteredCreditAdvices.length === 0" class="no-data">
+        No credit advices found.
+      </div>
+
+      <app-pagination
+        [currentPage]="currentPage"
+        [pageSize]="pageSize"
+        [totalItems]="filteredCreditAdvices.length"
+        (pageChange)="onPageChange($event)"
+        (pageSizeChange)="onPageSizeChange($event)">
+      </app-pagination>
+    </div>
+  }
 </div>

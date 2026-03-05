@@ -3,45 +3,68 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
+import { ToastService } from '../../../core/services/toast.service';
+import { User } from '../../../core/models/index';
 
 @Component({
   selector: 'app-user-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, ConfirmDialogComponent, PaginationComponent],
   templateUrl: './user-list.component.html',
   styleUrls: ['./user-list.component.css']
 })
 export class UserListComponent implements OnInit {
-  allUsers: any[] = [];
-  users: any[] = [];
+  allUsers: User[] = [];
+  filteredUsers: User[] = [];
+  users: User[] = [];
+  loading = true;
   showForm = false;
   searchTerm = '';
   filterRole = '';
   filterStatus = '';
+
+  // Pagination
+  pagination = { currentPage: 1, pageSize: 10, totalPages: 1, totalItems: 0 };
+
+  // Sorting
+  sortColumn = '';
+  sortDirection: 'asc' | 'desc' = 'asc';
 
   newUser = {
     firstName: '',
     lastName: '',
     email: '',
     password: '',
-    phoneNumber: '',
+    contactNumber: '',
     role: 'MERCHANT',
     status: 'ACTIVE'
   };
 
-  constructor(private authService: AuthService) {}
+  // Confirm dialog state
+  showDeleteDialog = false;
+  deleteTargetId: number | null = null;
+  deleteTargetName = '';
+
+  constructor(private authService: AuthService, private toast: ToastService) {}
 
   ngOnInit(): void {
     this.fetchUsers();
   }
 
   fetchUsers() {
+    this.loading = true;
     this.authService.getAllUsers().subscribe({
       next: (data) => {
         this.allUsers = data;
         this.applyFilters();
+        this.loading = false;
       },
-      error: (err) => console.error(err)
+      error: (err) => {
+        console.error(err);
+        this.loading = false;
+      }
     });
   }
 
@@ -53,7 +76,7 @@ export class UserListComponent implements OnInit {
         (u.firstName || '').toLowerCase().includes(term) ||
         (u.lastName || '').toLowerCase().includes(term) ||
         (u.email || '').toLowerCase().includes(term) ||
-        (u.displayName || '').toLowerCase().includes(term)
+        ((u as any).displayName || '').toLowerCase().includes(term)
       );
     }
     if (this.filterRole) {
@@ -62,7 +85,46 @@ export class UserListComponent implements OnInit {
     if (this.filterStatus) {
       filtered = filtered.filter(u => u.status === this.filterStatus);
     }
-    this.users = filtered;
+
+    // Sorting
+    if (this.sortColumn) {
+      filtered.sort((a: any, b: any) => {
+        const valA = (a[this.sortColumn] || '').toString().toLowerCase();
+        const valB = (b[this.sortColumn] || '').toString().toLowerCase();
+        const cmp = valA.localeCompare(valB);
+        return this.sortDirection === 'asc' ? cmp : -cmp;
+      });
+    }
+
+    this.filteredUsers = filtered;
+    this.pagination.totalItems = filtered.length;
+    this.pagination.totalPages = Math.max(1, Math.ceil(filtered.length / this.pagination.pageSize));
+    if (this.pagination.currentPage > this.pagination.totalPages) {
+      this.pagination.currentPage = 1;
+    }
+    const start = (this.pagination.currentPage - 1) * this.pagination.pageSize;
+    this.users = filtered.slice(start, start + this.pagination.pageSize);
+  }
+
+  sort(column: string) {
+    if (this.sortColumn === column) {
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortColumn = column;
+      this.sortDirection = 'asc';
+    }
+    this.applyFilters();
+  }
+
+  onPageChange(page: number) {
+    this.pagination.currentPage = page;
+    this.applyFilters();
+  }
+
+  onPageSizeChange(size: number) {
+    this.pagination.pageSize = size;
+    this.pagination.currentPage = 1;
+    this.applyFilters();
   }
 
   toggleForm() {
@@ -72,27 +134,43 @@ export class UserListComponent implements OnInit {
   addUser() {
     this.authService.createUser(this.newUser).subscribe({
       next: () => {
+        this.toast.success('User created successfully');
         this.fetchUsers();
         this.showForm = false;
         this.resetForm();
       },
-      error: (err) => alert('Error creating user: ' + (err.error?.message || err.message))
+      error: (err) => this.toast.error('Error creating user: ' + (err.error?.message || err.message))
     });
   }
 
-  deleteUser(id: number) {
-    if (confirm('Are you sure you want to delete this user?')) {
-      this.authService.deleteUser(id).subscribe({
-        next: () => this.fetchUsers(),
-        error: (err) => alert('Error deleting user')
+  deleteUser(id: number, name: string = '') {
+    this.deleteTargetId = id;
+    this.deleteTargetName = name;
+    this.showDeleteDialog = true;
+  }
+
+  confirmDelete() {
+    if (this.deleteTargetId !== null) {
+      this.authService.deleteUser(this.deleteTargetId).subscribe({
+        next: () => {
+          this.toast.success('User deleted successfully');
+          this.fetchUsers();
+        },
+        error: (err) => this.toast.error('Failed to delete user')
       });
     }
+    this.showDeleteDialog = false;
+  }
+
+  cancelDelete() {
+    this.showDeleteDialog = false;
+    this.deleteTargetId = null;
   }
 
   resetForm() {
     this.newUser = {
       firstName: '', lastName: '', email: '', password: '',
-      phoneNumber: '', role: 'MERCHANT', status: 'ACTIVE'
+      contactNumber: '', role: 'MERCHANT', status: 'ACTIVE'
     };
   }
 }

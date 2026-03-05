@@ -1,22 +1,18 @@
-<div class="page-container">
-  <!-- Page Header -->
+﻿<div class="page-container">
   <div class="page-header">
     <div>
       <h1>Refund Inquiry</h1>
-      <div class="breadcrumb">Inquiries › Refunds</div>
+      <div class="breadcrumb">Inquiries > Refunds</div>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-sm btn-ghost" (click)="clearFilters()">&#10005; Clear Filters</button>
     </div>
   </div>
 
-  <!-- Search & Filters -->
   <div class="filter-row">
-    <div class="search-bar" style="flex:1; margin-bottom:0;">
-      <input
-        type="text"
-        placeholder="Search by Merchant Name, RRN..."
-        [(ngModel)]="searchTerm"
-        (keyup.enter)="search()"
-      >
-      <button (click)="search()" class="btn-search">🔍 Search</button>
+    <div class="search-bar">
+      <input type="text" placeholder="Search by Merchant Name, Ref No..." [(ngModel)]="searchTerm" (keyup.enter)="search()">
+      <button (click)="search()" class="btn-search">&#128269; Search</button>
     </div>
     <select class="form-control filter-select" [(ngModel)]="filterStatus" (change)="applyFilters()">
       <option value="">All Statuses</option>
@@ -26,48 +22,85 @@
     </select>
   </div>
 
-  <!-- Table -->
-  <div class="card">
-    <div class="card-header">
-      <h3>Refunds ({{ refunds.length }})</h3>
-    </div>
-    <table class="data-table">
-      <thead>
-        <tr>
-          <th>Txn ID</th>
-          <th>Merchant</th>
-          <th>Amount</th>
-          <th>Card</th>
-          <th>RRN</th>
-          <th>Status</th>
-          <th>Date</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let r of refunds">
-          <td class="id-cell">#{{ r.id }}</td>
-          <td><strong>{{ r.merchantName }}</strong></td>
-          <td class="amount-cell refund-amount">{{ r.currency }} {{ r.amount | number:'1.2-2' }}</td>
-          <td>{{ r.cardBrand }} •••• {{ r.cardLast4 }}</td>
-          <td class="id-cell">{{ r.rrn || '-' }}</td>
-          <td>
-            <span class="badge" [ngClass]="{
-              'badge-success': r.status === 'APPROVED',
-              'badge-warning': r.status === 'PENDING',
-              'badge-danger': r.status === 'DECLINED'
-            }">{{ r.status }}</span>
-          </td>
-          <td class="date-cell">{{ formatDate(r.createdAt) }}</td>
-          <td>
-            <button (click)="viewDetails(r.id)" class="btn btn-sm btn-outline">View</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-
-    <div *ngIf="refunds.length === 0" class="no-data">
-      No refund transactions found.
-    </div>
+  <div class="filter-row date-row">
+    <label class="date-label">Date Range:</label>
+    <input type="date" class="form-control date-input" [(ngModel)]="dateFrom" (change)="applyFilters()">
+    <span class="date-separator">to</span>
+    <input type="date" class="form-control date-input" [(ngModel)]="dateTo" (change)="applyFilters()">
   </div>
+
+  @if (loading) {
+    <div class="card">
+      <div class="skeleton-table">
+        @for (row of [1,2,3,4,5,6]; track row) {
+          <div class="skeleton-row">
+            <div class="skeleton-cell short"></div>
+            <div class="skeleton-cell medium"></div>
+            <div class="skeleton-cell medium"></div>
+            <div class="skeleton-cell short"></div>
+            <div class="skeleton-cell short"></div>
+            <div class="skeleton-cell medium"></div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  @if (!loading) {
+    <div class="card">
+      <div class="card-header">
+        <h3>Refunds ({{ filteredRefunds.length }})</h3>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th class="sortable" (click)="sortBy('refundId')">Refund ID {{ getSortIcon('refundId') }}</th>
+            <th class="sortable" (click)="sortBy('merchantName')">Merchant {{ getSortIcon('merchantName') }}</th>
+            <th class="sortable" (click)="sortBy('refundAmount')">Refund Amt {{ getSortIcon('refundAmount') }}</th>
+            <th>Card No</th>
+            <th>Refund Ref</th>
+            <th>Type</th>
+            <th class="sortable" (click)="sortBy('status')">Status {{ getSortIcon('status') }}</th>
+            <th class="sortable" (click)="sortBy('submissionDate')">Submitted {{ getSortIcon('submissionDate') }}</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (r of pagedRefunds; track r.refundId) {
+            <tr>
+              <td class="id-cell">#{{ r.refundId }}</td>
+              <td><strong>{{ r.merchantName }}</strong></td>
+              <td class="amount-cell refund-amount">{{ r.currency }} {{ r.refundAmount | number:'1.2-2' }}</td>
+              <td>{{ r.cardNo || '-' }}</td>
+              <td class="id-cell">{{ r.refundRefNo || '-' }}</td>
+              <td>{{ r.refundType || '-' }}</td>
+              <td>
+                <span class="badge" [ngClass]="{
+                  'badge-success': r.status === 'APPROVED',
+                  'badge-warning': r.status === 'PENDING',
+                  'badge-danger': r.status === 'DECLINED'
+                }">{{ r.status }}</span>
+              </td>
+              <td class="date-cell">{{ formatDate(r.submissionDate!) }}</td>
+              <td>
+                <button (click)="viewDetails(r.refundId)" class="btn btn-sm btn-outline">View</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      <div *ngIf="filteredRefunds.length === 0" class="no-data">
+        No refund records found.
+      </div>
+
+      <app-pagination
+        [currentPage]="currentPage"
+        [pageSize]="pageSize"
+        [totalItems]="filteredRefunds.length"
+        (pageChange)="onPageChange($event)"
+        (pageSizeChange)="onPageSizeChange($event)">
+      </app-pagination>
+    </div>
+  }
 </div>
