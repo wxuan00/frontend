@@ -13,16 +13,20 @@ import { ToastService } from '../../../core/services/toast.service';
   styleUrls: ['./role-list.component.css']
 })
 export class RoleListComponent implements OnInit {
+  allRoles: any[] = [];
   roles: any[] = [];
   showForm = false;
   editMode = false;
   editId: number | null = null;
+  activeTab: 'bank' | 'merchant' = 'bank';
+  loading = true;
 
   formData = {
     roleName: '',
     roleType: '',
     description: ''
   };
+  formErrors: { [key: string]: string } = {};
 
   // Confirm dialog state
   showDeleteDialog = false;
@@ -36,10 +40,53 @@ export class RoleListComponent implements OnInit {
   }
 
   fetchRoles() {
-    this.roleService.getAllRoles().subscribe({
-      next: (data) => this.roles = data,
-      error: (err) => console.error(err)
+    this.loading = true;
+    this.roleService.getAllRolesWithPermissions().subscribe({
+      next: (data) => {
+        this.allRoles = data;
+        this.applyFilter();
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error(err);
+        this.loading = false;
+      }
     });
+  }
+
+  applyFilter() {
+    if (this.activeTab === 'bank') {
+      this.roles = this.allRoles.filter(r => {
+        const type = (r.roleType || '').toUpperCase();
+        return type === 'SYSTEM' || type === '';
+      });
+    } else {
+      this.roles = this.allRoles.filter(r => {
+        const type = (r.roleType || '').toUpperCase();
+        return type === 'BUSINESS' || type === 'MERCHANT';
+      });
+    }
+  }
+
+  switchTab(tab: 'bank' | 'merchant') {
+    this.activeTab = tab;
+    this.showForm = false;
+    this.resetForm();
+    this.applyFilter();
+  }
+
+  get bankRoleCount(): number {
+    return this.allRoles.filter(r => {
+      const type = (r.roleType || '').toUpperCase();
+      return type === 'SYSTEM' || type === '';
+    }).length;
+  }
+
+  get merchantRoleCount(): number {
+    return this.allRoles.filter(r => {
+      const type = (r.roleType || '').toUpperCase();
+      return type === 'BUSINESS' || type === 'MERCHANT';
+    }).length;
   }
 
   toggleForm() {
@@ -57,6 +104,15 @@ export class RoleListComponent implements OnInit {
   }
 
   saveRole() {
+    this.formErrors = {};
+    if (!this.formData.roleName.trim()) {
+      this.formErrors['roleName'] = 'Role name is required';
+    }
+    if (!this.formData.roleType) {
+      this.formErrors['roleType'] = 'Role type is required';
+    }
+    if (Object.keys(this.formErrors).length > 0) return;
+
     if (this.editMode && this.editId) {
       this.roleService.updateRole(this.editId, this.formData).subscribe({
         next: () => {
@@ -65,7 +121,10 @@ export class RoleListComponent implements OnInit {
           this.resetForm();
           this.showForm = false;
         },
-        error: (err) => this.toast.error(err.error?.message || 'Error updating role')
+        error: (err) => {
+          const msg = err.error?.message || 'Error updating role';
+          this.formErrors['roleName'] = msg;
+        }
       });
     } else {
       this.roleService.createRole(this.formData).subscribe({
@@ -75,7 +134,10 @@ export class RoleListComponent implements OnInit {
           this.resetForm();
           this.showForm = false;
         },
-        error: (err) => this.toast.error(err.error?.message || 'Error creating role')
+        error: (err) => {
+          const msg = err.error?.message || 'Error creating role';
+          this.formErrors['roleName'] = msg;
+        }
       });
     }
   }

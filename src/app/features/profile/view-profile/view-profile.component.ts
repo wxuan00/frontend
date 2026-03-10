@@ -167,4 +167,11 @@ export class ViewProfileComponent implements OnInit {
     this.disableCode = '';
     this.mfaError = '';
   }
+
+  formatDate(dateStr: string): string {
+    if (!dateStr) return '-';
+    return new Date(dateStr).toLocaleDateString('en-MY', {
+      year: 'numeric', month: 'short', day: 'numeric'
+    });
+  }
 }

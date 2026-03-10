@@ -1,16 +1,23 @@
 <div class="page-container">
-  <!-- Page Header -->
   <div class="page-header">
     <div>
       <h1>Role Management</h1>
-      <div class="breadcrumb">Administration › Roles</div>
+      <div class="breadcrumb">Administration &rsaquo; Roles</div>
     </div>
     <button (click)="toggleForm()" class="btn btn-primary">
-      {{ showForm ? '✕ Cancel' : '+ Add Role' }}
+      {{ showForm ? '&#10005; Cancel' : '+ Add Role' }}
     </button>
   </div>
 
-  <!-- Create/Edit Role Form -->
+  <div class="tabs">
+    <button class="tab-btn" [class.active]="activeTab === 'bank'" (click)="switchTab('bank')">
+      &#127970; Bank Roles <span class="tab-count">{{ bankRoleCount }}</span>
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'merchant'" (click)="switchTab('merchant')">
+      &#127978; Merchant Roles <span class="tab-count">{{ merchantRoleCount }}</span>
+    </button>
+  </div>
+
   @if (showForm) {
     <div class="card" style="max-width:560px;">
       <div class="card-header">
@@ -19,12 +26,18 @@
       <form (ngSubmit)="saveRole()">
         <div class="form-group">
           <label>Role Name</label>
-          <input type="text" class="form-control" [(ngModel)]="formData.roleName" name="roleName" placeholder="e.g., ADMIN, MERCHANT" required>
+          <input type="text" class="form-control" [class.input-error]="formErrors['roleName']" [(ngModel)]="formData.roleName" name="roleName" placeholder="e.g., ADMIN, MERCHANT">
+          <span class="field-error" *ngIf="formErrors['roleName']">{{ formErrors['roleName'] }}</span>
         </div>
 
         <div class="form-group">
           <label>Role Type</label>
-          <input type="text" class="form-control" [(ngModel)]="formData.roleType" name="roleType" placeholder="e.g., SYSTEM, CUSTOM">
+          <select class="form-control" [class.input-error]="formErrors['roleType']" [(ngModel)]="formData.roleType" name="roleType">
+            <option value="">Select Type</option>
+            <option value="SYSTEM">System (Bank)</option>
+            <option value="BUSINESS">Business (Merchant)</option>
+          </select>
+          <span class="field-error" *ngIf="formErrors['roleType']">{{ formErrors['roleType'] }}</span>
         </div>
 
         <div class="form-group">
@@ -40,10 +53,9 @@
     </div>
   }
 
-  <!-- Roles Table -->
   <div class="card">
     <div class="card-header">
-      <h3>System Roles ({{ roles.length }})</h3>
+      <h3>{{ activeTab === 'bank' ? 'Bank' : 'Merchant' }} Roles ({{ roles.length }})</h3>
     </div>
     <table class="data-table">
       <thead>
@@ -51,6 +63,7 @@
           <th>ID</th>
           <th>Name</th>
           <th>Type</th>
+          <th>Permissions</th>
           <th>Description</th>
           <th>Actions</th>
         </tr>
@@ -60,6 +73,12 @@
           <td class="id-cell">#{{ role.roleId }}</td>
           <td><span class="badge badge-primary">{{ role.roleName }}</span></td>
           <td>{{ role.roleType || '-' }}</td>
+          <td>
+            <div class="permission-tags">
+              <span class="perm-tag" *ngFor="let p of role.permissions">{{ p.permissionName }}</span>
+              <span *ngIf="!role.permissions || role.permissions.length === 0" class="text-muted">No permissions</span>
+            </div>
+          </td>
           <td>{{ role.description || '-' }}</td>
           <td>
             <div class="action-btns">
@@ -72,7 +91,7 @@
     </table>
 
     <div *ngIf="roles.length === 0" class="no-data">
-      No roles defined yet.
+      No {{ activeTab === 'bank' ? 'bank' : 'merchant' }} roles defined yet.
     </div>
   </div>
 

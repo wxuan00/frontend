@@ -1,33 +1,35 @@
 <div class="page-container">
-  <!-- Page Header -->
   <div class="page-header">
     <div>
       <h1>User Management</h1>
-      <div class="breadcrumb">Administration › Users</div>
+      <div class="breadcrumb">Administration &rsaquo; Users</div>
     </div>
     <div class="header-actions">
       <button (click)="toggleForm()" class="btn btn-primary">
-        {{ showForm ? '✕ Cancel' : '+ Add User' }}
+        {{ showForm ? '&#10005; Cancel' : '+ Add User' }}
       </button>
     </div>
   </div>
 
-  <!-- Search & Filters -->
+  <div class="tabs">
+    <button class="tab-btn" [class.active]="activeTab === 'bank'" (click)="switchTab('bank')">
+      &#127970; Bank Users <span class="tab-count">{{ bankUserCount }}</span>
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'merchant'" (click)="switchTab('merchant')">
+      &#127978; Merchant Users <span class="tab-count">{{ merchantUserCount }}</span>
+    </button>
+  </div>
+
   <div class="filter-row">
     <div class="search-bar" style="flex:1; margin-bottom:0;">
       <input
         type="text"
-        placeholder="Search by name or email..."
+        [placeholder]="activeTab === 'bank' ? 'Search bank users...' : 'Search merchant users...'"
         [(ngModel)]="searchTerm"
         (input)="applyFilters()"
       >
-      <button (click)="applyFilters()" class="btn-search">🔍 Search</button>
+      <span class="search-icon">&#128269;</span>
     </div>
-    <select class="form-control filter-select" [(ngModel)]="filterRole" (change)="applyFilters()">
-      <option value="">All Roles</option>
-      <option value="ADMIN">Admin</option>
-      <option value="MERCHANT">Merchant</option>
-    </select>
     <select class="form-control filter-select" [(ngModel)]="filterStatus" (change)="applyFilters()">
       <option value="">All Statuses</option>
       <option value="ACTIVE">Active</option>
@@ -36,39 +38,33 @@
     </select>
   </div>
 
-  <!-- Create User Form -->
   @if (showForm) {
     <div class="card">
       <div class="card-header">
-        <h3>Create New User</h3>
+        <h3>Create New {{ activeTab === 'bank' ? 'Bank' : 'Merchant' }} User</h3>
       </div>
       <form (ngSubmit)="addUser()" class="form-grid">
         <div class="form-group">
-          <label>First Name</label>
-          <input type="text" class="form-control" [(ngModel)]="newUser.firstName" name="firstName" placeholder="Enter first name" required>
+          <label>First Name <span class="required">*</span></label>
+          <input type="text" class="form-control" [class.input-error]="formErrors['firstName']" [(ngModel)]="newUser.firstName" name="firstName" placeholder="Enter first name">
+          <span class="field-error" *ngIf="formErrors['firstName']">{{ formErrors['firstName'] }}</span>
         </div>
 
         <div class="form-group">
-          <label>Last Name</label>
-          <input type="text" class="form-control" [(ngModel)]="newUser.lastName" name="lastName" placeholder="Enter last name" required>
+          <label>Last Name <span class="required">*</span></label>
+          <input type="text" class="form-control" [class.input-error]="formErrors['lastName']" [(ngModel)]="newUser.lastName" name="lastName" placeholder="Enter last name">
+          <span class="field-error" *ngIf="formErrors['lastName']">{{ formErrors['lastName'] }}</span>
         </div>
 
         <div class="form-group">
-          <label>Email Address</label>
-          <input type="email" class="form-control" [(ngModel)]="newUser.email" name="email" placeholder="user@example.com" required>
+          <label>Email Address <span class="required">*</span></label>
+          <input type="email" class="form-control" [class.input-error]="formErrors['email']" [(ngModel)]="newUser.email" name="email" placeholder="user@example.com">
+          <span class="field-error" *ngIf="formErrors['email']">{{ formErrors['email'] }}</span>
         </div>
 
         <div class="form-group">
           <label>Contact Number</label>
           <input type="tel" class="form-control" [(ngModel)]="newUser.contactNumber" name="contactNumber" placeholder="+60 12-345 6789">
-        </div>
-
-        <div class="form-group">
-          <label>Role</label>
-          <select class="form-control" [(ngModel)]="newUser.role" name="role">
-            <option value="MERCHANT">Merchant User</option>
-            <option value="ADMIN">Admin User</option>
-          </select>
         </div>
 
         <div class="form-group">
@@ -80,9 +76,10 @@
           </select>
         </div>
 
-        <div class="form-group full-width">
-          <label>Password</label>
-          <input type="password" class="form-control" [(ngModel)]="newUser.password" name="password" placeholder="Enter password" required>
+        <div class="form-group">
+          <div class="default-pwd-notice">
+            &#128274; Default password: <strong>P@ssw0rd</strong>
+          </div>
         </div>
 
         <div class="full-width" style="display:flex; gap:10px; justify-content:flex-end;">
@@ -93,49 +90,32 @@
     </div>
   }
 
-  <!-- Loading Skeleton -->
-  @if (loading) {
-    <div class="card">
-      <div class="skeleton-table">
-        @for (i of [1,2,3,4,5,6]; track i) {
-          <div class="skeleton-row">
-            <div class="skeleton-cell" style="width:36px;height:36px;border-radius:50%;"></div>
-            <div class="skeleton-cell medium"></div>
-            <div class="skeleton-cell medium"></div>
-            <div class="skeleton-cell short"></div>
-            <div class="skeleton-cell short"></div>
-            <div class="skeleton-cell short"></div>
-          </div>
-        }
-      </div>
+  <div class="card">
+    <div class="card-header">
+      <h3>{{ activeTab === 'bank' ? 'Bank' : 'Merchant' }} Users ({{ pagination.totalItems }})</h3>
     </div>
-  }
 
-  <!-- Users Table -->
-  @if (!loading) {
-    <div class="card">
-      <div class="card-header">
-        <h3>System Users ({{ pagination.totalItems }})</h3>
-      </div>
+    @if (loading) {
+      <div class="table-loading">Loading users...</div>
+    }
+
+    @if (!loading) {
       <table class="data-table">
         <thead>
           <tr>
             <th class="sortable" (click)="sort('firstName')">
               User
-              <span class="sort-icon">{{ sortColumn === 'firstName' ? (sortDirection === 'asc' ? '▲' : '▼') : '⇅' }}</span>
+              <span class="sort-icon">{{ sortColumn === 'firstName' ? (sortDirection === 'asc' ? '&#9650;' : '&#9660;') : '&#8693;' }}</span>
             </th>
             <th class="sortable" (click)="sort('email')">
               Email
-              <span class="sort-icon">{{ sortColumn === 'email' ? (sortDirection === 'asc' ? '▲' : '▼') : '⇅' }}</span>
+              <span class="sort-icon">{{ sortColumn === 'email' ? (sortDirection === 'asc' ? '&#9650;' : '&#9660;') : '&#8693;' }}</span>
             </th>
             <th>Contact</th>
-            <th class="sortable" (click)="sort('role')">
-              Role
-              <span class="sort-icon">{{ sortColumn === 'role' ? (sortDirection === 'asc' ? '▲' : '▼') : '⇅' }}</span>
-            </th>
+            <th>Permissions</th>
             <th class="sortable" (click)="sort('status')">
               Status
-              <span class="sort-icon">{{ sortColumn === 'status' ? (sortDirection === 'asc' ? '▲' : '▼') : '⇅' }}</span>
+              <span class="sort-icon">{{ sortColumn === 'status' ? (sortDirection === 'asc' ? '&#9650;' : '&#9660;') : '&#8693;' }}</span>
             </th>
             <th>Actions</th>
           </tr>
@@ -153,7 +133,12 @@
             </td>
             <td>{{ user.email }}</td>
             <td>{{ user.contactNumber || '-' }}</td>
-            <td><span class="badge badge-primary">{{ user.role }}</span></td>
+            <td>
+              <div class="permission-tags">
+                <span class="perm-tag" *ngFor="let p of getUserPermissions(user)">{{ p.permissionName }}</span>
+                <span *ngIf="getUserPermissions(user).length === 0" class="text-muted">-</span>
+              </div>
+            </td>
             <td>
               <span class="badge" [ngClass]="{
                 'badge-success': user.status === 'ACTIVE',
@@ -172,7 +157,7 @@
       </table>
 
       <div *ngIf="users.length === 0" class="no-data">
-        No users found.
+        No {{ activeTab === 'bank' ? 'bank' : 'merchant' }} users found.
       </div>
 
       <app-pagination
@@ -182,8 +167,8 @@
         (pageChange)="onPageChange($event)"
         (pageSizeChange)="onPageSizeChange($event)">
       </app-pagination>
-    </div>
-  }
+    }
+  </div>
 
   <app-confirm-dialog
     [visible]="showDeleteDialog"

@@ -134,10 +134,41 @@
   .page-header .actions {
     display: none !important;
   }
+  .export-section, .export-card {
+    display: none !important;
+  }
   .report-meta {
     border: 1px solid #ccc;
   }
+  .card {
+    break-inside: avoid;
+    box-shadow: none !important;
+    border: 1px solid #ddd;
+  }
+  .page-container {
+    padding: 0 !important;
+  }
 }
+
+/* Report Loading */
+.report-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 60px 20px;
+  color: #888;
+  font-size: 0.9rem;
+}
+.loading-spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid #e5e5e5;
+  border-top-color: #111;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 
 .actions {
   display: flex;

@@ -11,8 +11,8 @@
 
   <div class="filter-row">
     <div class="search-bar">
-      <input type="text" placeholder="Search by Merchant Name, Ref No..." [(ngModel)]="searchTerm" (keyup.enter)="search()">
-      <button (click)="search()" class="btn-search">&#128269; Search</button>
+      <input type="text" placeholder="Search by Merchant Name, Ref No..." [(ngModel)]="searchTerm" (input)="applyFilters()">
+      <span class="search-icon">&#128269;</span>
     </div>
     <select class="form-control filter-select" [(ngModel)]="filterStatus" (change)="applyFilters()">
       <option value="">All Statuses</option>
@@ -29,25 +29,10 @@
     <input type="date" class="form-control date-input" [(ngModel)]="dateTo" (change)="applyFilters()">
   </div>
 
-  @if (loading) {
-    <div class="card">
-      <div class="skeleton-table">
-        @for (row of [1,2,3,4,5,6]; track row) {
-          <div class="skeleton-row">
-            <div class="skeleton-cell short"></div>
-            <div class="skeleton-cell medium"></div>
-            <div class="skeleton-cell medium"></div>
-            <div class="skeleton-cell short"></div>
-            <div class="skeleton-cell short"></div>
-            <div class="skeleton-cell medium"></div>
-          </div>
-        }
-      </div>
-    </div>
-  }
-
-  @if (!loading) {
-    <div class="card">
+  <div class="card">
+    @if (loading) {
+      <div class="table-loading">Loading refunds...</div>
+    }
       <div class="card-header">
         <h3>Refunds ({{ filteredRefunds.length }})</h3>
       </div>
@@ -101,6 +86,5 @@
         (pageChange)="onPageChange($event)"
         (pageSizeChange)="onPageSizeChange($event)">
       </app-pagination>
-    </div>
-  }
+  </div>
 </div>

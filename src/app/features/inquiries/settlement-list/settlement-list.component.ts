@@ -67,6 +67,13 @@ export class SettlementListComponent implements OnInit {
 
   applyFilters() {
     let filtered = [...this.allSettlements];
+    if (this.searchTerm.trim()) {
+      const term = this.searchTerm.toLowerCase();
+      filtered = filtered.filter(s =>
+        (s.merchantName || '').toLowerCase().includes(term) ||
+        (s.settlementNo || '').toLowerCase().includes(term)
+      );
+    }
     if (this.filterStatus) {
       filtered = filtered.filter(s => s.settlementType === this.filterStatus);
     }

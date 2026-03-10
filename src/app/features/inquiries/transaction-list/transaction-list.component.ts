@@ -77,6 +77,15 @@ export class TransactionListComponent implements OnInit {
   applyFilters() {
     let filtered = [...this.allTransactions];
 
+    if (this.searchTerm.trim()) {
+      const term = this.searchTerm.toLowerCase();
+      filtered = filtered.filter(t =>
+        (t.merchantName || '').toLowerCase().includes(term) ||
+        (t.transactionId?.toString() || '').includes(term) ||
+        (t.cardNo || '').toLowerCase().includes(term) ||
+        (t.paymentChannel || '').toLowerCase().includes(term)
+      );
+    }
     if (this.filterStatus) {
       filtered = filtered.filter(t => t.status === this.filterStatus);
     }

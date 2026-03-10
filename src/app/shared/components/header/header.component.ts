@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { SidebarComponent } from '../sidebar/sidebar.component';
 
 @Component({
   selector: 'app-header',
@@ -12,6 +13,7 @@ import { AuthService } from '../../../core/services/auth.service';
 })
 export class HeaderComponent implements OnInit {
 
+  @Input() sidebarRef?: SidebarComponent;
   userName: string = '';
   userRole: string = '';
 
@@ -27,5 +29,11 @@ export class HeaderComponent implements OnInit {
         this.userName = 'User';
       }
     });
+  }
+
+  toggleSidebar(): void {
+    if (this.sidebarRef) {
+      this.sidebarRef.toggleSidebar();
+    }
   }
 }

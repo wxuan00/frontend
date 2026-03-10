@@ -250,6 +250,10 @@ select.form-control {
   outline: none;
 }
 
+.search-bar input:only-child {
+  border-radius: 6px;
+}
+
 .search-bar input:focus {
   border-color: #111;
 }
@@ -267,6 +271,18 @@ select.form-control {
 
 .search-bar .btn-search:hover {
   background: #333;
+}
+
+.search-bar .search-icon {
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  background: #f5f5f5;
+  border: 1px solid #ddd;
+  border-left: none;
+  border-radius: 0 6px 6px 0;
+  font-size: 1.1rem;
+  opacity: 0.5;
 }
 
 /* ===== STAT CARDS ===== */
@@ -369,4 +385,25 @@ select.form-control {
 .coming-soon p {
   color: #888;
   font-size: 0.9rem;
+}
+
+/* ===== GLOBAL PRINT STYLES ===== */
+@media print {
+  body { background: #fff !important; }
+  app-sidebar, app-header, app-footer, app-toast {
+    display: none !important;
+  }
+  .main-wrapper {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+  .main-content {
+    margin: 0 !important;
+    padding: 10px !important;
+    width: 100% !important;
+    background: #fff !important;
+  }
+  .page-container {
+    animation: none !important;
+  }
 }

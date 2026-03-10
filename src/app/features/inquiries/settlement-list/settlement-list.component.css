@@ -15,9 +15,4 @@
 .date-cell { color: #888; font-size: 0.82rem; white-space: nowrap; }
 .sortable { cursor: pointer; user-select: none; transition: color 0.15s; }
 .sortable:hover { color: #111; }
-.skeleton-table { padding: 20px 24px; }
-.skeleton-row { display: flex; gap: 16px; padding: 14px 0; border-bottom: 1px solid #f0f0f0; }
-.skeleton-cell { height: 16px; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 4px; }
-.skeleton-cell.short { width: 60px; }
-.skeleton-cell.medium { width: 120px; flex: 1; }
-@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+.table-loading { padding: 40px 20px; text-align: center; color: #888; font-size: 0.9rem; }

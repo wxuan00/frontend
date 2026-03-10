@@ -5,9 +5,9 @@
       <h1>Merchant Account Inquiry</h1>
       <div class="breadcrumb">Inquiries › Merchants</div>
     </div>
-    @if (isAdmin) {
-      <a routerLink="/merchants/new" class="btn btn-primary">+ Add Merchant</a>
-    }
+    <div class="header-actions">
+      <button class="btn btn-sm btn-ghost" (click)="clearFilters()">✕ Clear Filters</button>
+    </div>
   </div>
 
   <!-- Search & Filters -->
@@ -17,9 +17,9 @@
         type="text" 
         placeholder="Search by Business Name..." 
         [(ngModel)]="searchTerm"
-        (keyup.enter)="search()"
+        (input)="applyFilters()"
       >
-      <button (click)="search()" class="btn-search">🔍 Search</button>
+      <span class="search-icon">🔍</span>
     </div>
     <select class="form-control filter-select" [(ngModel)]="filterStatus" (change)="applyFilters()">
       <option value="">All Statuses</option>
@@ -29,27 +29,10 @@
     </select>
   </div>
 
-  <!-- Loading Skeleton -->
-  @if (loading) {
-    <div class="card">
-      <div class="skeleton-table">
-        @for (i of [1,2,3,4,5,6]; track i) {
-          <div class="skeleton-row">
-            <div class="skeleton-cell short"></div>
-            <div class="skeleton-cell medium"></div>
-            <div class="skeleton-cell medium"></div>
-            <div class="skeleton-cell medium"></div>
-            <div class="skeleton-cell short"></div>
-            <div class="skeleton-cell short"></div>
-          </div>
-        }
-      </div>
-    </div>
-  }
-
-  <!-- Table -->
-  @if (!loading) {
-    <div class="card">
+  <div class="card">
+    @if (loading) {
+      <div class="table-loading">Loading merchants...</div>
+    }
       <div class="card-header">
         <h3>Merchants ({{ pagination.totalItems }})</h3>
       </div>
@@ -113,8 +96,7 @@
         (pageChange)="onPageChange($event)"
         (pageSizeChange)="onPageSizeChange($event)">
       </app-pagination>
-    </div>
-  }
+  </div>
 
   <app-confirm-dialog
     [visible]="showDeleteDialog"

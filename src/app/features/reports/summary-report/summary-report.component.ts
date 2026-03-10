@@ -14,7 +14,7 @@ import { ToastService } from '../../../core/services/toast.service';
 })
 export class SummaryReportComponent implements OnInit {
   report: any = null;
-  loading = true;
+  loading = false;
   isAdmin = false;
   errorMessage = '';
 
@@ -34,6 +34,8 @@ export class SummaryReportComponent implements OnInit {
   }
 
   loadReport(): void {
+    this.loading = true;
+    this.errorMessage = '';
     this.reportService.getSummaryReport().subscribe({
       next: (data) => {
         this.report = data;

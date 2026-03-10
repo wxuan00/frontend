@@ -12,10 +12,13 @@
     </div>
   </div>
 
-  <div *ngIf="loading" class="no-data">Loading report data...</div>
+  <div *ngIf="loading" class="report-loading">
+    <div class="loading-spinner"></div>
+    <span>Loading report data...</span>
+  </div>
   <div *ngIf="errorMessage" class="error-msg">⚠️ {{ errorMessage }}</div>
 
-  <div *ngIf="report && !loading">
+  <div *ngIf="report">
     <!-- Report Meta -->
     <div class="report-meta">
       <span>📅 Generated: <strong>{{ formatDate(report.generatedAt) }}</strong></span>

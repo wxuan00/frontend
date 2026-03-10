@@ -1,123 +1,124 @@
-<div class="sidebar">
+<!-- Mobile overlay -->
+<div class="sidebar-overlay" [class.active]="mobileOpen" (click)="closeMobileMenu()"></div>
+
+<div class="sidebar" [class.collapsed]="collapsed && !mobileOpen" [class.mobile-open]="mobileOpen">
   <!-- Logo -->
   <div class="logo-area">
     <span class="logo-icon">🏦</span>
-    @if (userRole === 'ADMIN') {
-      <span class="logo-text">MSP Admin</span>
-    } @else {
-      <span class="logo-text">MSP Portal</span>
-    }
+    <span class="logo-text" *ngIf="!collapsed || mobileOpen">
+      {{ userRole === 'ADMIN' ? 'MSP Admin' : 'MSP Portal' }}
+    </span>
   </div>
 
   <!-- Navigation -->
   <nav class="nav-links">
-    <div class="nav-section-label">MAIN MENU</div>
+    <div class="nav-section-label" *ngIf="!collapsed || mobileOpen">MAIN MENU</div>
 
-    <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item">
+    <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item" (click)="closeMobileMenu()" [title]="collapsed ? 'Dashboard' : ''">
       <span class="nav-icon">📊</span>
-      <span class="nav-label">Dashboard</span>
+      <span class="nav-label" *ngIf="!collapsed || mobileOpen">Dashboard</span>
     </a>
 
-    <a routerLink="/analytics" routerLinkActive="active" class="nav-item">
+    <a routerLink="/analytics" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()" [title]="collapsed ? 'AI Analytics' : ''">
       <span class="nav-icon">🤖</span>
-      <span class="nav-label">AI Analytics</span>
+      <span class="nav-label" *ngIf="!collapsed || mobileOpen">AI Analytics</span>
     </a>
 
     @if (userRole === 'ADMIN') {
-      <div class="nav-section-label">ADMINISTRATION</div>
+      <div class="nav-section-label" *ngIf="!collapsed || mobileOpen">ADMINISTRATION</div>
 
-      <a routerLink="/users" routerLinkActive="active" class="nav-item">
+      <a routerLink="/users" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()" [title]="collapsed ? 'User Management' : ''">
         <span class="nav-icon">👥</span>
-        <span class="nav-label">User Management</span>
+        <span class="nav-label" *ngIf="!collapsed || mobileOpen">User Management</span>
       </a>
 
-      <a routerLink="/roles" routerLinkActive="active" class="nav-item">
+      <a routerLink="/roles" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()" [title]="collapsed ? 'Role Management' : ''">
         <span class="nav-icon">🔑</span>
-        <span class="nav-label">Role Management</span>
+        <span class="nav-label" *ngIf="!collapsed || mobileOpen">Role Management</span>
       </a>
 
-      <div class="nav-section-label">INQUIRIES</div>
+      <div class="nav-section-label" *ngIf="!collapsed || mobileOpen">INQUIRIES</div>
 
-      <a routerLink="/merchants" routerLinkActive="active" class="nav-item">
+      <a routerLink="/merchants" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()" [title]="collapsed ? 'All Merchants' : ''">
         <span class="nav-icon">🏢</span>
-        <span class="nav-label">All Merchants</span>
+        <span class="nav-label" *ngIf="!collapsed || mobileOpen">All Merchants</span>
       </a>
 
-      <a routerLink="/transactions" routerLinkActive="active" class="nav-item">
+      <a routerLink="/transactions" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()" [title]="collapsed ? 'All Transactions' : ''">
         <span class="nav-icon">💳</span>
-        <span class="nav-label">All Transactions</span>
+        <span class="nav-label" *ngIf="!collapsed || mobileOpen">All Transactions</span>
       </a>
 
-      <a routerLink="/refunds" routerLinkActive="active" class="nav-item">
+      <a routerLink="/refunds" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()" [title]="collapsed ? 'Refund Inquiry' : ''">
         <span class="nav-icon">🔄</span>
-        <span class="nav-label">Refund Inquiry</span>
+        <span class="nav-label" *ngIf="!collapsed || mobileOpen">Refund Inquiry</span>
       </a>
 
-      <a routerLink="/settlements" routerLinkActive="active" class="nav-item">
+      <a routerLink="/settlements" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()" [title]="collapsed ? 'Settlements' : ''">
         <span class="nav-icon">📋</span>
-        <span class="nav-label">Settlements</span>
+        <span class="nav-label" *ngIf="!collapsed || mobileOpen">Settlements</span>
       </a>
 
-      <a routerLink="/credit-advices" routerLinkActive="active" class="nav-item">
+      <a routerLink="/credit-advices" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()" [title]="collapsed ? 'Credit Advice' : ''">
         <span class="nav-icon">📄</span>
-        <span class="nav-label">Credit Advice</span>
+        <span class="nav-label" *ngIf="!collapsed || mobileOpen">Credit Advice</span>
       </a>
 
-      <div class="nav-section-label">REPORTS</div>
+      <div class="nav-section-label" *ngIf="!collapsed || mobileOpen">REPORTS</div>
 
-      <a routerLink="/reports" routerLinkActive="active" class="nav-item">
+      <a routerLink="/reports" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()" [title]="collapsed ? 'Summary Report' : ''">
         <span class="nav-icon">📊</span>
-        <span class="nav-label">Summary Report</span>
+        <span class="nav-label" *ngIf="!collapsed || mobileOpen">Summary Report</span>
       </a>
     } @else {
-      <div class="nav-section-label">MY BUSINESS</div>
+      <div class="nav-section-label" *ngIf="!collapsed || mobileOpen">MY BUSINESS</div>
 
-      <a routerLink="/merchants" routerLinkActive="active" class="nav-item">
+      <a routerLink="/merchants" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()" [title]="collapsed ? 'My Merchant' : ''">
         <span class="nav-icon">🏢</span>
-        <span class="nav-label">My Merchant</span>
+        <span class="nav-label" *ngIf="!collapsed || mobileOpen">My Merchant</span>
       </a>
 
-      <a routerLink="/transactions" routerLinkActive="active" class="nav-item">
+      <a routerLink="/transactions" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()" [title]="collapsed ? 'My Transactions' : ''">
         <span class="nav-icon">💳</span>
-        <span class="nav-label">My Transactions</span>
+        <span class="nav-label" *ngIf="!collapsed || mobileOpen">My Transactions</span>
       </a>
 
-      <a routerLink="/refunds" routerLinkActive="active" class="nav-item">
+      <a routerLink="/refunds" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()" [title]="collapsed ? 'My Refunds' : ''">
         <span class="nav-icon">🔄</span>
-        <span class="nav-label">My Refunds</span>
+        <span class="nav-label" *ngIf="!collapsed || mobileOpen">My Refunds</span>
       </a>
 
-      <a routerLink="/settlements" routerLinkActive="active" class="nav-item">
+      <a routerLink="/settlements" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()" [title]="collapsed ? 'My Settlements' : ''">
         <span class="nav-icon">📋</span>
-        <span class="nav-label">My Settlements</span>
+        <span class="nav-label" *ngIf="!collapsed || mobileOpen">My Settlements</span>
       </a>
 
-      <a routerLink="/credit-advices" routerLinkActive="active" class="nav-item">
+      <a routerLink="/credit-advices" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()" [title]="collapsed ? 'My Credit Advice' : ''">
         <span class="nav-icon">📄</span>
-        <span class="nav-label">My Credit Advice</span>
+        <span class="nav-label" *ngIf="!collapsed || mobileOpen">My Credit Advice</span>
       </a>
 
-      <div class="nav-section-label">REPORTS</div>
+      <div class="nav-section-label" *ngIf="!collapsed || mobileOpen">REPORTS</div>
 
-      <a routerLink="/reports" routerLinkActive="active" class="nav-item">
+      <a routerLink="/reports" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()" [title]="collapsed ? 'Summary Report' : ''">
         <span class="nav-icon">📊</span>
-        <span class="nav-label">Summary Report</span>
+        <span class="nav-label" *ngIf="!collapsed || mobileOpen">Summary Report</span>
       </a>
     }
 
-    <div class="nav-section-label">ACCOUNT</div>
+    <div class="nav-section-label" *ngIf="!collapsed || mobileOpen">ACCOUNT</div>
 
-    <a routerLink="/profile" routerLinkActive="active" class="nav-item">
+    <a routerLink="/profile" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()" [title]="collapsed ? 'My Profile' : ''">
       <span class="nav-icon">👤</span>
-      <span class="nav-label">My Profile</span>
+      <span class="nav-label" *ngIf="!collapsed || mobileOpen">My Profile</span>
     </a>
   </nav>
 
   <!-- Footer -->
   <div class="sidebar-footer">
-    <button (click)="logout()" class="logout-btn">
+    <button (click)="logout()" class="logout-btn" [title]="collapsed ? 'Logout' : ''">
       <span>🚪</span>
-      <span>Logout</span>
+      <span *ngIf="!collapsed || mobileOpen">Logout</span>
     </button>
   </div>
 </div>

@@ -10,7 +10,10 @@
     </div>
   </div>
 
-  <div *ngIf="loading" class="no-data">Loading profile...</div>
+  <div *ngIf="loading" class="report-loading">
+    <div class="loading-spinner"></div>
+    <span>Loading profile...</span>
+  </div>
 
   <div *ngIf="user && !loading" class="profile-grid">
     <!-- Profile Card -->
@@ -19,6 +22,26 @@
         <div class="avatar-large">{{ (user.firstName || 'U').charAt(0) }}</div>
         <h2>{{ user.firstName }} {{ user.lastName }}</h2>
         <span class="badge badge-primary">{{ user.role }}</span>
+        <p class="profile-email">{{ user.email }}</p>
+      </div>
+      <div class="profile-quick-stats">
+        <div class="quick-stat">
+          <span class="quick-label">Status</span>
+          <span class="badge" [ngClass]="{
+            'badge-success': user.status === 'ACTIVE',
+            'badge-danger': user.status === 'SUSPENDED' || user.status === 'INACTIVE'
+          }">{{ user.status }}</span>
+        </div>
+        <div class="quick-stat">
+          <span class="quick-label">MFA</span>
+          <span class="badge" [ngClass]="user.mfaEnabled ? 'badge-success' : 'badge-warning'">
+            {{ user.mfaEnabled ? 'Enabled' : 'Disabled' }}
+          </span>
+        </div>
+        <div class="quick-stat" *ngIf="user.createdAt">
+          <span class="quick-label">Joined</span>
+          <span class="quick-value">{{ formatDate(user.createdAt) }}</span>
+        </div>
       </div>
     </div>
 
@@ -48,11 +71,19 @@
         <span>{{ user.contactNumber || '-' }}</span>
       </div>
       <div class="detail-row">
+        <label>Role</label>
+        <span class="badge badge-primary">{{ user.role }}</span>
+      </div>
+      <div class="detail-row">
         <label>Status</label>
         <span class="badge" [ngClass]="{
           'badge-success': user.status === 'ACTIVE',
           'badge-danger': user.status === 'SUSPENDED' || user.status === 'INACTIVE'
         }">{{ user.status }}</span>
+      </div>
+      <div class="detail-row" *ngIf="user.createdAt">
+        <label>Account Created</label>
+        <span>{{ formatDate(user.createdAt) }}</span>
       </div>
     </div>
 

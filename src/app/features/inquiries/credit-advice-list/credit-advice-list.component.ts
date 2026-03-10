@@ -67,6 +67,14 @@ export class CreditAdviceListComponent implements OnInit {
 
   applyFilters() {
     let filtered = [...this.allCreditAdvices];
+    if (this.searchTerm.trim()) {
+      const term = this.searchTerm.toLowerCase();
+      filtered = filtered.filter(ca =>
+        (ca.merchantName || '').toLowerCase().includes(term) ||
+        (ca.creditAdviceId?.toString() || '').includes(term) ||
+        (ca.accountNo || '').toLowerCase().includes(term)
+      );
+    }
     if (this.dateFrom) {
       const from = new Date(this.dateFrom);
       filtered = filtered.filter(ca => ca.paymentDate && new Date(ca.paymentDate) >= from);

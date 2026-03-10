@@ -67,6 +67,14 @@ export class RefundListComponent implements OnInit {
 
   applyFilters() {
     let filtered = [...this.allRefunds];
+    if (this.searchTerm.trim()) {
+      const term = this.searchTerm.toLowerCase();
+      filtered = filtered.filter(r =>
+        (r.merchantName || '').toLowerCase().includes(term) ||
+        (r.refundId?.toString() || '').includes(term) ||
+        (r.cardNo || '').toLowerCase().includes(term)
+      );
+    }
     if (this.filterStatus) {
       filtered = filtered.filter(r => r.status === this.filterStatus);
     }

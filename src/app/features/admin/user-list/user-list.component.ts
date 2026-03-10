@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { RoleService } from '../../../core/services/role.service';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 import { ToastService } from '../../../core/services/toast.service';
@@ -22,8 +23,8 @@ export class UserListComponent implements OnInit {
   loading = true;
   showForm = false;
   searchTerm = '';
-  filterRole = '';
   filterStatus = '';
+  activeTab: 'bank' | 'merchant' = 'bank';
 
   // Pagination
   pagination = { currentPage: 1, pageSize: 10, totalPages: 1, totalItems: 0 };
@@ -36,21 +37,40 @@ export class UserListComponent implements OnInit {
     firstName: '',
     lastName: '',
     email: '',
-    password: '',
+    password: 'P@ssw0rd',
     contactNumber: '',
-    role: 'MERCHANT',
+    role: 'ADMIN',
     status: 'ACTIVE'
   };
+  formErrors: { [key: string]: string } = {};
+
+  // Permissions per role
+  rolePermissionsMap: { [roleName: string]: any[] } = {};
 
   // Confirm dialog state
   showDeleteDialog = false;
   deleteTargetId: number | null = null;
   deleteTargetName = '';
 
-  constructor(private authService: AuthService, private toast: ToastService) {}
+  constructor(
+    private authService: AuthService,
+    private roleService: RoleService,
+    private toast: ToastService
+  ) {}
 
   ngOnInit(): void {
     this.fetchUsers();
+    this.fetchRolePermissions();
+  }
+
+  fetchRolePermissions() {
+    this.roleService.getAllRolesWithPermissions().subscribe({
+      next: (roles) => {
+        roles.forEach(r => {
+          this.rolePermissionsMap[r.roleName] = r.permissions || [];
+        });
+      }
+    });
   }
 
   fetchUsers() {
@@ -70,6 +90,14 @@ export class UserListComponent implements OnInit {
 
   applyFilters() {
     let filtered = [...this.allUsers];
+
+    // Filter by tab (role)
+    if (this.activeTab === 'bank') {
+      filtered = filtered.filter(u => u.role === 'ADMIN');
+    } else {
+      filtered = filtered.filter(u => u.role === 'MERCHANT');
+    }
+
     if (this.searchTerm.trim()) {
       const term = this.searchTerm.toLowerCase();
       filtered = filtered.filter(u =>
@@ -78,9 +106,6 @@ export class UserListComponent implements OnInit {
         (u.email || '').toLowerCase().includes(term) ||
         ((u as any).displayName || '').toLowerCase().includes(term)
       );
-    }
-    if (this.filterRole) {
-      filtered = filtered.filter(u => u.role === this.filterRole);
     }
     if (this.filterStatus) {
       filtered = filtered.filter(u => u.status === this.filterStatus);
@@ -129,17 +154,50 @@ export class UserListComponent implements OnInit {
 
   toggleForm() {
     this.showForm = !this.showForm;
+    if (this.showForm) {
+      this.newUser.role = this.activeTab === 'bank' ? 'ADMIN' : 'MERCHANT';
+    }
+  }
+
+  switchTab(tab: 'bank' | 'merchant') {
+    this.activeTab = tab;
+    this.searchTerm = '';
+    this.filterStatus = '';
+    this.sortColumn = '';
+    this.sortDirection = 'asc';
+    this.showForm = false;
+    this.pagination.currentPage = 1;
+    this.newUser.role = tab === 'bank' ? 'ADMIN' : 'MERCHANT';
+    this.applyFilters();
   }
 
   addUser() {
+    this.formErrors = {};
+    if (!this.newUser.firstName.trim()) this.formErrors['firstName'] = 'First name is required';
+    if (!this.newUser.lastName.trim()) this.formErrors['lastName'] = 'Last name is required';
+    if (!this.newUser.email.trim()) {
+      this.formErrors['email'] = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.newUser.email)) {
+      this.formErrors['email'] = 'Invalid email format';
+    }
+    if (Object.keys(this.formErrors).length > 0) return;
+
+    this.newUser.password = 'P@ssw0rd';
     this.authService.createUser(this.newUser).subscribe({
       next: () => {
-        this.toast.success('User created successfully');
+        this.toast.success('User created successfully (Default password: P@ssw0rd)');
         this.fetchUsers();
         this.showForm = false;
         this.resetForm();
       },
-      error: (err) => this.toast.error('Error creating user: ' + (err.error?.message || err.message))
+      error: (err) => {
+        const msg = err.error?.message || err.message || 'Error creating user';
+        if (msg.toLowerCase().includes('email')) {
+          this.formErrors['email'] = msg;
+        } else {
+          this.formErrors['firstName'] = msg;
+        }
+      }
     });
   }
 
@@ -169,8 +227,21 @@ export class UserListComponent implements OnInit {
 
   resetForm() {
     this.newUser = {
-      firstName: '', lastName: '', email: '', password: '',
-      contactNumber: '', role: 'MERCHANT', status: 'ACTIVE'
+      firstName: '', lastName: '', email: '', password: 'P@ssw0rd',
+      contactNumber: '', role: this.activeTab === 'bank' ? 'ADMIN' : 'MERCHANT', status: 'ACTIVE'
     };
+    this.formErrors = {};
+  }
+
+  getUserPermissions(user: User): any[] {
+    return this.rolePermissionsMap[user.role] || [];
+  }
+
+  get bankUserCount(): number {
+    return this.allUsers.filter(u => u.role === 'ADMIN').length;
+  }
+
+  get merchantUserCount(): number {
+    return this.allUsers.filter(u => u.role === 'MERCHANT').length;
   }
 }

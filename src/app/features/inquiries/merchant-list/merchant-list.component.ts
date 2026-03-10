@@ -83,8 +83,24 @@ export class MerchantListComponent implements OnInit {
     }
   }
 
+  clearFilters() {
+    this.searchTerm = '';
+    this.filterStatus = '';
+    this.sortColumn = '';
+    this.sortDirection = 'asc';
+    this.applyFilters();
+  }
+
   applyFilters() {
     let filtered = [...this.allMerchants];
+    if (this.searchTerm.trim()) {
+      const term = this.searchTerm.toLowerCase();
+      filtered = filtered.filter(m =>
+        (m.merchantName || '').toLowerCase().includes(term) ||
+        (m.contact || '').toLowerCase().includes(term) ||
+        (m.city || '').toLowerCase().includes(term)
+      );
+    }
     if (this.filterStatus) {
       filtered = filtered.filter(m => m.status === this.filterStatus);
     }

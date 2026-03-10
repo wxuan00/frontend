@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild, AfterViewInit } from '@angular/core';
 import { SidebarComponent } from '../sidebar/sidebar.component';
 import { HeaderComponent } from '../header/header.component';
 import { FooterComponent } from '../footer/footer.component';
@@ -12,9 +12,9 @@ import { RouterModule } from '@angular/router';
   imports: [CommonModule, RouterModule, SidebarComponent, HeaderComponent, FooterComponent, ToastComponent],
   template: `
     <div class="app-container">
-      <app-sidebar></app-sidebar>
-      <div class="main-wrapper">
-        <app-header></app-header>
+      <app-sidebar #sidebarRef></app-sidebar>
+      <div class="main-wrapper" [style.margin-left.px]="getMainMargin()" [style.width]="'calc(100% - ' + getMainMargin() + 'px)'">
+        <app-header [sidebarRef]="sidebarRef"></app-header>
         <main class="main-content">
           <router-outlet></router-outlet>
         </main>
@@ -25,4 +25,12 @@ import { RouterModule } from '@angular/router';
   `,
   styleUrls: ['./layout.component.css']
 })
-export class LayoutComponent {}
+export class LayoutComponent {
+  @ViewChild('sidebarRef') sidebarRef!: SidebarComponent;
+
+  getMainMargin(): number {
+    if (!this.sidebarRef) return 240;
+    if (window.innerWidth <= 768) return 0;
+    return this.sidebarRef.collapsed ? 64 : 240;
+  }
+}
