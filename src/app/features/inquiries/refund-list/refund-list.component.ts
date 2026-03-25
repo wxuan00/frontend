@@ -1,10 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { RefundService } from '../../../core/services/refund.service';
 import { Refund } from '../../../core/models/index';
 import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
+import { RouteRefreshService } from '../../../core/services/route-refresh.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-refund-list',
@@ -13,7 +15,7 @@ import { PaginationComponent } from '../../../shared/components/pagination/pagin
   templateUrl: './refund-list.component.html',
   styleUrls: ['./refund-list.component.css']
 })
-export class RefundListComponent implements OnInit {
+export class RefundListComponent implements OnInit, OnDestroy {
   allRefunds: Refund[] = [];
   filteredRefunds: Refund[] = [];
   pagedRefunds: Refund[] = [];
@@ -29,14 +31,20 @@ export class RefundListComponent implements OnInit {
   sortField = 'submissionDate';
   sortDirection: 'asc' | 'desc' = 'desc';
 
+  private refreshSub!: Subscription;
+
   constructor(
     private router: Router,
-    private refundService: RefundService
+    private refundService: RefundService,
+    private routeRefresh: RouteRefreshService
   ) {}
 
   ngOnInit(): void {
     this.loadRefunds();
+    this.refreshSub = this.routeRefresh.refresh$.subscribe(() => this.loadRefunds());
   }
+
+  ngOnDestroy(): void { this.refreshSub?.unsubscribe(); }
 
   loadRefunds() {
     this.loading = true;

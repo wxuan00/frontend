@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -8,6 +8,8 @@ import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialo
 import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 import { ToastService } from '../../../core/services/toast.service';
 import { User } from '../../../core/models/index';
+import { RouteRefreshService } from '../../../core/services/route-refresh.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-user-list',
@@ -16,7 +18,7 @@ import { User } from '../../../core/models/index';
   templateUrl: './user-list.component.html',
   styleUrls: ['./user-list.component.css']
 })
-export class UserListComponent implements OnInit {
+export class UserListComponent implements OnInit, OnDestroy {
   allUsers: User[] = [];
   filteredUsers: User[] = [];
   users: User[] = [];
@@ -53,16 +55,22 @@ export class UserListComponent implements OnInit {
   deleteTargetId: number | null = null;
   deleteTargetName = '';
 
+  private refreshSub!: Subscription;
+
   constructor(
     private authService: AuthService,
     private roleService: RoleService,
-    private toast: ToastService
+    private toast: ToastService,
+    private routeRefresh: RouteRefreshService
   ) {}
 
   ngOnInit(): void {
     this.fetchUsers();
     this.fetchRolePermissions();
+    this.refreshSub = this.routeRefresh.refresh$.subscribe(() => this.fetchUsers());
   }
+
+  ngOnDestroy(): void { this.refreshSub?.unsubscribe(); }
 
   fetchRolePermissions() {
     this.roleService.getAllRolesWithPermissions().subscribe({

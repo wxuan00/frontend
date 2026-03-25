@@ -1,10 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { RoleService } from '../../../core/services/role.service';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { ToastService } from '../../../core/services/toast.service';
+import { RouteRefreshService } from '../../../core/services/route-refresh.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-role-list',
@@ -13,7 +15,7 @@ import { ToastService } from '../../../core/services/toast.service';
   templateUrl: './role-list.component.html',
   styleUrls: ['./role-list.component.css']
 })
-export class RoleListComponent implements OnInit {
+export class RoleListComponent implements OnInit, OnDestroy {
   allRoles: any[] = [];
   roles: any[] = [];
   showForm = false;
@@ -35,11 +37,16 @@ export class RoleListComponent implements OnInit {
   deleteTargetId: number | null = null;
   deleteTargetName = '';
 
-  constructor(private roleService: RoleService, private toast: ToastService) {}
+  private refreshSub!: Subscription;
+
+  constructor(private roleService: RoleService, private toast: ToastService, private routeRefresh: RouteRefreshService) {}
 
   ngOnInit(): void {
     this.fetchRoles();
+    this.refreshSub = this.routeRefresh.refresh$.subscribe(() => this.fetchRoles());
   }
+
+  ngOnDestroy(): void { this.refreshSub?.unsubscribe(); }
 
   fetchRoles() {
     this.loading = true;

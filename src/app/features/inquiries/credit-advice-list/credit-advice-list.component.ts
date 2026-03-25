@@ -1,10 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CreditAdviceService } from '../../../core/services/credit-advice.service';
 import { CreditAdvice } from '../../../core/models/index';
 import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
+import { RouteRefreshService } from '../../../core/services/route-refresh.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-credit-advice-list',
@@ -13,7 +15,7 @@ import { PaginationComponent } from '../../../shared/components/pagination/pagin
   templateUrl: './credit-advice-list.component.html',
   styleUrls: ['./credit-advice-list.component.css']
 })
-export class CreditAdviceListComponent implements OnInit {
+export class CreditAdviceListComponent implements OnInit, OnDestroy {
   allCreditAdvices: CreditAdvice[] = [];
   filteredCreditAdvices: CreditAdvice[] = [];
   pagedCreditAdvices: CreditAdvice[] = [];
@@ -29,14 +31,20 @@ export class CreditAdviceListComponent implements OnInit {
   sortField = 'paymentDate';
   sortDirection: 'asc' | 'desc' = 'desc';
 
+  private refreshSub!: Subscription;
+
   constructor(
     private router: Router,
-    private creditAdviceService: CreditAdviceService
+    private creditAdviceService: CreditAdviceService,
+    private routeRefresh: RouteRefreshService
   ) {}
 
   ngOnInit(): void {
     this.loadCreditAdvices();
+    this.refreshSub = this.routeRefresh.refresh$.subscribe(() => this.loadCreditAdvices());
   }
+
+  ngOnDestroy(): void { this.refreshSub?.unsubscribe(); }
 
   loadCreditAdvices() {
     this.loading = true;

@@ -1,10 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { SettlementService } from '../../../core/services/settlement.service';
 import { Settlement } from '../../../core/models/index';
 import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
+import { RouteRefreshService } from '../../../core/services/route-refresh.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-settlement-list',
@@ -13,7 +15,7 @@ import { PaginationComponent } from '../../../shared/components/pagination/pagin
   templateUrl: './settlement-list.component.html',
   styleUrls: ['./settlement-list.component.css']
 })
-export class SettlementListComponent implements OnInit {
+export class SettlementListComponent implements OnInit, OnDestroy {
   allSettlements: Settlement[] = [];
   filteredSettlements: Settlement[] = [];
   pagedSettlements: Settlement[] = [];
@@ -29,14 +31,20 @@ export class SettlementListComponent implements OnInit {
   sortField = 'settlementDate';
   sortDirection: 'asc' | 'desc' = 'desc';
 
+  private refreshSub!: Subscription;
+
   constructor(
     private router: Router,
-    private settlementService: SettlementService
+    private settlementService: SettlementService,
+    private routeRefresh: RouteRefreshService
   ) {}
 
   ngOnInit(): void {
     this.loadSettlements();
+    this.refreshSub = this.routeRefresh.refresh$.subscribe(() => this.loadSettlements());
   }
+
+  ngOnDestroy(): void { this.refreshSub?.unsubscribe(); }
 
   loadSettlements() {
     this.loading = true;

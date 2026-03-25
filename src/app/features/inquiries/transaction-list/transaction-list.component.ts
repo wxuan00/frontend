@@ -1,10 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TransactionService } from '../../../core/services/transaction.service';
 import { Transaction } from '../../../core/models/index';
 import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
+import { RouteRefreshService } from '../../../core/services/route-refresh.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-transaction-list',
@@ -13,7 +15,7 @@ import { PaginationComponent } from '../../../shared/components/pagination/pagin
   templateUrl: './transaction-list.component.html',
   styleUrls: ['./transaction-list.component.css']
 })
-export class TransactionListComponent implements OnInit {
+export class TransactionListComponent implements OnInit, OnDestroy {
   allTransactions: Transaction[] = [];
   filteredTransactions: Transaction[] = [];
   pagedTransactions: Transaction[] = [];
@@ -31,14 +33,20 @@ export class TransactionListComponent implements OnInit {
   sortField = 'txnDate';
   sortDirection: 'asc' | 'desc' = 'desc';
 
+  private refreshSub!: Subscription;
+
   constructor(
     private router: Router,
-    private transactionService: TransactionService
+    private transactionService: TransactionService,
+    private routeRefresh: RouteRefreshService
   ) {}
 
   ngOnInit(): void {
     this.loadTransactions();
+    this.refreshSub = this.routeRefresh.refresh$.subscribe(() => this.loadTransactions());
   }
+
+  ngOnDestroy(): void { this.refreshSub?.unsubscribe(); }
 
   loadTransactions() {
     this.loading = true;

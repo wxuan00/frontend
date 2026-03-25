@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -8,6 +8,8 @@ import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialo
 import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 import { ToastService } from '../../../core/services/toast.service';
 import { Merchant } from '../../../core/models/index';
+import { RouteRefreshService } from '../../../core/services/route-refresh.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-merchant-list',
@@ -16,7 +18,7 @@ import { Merchant } from '../../../core/models/index';
   templateUrl: './merchant-list.component.html',
   styleUrls: ['./merchant-list.component.css']
 })
-export class MerchantListComponent implements OnInit {
+export class MerchantListComponent implements OnInit, OnDestroy {
   allMerchants: Merchant[] = [];
   filteredMerchants: Merchant[] = [];
   merchants: Merchant[] = [];
@@ -38,17 +40,23 @@ export class MerchantListComponent implements OnInit {
   deleteTargetId: number | null = null;
   deleteTargetName = '';
 
+  private refreshSub!: Subscription;
+
   constructor(
     private merchantService: MerchantService,
     private authService: AuthService,
     private router: Router,
-    private toast: ToastService
+    private toast: ToastService,
+    private routeRefresh: RouteRefreshService
   ) {}
 
   ngOnInit() {
     this.isAdmin = this.authService.isAdmin();
     this.loadMerchants();
+    this.refreshSub = this.routeRefresh.refresh$.subscribe(() => this.loadMerchants());
   }
+
+  ngOnDestroy(): void { this.refreshSub?.unsubscribe(); }
 
   loadMerchants() {
     this.loading = true;
