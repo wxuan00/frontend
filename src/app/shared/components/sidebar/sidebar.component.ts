@@ -2,10 +2,11 @@ import { Component, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, ConfirmDialogComponent],
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.css']
 })
@@ -15,6 +16,7 @@ export class SidebarComponent implements OnInit {
   userRole: string = '';
   collapsed = false;
   mobileOpen = false;
+  showLogoutDialog = false;
 
   constructor(
     private router: Router,
@@ -56,9 +58,18 @@ export class SidebarComponent implements OnInit {
     }
   }
 
-  logout() {
+  confirmLogout() {
+    this.showLogoutDialog = true;
+  }
+
+  doLogout() {
+    this.showLogoutDialog = false;
     this.authService.logout();
     this.router.navigate(['/login']);
   }
 
+  cancelLogout() {
+    this.showLogoutDialog = false;
+  }
 }
+

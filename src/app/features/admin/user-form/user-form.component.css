@@ -6,3 +6,9 @@
   padding-top: 20px;
   border-top: 1px solid #e5e5e5;
 }
+.text-muted {
+  color: #888;
+  font-size: 0.78rem;
+  margin-top: 4px;
+  display: block;
+}

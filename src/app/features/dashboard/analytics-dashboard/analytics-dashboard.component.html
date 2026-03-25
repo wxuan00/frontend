@@ -1,255 +1,487 @@
 <div class="page-container">
   <!-- Welcome Banner -->
   <div class="welcome-banner">
-    <div class="welcome-text">
+    <div class="welcome-left">
       <h1>Welcome back, {{ userName }}! 👋</h1>
       <p>Here's what's happening with your portal today.</p>
     </div>
+    @if (userRole === 'ADMIN') {
+      <button class="btn btn-recompute" (click)="recompute()" [disabled]="recomputing">
+        {{ recomputing ? '⏳ Recomputing...' : '🔄 Recompute Analytics' }}
+      </button>
+    }
   </div>
 
-  <!-- Stats Cards -->
-  <div class="stats-row">
-    @if (userRole === 'ADMIN') {
+  <!-- Tabs -->
+  <div class="dashboard-tabs">
+    <button class="tab-btn" [class.active]="activeTab === 'dashboard'" (click)="switchTab('dashboard')">
+      📊 Dashboard
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'overview'" (click)="switchTab('overview')">
+      📈 AI Overview
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'trends'" (click)="switchTab('trends')">
+      📈 Trends
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'scorecard'" (click)="switchTab('scorecard')">
+      🏆 Scorecard
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'anomalies'" (click)="switchTab('anomalies')">
+      ⚠️ Anomalies
+      @if (anomalies.length > 0) {
+        <span class="anomaly-badge">{{ anomalies.length }}</span>
+      }
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'insights'" (click)="switchTab('insights')">
+      💡 Insights
+    </button>
+  </div>
+
+  <!-- ==================== TAB: DASHBOARD ==================== -->
+  @if (activeTab === 'dashboard') {
+    <!-- Stats Cards -->
+    <div class="stats-row">
+      @if (userRole === 'ADMIN') {
+        <div class="stat-card">
+          <div class="stat-icon blue">👥</div>
+          <div class="stat-info">
+            <h4>Total Users</h4>
+            <div class="stat-value">{{ totalUsers }}</div>
+          </div>
+        </div>
+      }
       <div class="stat-card">
-        <div class="stat-icon blue">👥</div>
+        <div class="stat-icon green">🏢</div>
         <div class="stat-info">
-          <h4>Total Users</h4>
-          <div class="stat-value">{{ totalUsers }}</div>
+          <h4>{{ userRole === 'ADMIN' ? 'Total Merchants' : 'My Merchants' }}</h4>
+          <div class="stat-value">{{ totalMerchants }}</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon orange">✅</div>
+        <div class="stat-info">
+          <h4>Active Merchants</h4>
+          <div class="stat-value">{{ activeMerchants }}</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon red">⏳</div>
+        <div class="stat-info">
+          <h4>Pending Approval</h4>
+          <div class="stat-value">{{ pendingMerchants }}</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon purple">💳</div>
+        <div class="stat-info">
+          <h4>{{ userRole === 'ADMIN' ? 'Total Transactions' : 'My Transactions' }}</h4>
+          <div class="stat-value">{{ totalTransactions }}</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon teal">📋</div>
+        <div class="stat-info">
+          <h4>{{ userRole === 'ADMIN' ? 'Total Settlements' : 'My Settlements' }}</h4>
+          <div class="stat-value">{{ totalSettlements }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="card">
+      <div class="card-header">
+        <h3>Quick Actions</h3>
+      </div>
+      <div class="quick-actions">
+        @if (userRole === 'ADMIN') {
+          <a routerLink="/users" class="action-card">
+            <div class="action-icon blue">👥</div>
+            <span>Manage Users</span>
+          </a>
+          <a routerLink="/merchants" class="action-card">
+            <div class="action-icon green">🏢</div>
+            <span>View Merchants</span>
+          </a>
+          <a routerLink="/transactions" class="action-card">
+            <div class="action-icon orange">💳</div>
+            <span>View Transactions</span>
+          </a>
+          <a routerLink="/settlements" class="action-card">
+            <div class="action-icon teal">📋</div>
+            <span>View Settlements</span>
+          </a>
+          <a routerLink="/refunds" class="action-card">
+            <div class="action-icon red">↩️</div>
+            <span>View Refunds</span>
+          </a>
+          <a routerLink="/reports" class="action-card">
+            <div class="action-icon purple">📊</div>
+            <span>View Reports</span>
+          </a>
+        } @else {
+          <a routerLink="/merchants" class="action-card">
+            <div class="action-icon green">🏢</div>
+            <span>My Merchant</span>
+          </a>
+          <a routerLink="/transactions" class="action-card">
+            <div class="action-icon orange">💳</div>
+            <span>My Transactions</span>
+          </a>
+          <a routerLink="/settlements" class="action-card">
+            <div class="action-icon teal">📋</div>
+            <span>My Settlements</span>
+          </a>
+          <a routerLink="/refunds" class="action-card">
+            <div class="action-icon red">↩️</div>
+            <span>My Refunds</span>
+          </a>
+          <a routerLink="/reports" class="action-card">
+            <div class="action-icon teal">📊</div>
+            <span>My Reports</span>
+          </a>
+        }
+        <a routerLink="/profile" class="action-card">
+          <div class="action-icon purple">👤</div>
+          <span>My Profile</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="section-header">
+      <h2>📊 Analytics</h2>
+    </div>
+
+    @if (chartsLoading) {
+      <div class="charts-loading">
+        <div class="spinner"></div>
+        <p>Loading charts...</p>
+      </div>
+    }
+
+    @if (!chartsLoading && chartData) {
+      <div class="chart-row">
+        <div class="chart-card chart-wide">
+          <div class="chart-card-header"><h3>Transaction Volume (Last 7 Days)</h3></div>
+          <div class="chart-body"><canvas #dailyVolumeChart></canvas></div>
+        </div>
+        <div class="chart-card chart-small">
+          <div class="chart-card-header"><h3>Transaction Status</h3></div>
+          <div class="chart-body"><canvas #txnStatusChart></canvas></div>
+        </div>
+      </div>
+
+      <div class="chart-row">
+        <div class="chart-card chart-wide">
+          <div class="chart-card-header"><h3>Amount by Currency</h3></div>
+          <div class="chart-body"><canvas #amountByCurrencyChart></canvas></div>
+        </div>
+        <div class="chart-card chart-small">
+          <div class="chart-card-header"><h3>Payment Channel Distribution</h3></div>
+          <div class="chart-body"><canvas #paymentChannelChart></canvas></div>
+        </div>
+      </div>
+
+      <div class="chart-row">
+        @if (userRole === 'ADMIN' && chartData.topMerchants) {
+          <div class="chart-card chart-wide">
+            <div class="chart-card-header"><h3>Top 5 Merchants by Volume</h3></div>
+            <div class="chart-body"><canvas #topMerchantsChart></canvas></div>
+          </div>
+        }
+        <div class="chart-card" [ngClass]="userRole === 'ADMIN' && chartData.topMerchants ? 'chart-small' : 'chart-full'">
+          <div class="chart-card-header"><h3>Settlement Types</h3></div>
+          <div class="chart-body"><canvas #settlementTypesChart></canvas></div>
         </div>
       </div>
     }
 
-    <div class="stat-card">
-      <div class="stat-icon green">🏢</div>
-      <div class="stat-info">
-        <h4>{{ userRole === 'ADMIN' ? 'Total Merchants' : 'My Merchants' }}</h4>
-        <div class="stat-value">{{ totalMerchants }}</div>
+    <!-- Admin: Recent Users -->
+    @if (userRole === 'ADMIN' && recentUsers.length > 0) {
+      <div class="card">
+        <div class="card-header">
+          <h3>Recent Users</h3>
+          <a routerLink="/users" class="btn btn-sm btn-outline">View All →</a>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let user of recentUsers">
+              <td>
+                <strong>{{ user.firstName }} {{ user.lastName }}</strong>
+                <span *ngIf="!user.firstName">{{ user.displayName }}</span>
+              </td>
+              <td>{{ user.email }}</td>
+              <td><span class="badge badge-primary">{{ user.role }}</span></td>
+              <td>
+                <span class="badge" [ngClass]="{
+                  'badge-success': user.status === 'ACTIVE',
+                  'badge-danger': user.status === 'SUSPENDED' || user.status === 'INACTIVE',
+                  'badge-warning': user.status === 'PENDING'
+                }">{{ user.status || 'Unknown' }}</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-    </div>
+    }
+  }
 
-    <div class="stat-card">
-      <div class="stat-icon orange">✅</div>
-      <div class="stat-info">
-        <h4>Active Merchants</h4>
-        <div class="stat-value">{{ activeMerchants }}</div>
+  <!-- ==================== TAB: AI OVERVIEW ==================== -->
+  @if (activeTab === 'overview') {
+    @if (overviewLoading) {
+      <div class="loading-state"><div class="spinner"></div><p>Analyzing data...</p></div>
+    } @else if (aiOverview) {
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-label">Total Revenue</div>
+          <div class="kpi-value">{{ formatCurrency(aiOverview.totalRevenue) }}</div>
+          <div class="kpi-sub">Approved transactions</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Net Revenue</div>
+          <div class="kpi-value">{{ formatCurrency(aiOverview.netAfterRefunds || aiOverview.totalSales) }}</div>
+          <div class="kpi-sub">After refunds</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Total Transactions</div>
+          <div class="kpi-value">{{ formatNumber(aiOverview.totalTransactions) }}</div>
+          <div class="kpi-sub">All statuses</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Avg Transaction</div>
+          <div class="kpi-value">{{ formatCurrency(aiOverview.avgTransactionValue) }}</div>
+          <div class="kpi-sub">Per approved txn</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Decline Rate</div>
+          <div class="kpi-value kpi-danger" [class.kpi-success]="(aiOverview.overallDeclineRate || aiOverview.declineRate) < 10">
+            {{ (aiOverview.overallDeclineRate || aiOverview.declineRate || 0).toFixed(1) }}%
+          </div>
+          <div class="kpi-sub">{{ aiOverview.declinedTransactions || aiOverview.declinedCount || 0 }} declined</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Refund Rate</div>
+          <div class="kpi-value" [class.kpi-danger]="(aiOverview.refundRate || 0) > 10">
+            {{ (aiOverview.refundRate || 0).toFixed(1) }}%
+          </div>
+          <div class="kpi-sub">{{ aiOverview.totalRefunds || aiOverview.refundCount || 0 }} refunds</div>
+        </div>
       </div>
-    </div>
 
-    <div class="stat-card">
-      <div class="stat-icon red">⏳</div>
-      <div class="stat-info">
-        <h4>Pending Approval</h4>
-        <div class="stat-value">{{ pendingMerchants }}</div>
+      <div class="overview-row">
+        <div class="card">
+          <div class="card-header"><h3>Approved vs Others</h3></div>
+          <div class="status-bars">
+            @if (aiOverview.totalTransactions > 0) {
+              <div class="status-bar-item">
+                <div class="status-bar-label"><span>Approved</span><span class="status-bar-count">{{ aiOverview.approvedTransactions || aiOverview.approvedCount || 0 }}</span></div>
+                <div class="status-bar-track"><div class="status-bar-fill approved" [style.width.%]="((aiOverview.approvedTransactions || aiOverview.approvedCount || 0) / aiOverview.totalTransactions * 100)"></div></div>
+              </div>
+              <div class="status-bar-item">
+                <div class="status-bar-label"><span>Declined</span><span class="status-bar-count">{{ aiOverview.declinedTransactions || aiOverview.declinedCount || 0 }}</span></div>
+                <div class="status-bar-track"><div class="status-bar-fill declined" [style.width.%]="((aiOverview.declinedTransactions || aiOverview.declinedCount || 0) / aiOverview.totalTransactions * 100)"></div></div>
+              </div>
+              <div class="status-bar-item">
+                <div class="status-bar-label"><span>Pending</span><span class="status-bar-count">{{ aiOverview.pendingTransactions || 0 }}</span></div>
+                <div class="status-bar-track"><div class="status-bar-fill pending" [style.width.%]="((aiOverview.pendingTransactions || 0) / aiOverview.totalTransactions * 100)"></div></div>
+              </div>
+            }
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>Revenue by Channel</h3></div>
+          <div class="chart-container"><canvas #revenueByChannelChart></canvas></div>
+        </div>
       </div>
-    </div>
 
-    <div class="stat-card">
-      <div class="stat-icon purple">💳</div>
-      <div class="stat-info">
-        <h4>{{ userRole === 'ADMIN' ? 'Total Transactions' : 'My Transactions' }}</h4>
-        <div class="stat-value">{{ totalTransactions }}</div>
+      @if (revenue) {
+        <div class="overview-row">
+          <div class="card card-wide">
+            <div class="card-header"><h3>Monthly Revenue Trend</h3></div>
+            <div class="chart-container"><canvas #monthlyRevenueChart></canvas></div>
+          </div>
+          @if (userRole === 'ADMIN' && revenue.byMerchant) {
+            <div class="card">
+              <div class="card-header"><h3>Top Merchants by Revenue</h3></div>
+              <div class="chart-container chart-tall"><canvas #revenueByMerchantChart></canvas></div>
+            </div>
+          }
+        </div>
+      }
+    }
+  }
+
+  <!-- ==================== TAB: TRENDS ==================== -->
+  @if (activeTab === 'trends') {
+    @if (trendsLoading) {
+      <div class="loading-state"><div class="spinner"></div><p>Computing trends...</p></div>
+    } @else if (trends) {
+      <div class="comparison-grid">
+        <div class="comparison-card">
+          <div class="comparison-header">
+            <span class="comparison-icon">📅</span>
+            <h4>This Week vs Last Week</h4>
+          </div>
+          <div class="comparison-body">
+            <div class="comparison-metric">
+              <span class="metric-label">Transactions</span>
+              <span class="metric-value">{{ trends.thisWeekCount }}</span>
+              <span class="metric-change" [class.positive]="trends.weeklyChange > 0" [class.negative]="trends.weeklyChange < 0">{{ formatPercent(trends.weeklyChange) }}</span>
+            </div>
+            <div class="comparison-metric">
+              <span class="metric-label">Revenue</span>
+              <span class="metric-value">{{ formatCurrency(trends.thisWeekRevenue) }}</span>
+              <span class="metric-change" [class.positive]="trends.weeklyRevenueChange > 0" [class.negative]="trends.weeklyRevenueChange < 0">{{ formatPercent(trends.weeklyRevenueChange) }}</span>
+            </div>
+            <div class="comparison-vs"><span>vs. {{ trends.lastWeekCount }} txns / {{ formatCurrency(trends.lastWeekRevenue) }}</span></div>
+          </div>
+        </div>
+        <div class="comparison-card">
+          <div class="comparison-header">
+            <span class="comparison-icon">📆</span>
+            <h4>This Month vs Last Month</h4>
+          </div>
+          <div class="comparison-body">
+            <div class="comparison-metric">
+              <span class="metric-label">Transactions</span>
+              <span class="metric-value">{{ trends.thisMonthCount }}</span>
+              <span class="metric-change" [class.positive]="trends.monthlyChange > 0" [class.negative]="trends.monthlyChange < 0">{{ formatPercent(trends.monthlyChange) }}</span>
+            </div>
+            <div class="comparison-metric">
+              <span class="metric-label">Revenue</span>
+              <span class="metric-value">{{ formatCurrency(trends.thisMonthRevenue) }}</span>
+              <span class="metric-change" [class.positive]="trends.monthlyRevenueChange > 0" [class.negative]="trends.monthlyRevenueChange < 0">{{ formatPercent(trends.monthlyRevenueChange) }}</span>
+            </div>
+            <div class="comparison-vs"><span>vs. {{ trends.lastMonthCount }} txns / {{ formatCurrency(trends.lastMonthRevenue) }}</span></div>
+          </div>
+        </div>
       </div>
-    </div>
 
-    <div class="stat-card">
-      <div class="stat-icon teal">📋</div>
-      <div class="stat-info">
-        <h4>{{ userRole === 'ADMIN' ? 'Total Settlements' : 'My Settlements' }}</h4>
-        <div class="stat-value">{{ totalSettlements }}</div>
+      <div class="chart-grid">
+        <div class="card card-wide">
+          <div class="card-header"><h3>Daily Transaction Volume (Last 30 Days)</h3></div>
+          <div class="chart-container"><canvas #trendLineChart></canvas></div>
+        </div>
       </div>
-    </div>
-  </div>
+      <div class="chart-grid two-col">
+        <div class="card">
+          <div class="card-header"><h3>Daily Revenue (Last 30 Days)</h3></div>
+          <div class="chart-container"><canvas #trendRevenueChart></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>Weekly Decline Rate Trend</h3></div>
+          <div class="chart-container"><canvas #declineRateChart></canvas></div>
+        </div>
+      </div>
+    }
+  }
 
-  <!-- Quick Actions -->
-  <div class="card">
-    <div class="card-header">
-      <h3>Quick Actions</h3>
-    </div>
-    <div class="quick-actions">
-      @if (userRole === 'ADMIN') {
-        <a routerLink="/users" class="action-card">
-          <div class="action-icon blue">👥</div>
-          <span>Manage Users</span>
-        </a>
-        <a routerLink="/merchants" class="action-card">
-          <div class="action-icon green">🏢</div>
-          <span>View Merchants</span>
-        </a>
-        <a routerLink="/transactions" class="action-card">
-          <div class="action-icon orange">💳</div>
-          <span>View Transactions</span>
-        </a>
-        <a routerLink="/settlements" class="action-card">
-          <div class="action-icon teal">📋</div>
-          <span>View Settlements</span>
-        </a>
-        <a routerLink="/refunds" class="action-card">
-          <div class="action-icon red">↩️</div>
-          <span>View Refunds</span>
-        </a>
-        <a routerLink="/reports" class="action-card">
-          <div class="action-icon purple">📊</div>
-          <span>View Reports</span>
-        </a>
+  <!-- ==================== TAB: SCORECARD ==================== -->
+  @if (activeTab === 'scorecard') {
+    @if (scorecardLoading) {
+      <div class="loading-state"><div class="spinner"></div><p>Scoring merchants...</p></div>
+    } @else {
+      <div class="scorecard-list">
+        @for (m of scorecard; track m.merchantId) {
+          <div class="scorecard-card">
+            <div class="scorecard-left">
+              <div class="scorecard-rank">
+                @if ($index === 0) { 🥇 }
+                @else if ($index === 1) { 🥈 }
+                @else if ($index === 2) { 🥉 }
+                @else { {{ $index + 1 }} }
+              </div>
+              <div class="scorecard-info">
+                <h4>{{ m.merchantName }}</h4>
+                <span class="badge" [ngClass]="{'badge-success': m.status === 'ACTIVE', 'badge-warning': m.status === 'PENDING', 'badge-danger': m.status === 'SUSPENDED'}">{{ m.status }}</span>
+              </div>
+            </div>
+            <div class="scorecard-metrics">
+              <div class="metric-item"><span class="metric-sm-label">Revenue</span><span class="metric-sm-value">{{ formatCurrency(m.revenue) }}</span></div>
+              <div class="metric-item"><span class="metric-sm-label">Transactions</span><span class="metric-sm-value">{{ m.totalTransactions }}</span></div>
+              <div class="metric-item"><span class="metric-sm-label">Avg Txn</span><span class="metric-sm-value">{{ formatCurrency(m.avgTransactionValue) }}</span></div>
+              <div class="metric-item"><span class="metric-sm-label">Decline</span><span class="metric-sm-value" [class.text-danger]="m.declineRate > 15">{{ m.declineRate }}%</span></div>
+              <div class="metric-item"><span class="metric-sm-label">Refund</span><span class="metric-sm-value">{{ m.refundRate }}%</span></div>
+            </div>
+            <div class="scorecard-score">
+              <div class="health-score-ring" [style.--score-color]="getHealthBarColor(m.healthScore)">
+                <span class="health-score-value">{{ m.healthScore }}</span>
+              </div>
+              <span class="rating-label" [style.color]="getRatingColor(m.rating)">{{ m.rating }}</span>
+            </div>
+          </div>
+        }
+        @if (scorecard.length === 0) {
+          <div class="no-data">No merchant scorecard data available.</div>
+        }
+      </div>
+    }
+  }
+
+  <!-- ==================== TAB: ANOMALIES ==================== -->
+  @if (activeTab === 'anomalies') {
+    @if (anomaliesLoading) {
+      <div class="loading-state"><div class="spinner"></div><p>Scanning for anomalies...</p></div>
+    } @else {
+      @if (anomalies.length === 0) {
+        <div class="empty-state">
+          <span class="empty-icon">✅</span>
+          <h3>All Clear</h3>
+          <p>No anomalies detected. All merchant activities appear normal.</p>
+        </div>
       } @else {
-        <a routerLink="/merchants" class="action-card">
-          <div class="action-icon green">🏢</div>
-          <span>My Merchant</span>
-        </a>
-        <a routerLink="/transactions" class="action-card">
-          <div class="action-icon orange">💳</div>
-          <span>My Transactions</span>
-        </a>
-        <a routerLink="/settlements" class="action-card">
-          <div class="action-icon teal">📋</div>
-          <span>My Settlements</span>
-        </a>
-        <a routerLink="/refunds" class="action-card">
-          <div class="action-icon red">↩️</div>
-          <span>My Refunds</span>
-        </a>
-        <a routerLink="/reports" class="action-card">
-          <div class="action-icon teal">📊</div>
-          <span>My Reports</span>
-        </a>
-      }
-      <a routerLink="/profile" class="action-card">
-        <div class="action-icon purple">👤</div>
-        <span>My Profile</span>
-      </a>
-    </div>
-  </div>
-
-  <!-- Charts Section -->
-  <div class="section-header">
-    <h2>📊 Analytics</h2>
-  </div>
-
-  @if (chartsLoading) {
-    <div class="charts-loading">
-      <div class="spinner"></div>
-      <p>Loading charts...</p>
-    </div>
-  }
-
-  @if (!chartsLoading && chartData) {
-    <!-- Row 1: Daily Volume (wide) + Transaction Status -->
-    <div class="chart-row">
-      <div class="chart-card chart-wide">
-        <div class="chart-card-header">
-          <h3>Transaction Volume (Last 7 Days)</h3>
-        </div>
-        <div class="chart-body">
-          <canvas #dailyVolumeChart></canvas>
-        </div>
-      </div>
-      <div class="chart-card chart-small">
-        <div class="chart-card-header">
-          <h3>Transaction Status</h3>
-        </div>
-        <div class="chart-body">
-          <canvas #txnStatusChart></canvas>
-        </div>
-      </div>
-    </div>
-
-    <!-- Row 2: Amount by Currency + Payment Channel -->
-    <div class="chart-row">
-      <div class="chart-card chart-wide">
-        <div class="chart-card-header">
-          <h3>Amount by Currency</h3>
-        </div>
-        <div class="chart-body">
-          <canvas #amountByCurrencyChart></canvas>
-        </div>
-      </div>
-      <div class="chart-card chart-small">
-        <div class="chart-card-header">
-          <h3>Payment Channel Distribution</h3>
-        </div>
-        <div class="chart-body">
-          <canvas #paymentChannelChart></canvas>
-        </div>
-      </div>
-    </div>
-
-    <!-- Row 3: Top Merchants (admin) + Settlement Status -->
-    <div class="chart-row">
-      @if (userRole === 'ADMIN' && chartData.topMerchants) {
-        <div class="chart-card chart-wide">
-          <div class="chart-card-header">
-            <h3>Top 5 Merchants by Volume</h3>
-          </div>
-          <div class="chart-body">
-            <canvas #topMerchantsChart></canvas>
-          </div>
+        <div class="anomaly-list">
+          @for (a of anomalies; track $index) {
+            <div class="anomaly-card" [ngClass]="{'anomaly-danger': a.severity === 'danger', 'anomaly-warning': a.severity === 'warning', 'anomaly-info': a.severity === 'info'}">
+              <div class="anomaly-icon">{{ getSeverityIcon(a.severity) }}</div>
+              <div class="anomaly-content">
+                <div class="anomaly-header-row">
+                  <span class="anomaly-merchant">{{ a.merchantName }}</span>
+                  <span class="anomaly-type badge badge-primary">{{ a.type }}</span>
+                </div>
+                <p class="anomaly-message">{{ a.message }}</p>
+                <span class="anomaly-time">Detected: {{ a.detectedAt | date:'short' }}</span>
+              </div>
+            </div>
+          }
         </div>
       }
-      <div class="chart-card" [ngClass]="userRole === 'ADMIN' && chartData.topMerchants ? 'chart-small' : 'chart-full'">
-        <div class="chart-card-header">
-          <h3>Settlement Types</h3>
-        </div>
-        <div class="chart-body">
-          <canvas #settlementTypesChart></canvas>
-        </div>
-      </div>
-    </div>
+    }
   }
 
-  <!-- Admin: Recent Users -->
-  @if (userRole === 'ADMIN' && recentUsers.length > 0) {
-    <div class="card">
-      <div class="card-header">
-        <h3>Recent Users</h3>
-        <a routerLink="/users" class="btn btn-sm btn-outline">View All →</a>
-      </div>
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Role</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let user of recentUsers">
-            <td>
-              <strong>{{ user.firstName }} {{ user.lastName }}</strong>
-              <span *ngIf="!user.firstName">{{ user.displayName }}</span>
-            </td>
-            <td>{{ user.email }}</td>
-            <td><span class="badge badge-primary">{{ user.role }}</span></td>
-            <td>
-              <span class="badge" [ngClass]="{
-                'badge-success': user.status === 'ACTIVE',
-                'badge-danger': user.status === 'SUSPENDED' || user.status === 'INACTIVE',
-                'badge-warning': user.status === 'PENDING'
-              }">{{ user.status || 'Unknown' }}</span>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+  <!-- ==================== TAB: INSIGHTS ==================== -->
+  @if (activeTab === 'insights') {
+    @if (insightsLoading) {
+      <div class="loading-state"><div class="spinner"></div><p>Generating AI insights...</p></div>
+    } @else {
+      @if (insights.length === 0) {
+        <div class="no-data">No insights available. Try recomputing analytics.</div>
+      } @else {
+        <div class="insights-grid">
+          @for (insight of insights; track $index) {
+            <div class="ai-insight-card" [ngClass]="{'insight-success': insight.severity === 'success', 'insight-warning': insight.severity === 'warning', 'insight-danger': insight.severity === 'danger', 'insight-info': insight.severity === 'info'}">
+              <div class="ai-insight-icon">
+                @switch (insight.severity) {
+                  @case ('success') { ✅ }
+                  @case ('warning') { ⚠️ }
+                  @case ('danger') { 🚨 }
+                  @default { 💡 }
+                }
+              </div>
+              <div class="ai-insight-content">
+                <h4>{{ insight.title }}</h4>
+                <p>{{ insight.message }}</p>
+                @if (insight.category) {
+                  <span class="ai-insight-category">{{ insight.category }}</span>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+    }
   }
-
-  <!-- AI Insights Section -->
-  <div class="card">
-    <div class="card-header">
-      <h3>🤖 AI-Powered Insights</h3>
-    </div>
-    <div *ngIf="insightsLoading" class="no-data">Analyzing data...</div>
-    <div *ngIf="!insightsLoading && insights.length === 0" class="no-data">No insights available yet.</div>
-    <div *ngIf="!insightsLoading && insights.length > 0" class="insights-list">
-      <div *ngFor="let insight of insights" class="insight-card" [ngClass]="{
-        'insight-success': insight.severity === 'success',
-        'insight-warning': insight.severity === 'warning',
-        'insight-danger': insight.severity === 'danger',
-        'insight-info': insight.severity === 'info'
-      }">
-        <div class="insight-title">{{ insight.title }}</div>
-        <div class="insight-message">{{ insight.message }}</div>
-      </div>
-    </div>
-  </div>
 </div>

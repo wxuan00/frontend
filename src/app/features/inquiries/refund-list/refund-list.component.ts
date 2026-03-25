@@ -22,6 +22,7 @@ export class RefundListComponent implements OnInit {
   dateFrom = '';
   dateTo = '';
   loading = true;
+  loadError = false;
 
   currentPage = 1;
   pageSize = 10;
@@ -39,13 +40,14 @@ export class RefundListComponent implements OnInit {
 
   loadRefunds() {
     this.loading = true;
+    this.loadError = false;
     this.refundService.getAllRefunds().subscribe({
       next: (data) => {
-        this.allRefunds = data;
+        this.allRefunds = data as Refund[];
         this.applyFilters();
         this.loading = false;
       },
-      error: () => { this.loading = false; }
+      error: () => { this.loading = false; this.loadError = true; }
     });
   }
 

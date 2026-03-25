@@ -18,8 +18,16 @@ export class RoleService {
     return this.http.get<any[]>(`${this.apiUrl}/with-permissions`);
   }
 
+  getAllPermissions(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/permissions/all`);
+  }
+
   getRolePermissions(roleId: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/${roleId}/permissions`);
+  }
+
+  updateRolePermissions(roleId: number, permissionIds: number[]): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/${roleId}/permissions`, permissionIds);
   }
 
   getRoleById(id: number): Observable<any> {

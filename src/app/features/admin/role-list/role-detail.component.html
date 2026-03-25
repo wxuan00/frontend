@@ -1,0 +1,77 @@
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h1>Role Details</h1>
+      <div class="breadcrumb">Administration &rsaquo; Roles &rsaquo; View</div>
+    </div>
+    <button (click)="goBack()" class="btn btn-secondary">&#8592; Back to Roles</button>
+  </div>
+
+  @if (loading) {
+    <div class="table-loading">Loading role details...</div>
+  } @else if (error) {
+    <div class="no-data">{{ error }}</div>
+  } @else if (role) {
+    <div class="detail-grid">
+      <!-- Role Info Card -->
+      <div class="card detail-card">
+        <div class="card-header"><h3>&#128274; Role Information</h3></div>
+        <div class="detail-body">
+          <div class="role-badge-wrap">
+            <span class="badge badge-primary role-badge-lg">{{ role.roleName }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Role ID</span>
+            <span class="detail-value id-cell">#{{ role.roleId }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Role Name</span>
+            <span class="detail-value"><strong>{{ role.roleName }}</strong></span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Role Type</span>
+            <span class="detail-value">{{ role.roleType || '-' }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Description</span>
+            <span class="detail-value">{{ role.description || '-' }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Total Permissions</span>
+            <span class="detail-value"><strong>{{ selectedPermIds.size }}</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Permissions Edit Card -->
+      <div class="card detail-card">
+        <div class="card-header" style="display:flex; align-items:center; justify-content:space-between;">
+          <h3>&#9989; Manage Permissions</h3>
+          <button class="btn btn-success btn-sm" (click)="savePermissions()" [disabled]="savingPerms">
+            {{ savingPerms ? 'Saving...' : '&#10003; Save' }}
+          </button>
+        </div>
+        <div class="detail-body perm-scroll">
+          @if (getPermsByModule().length === 0) {
+            <div class="no-data">No permissions available.</div>
+          } @else {
+            @for (group of getPermsByModule(); track group.module) {
+              <div class="perm-module">
+                <div class="perm-module-title">{{ group.module }}</div>
+                @for (p of group.perms; track p.permissionId) {
+                  <label class="perm-checkbox">
+                    <input type="checkbox" [checked]="selectedPermIds.has(p.permissionId)" (change)="togglePerm(p.permissionId)">
+                    <span class="perm-name">{{ p.permissionName }}</span>
+                    @if (p.description) {
+                      <span class="perm-desc">— {{ p.description }}</span>
+                    }
+                  </label>
+                }
+              </div>
+            }
+          }
+        </div>
+      </div>
+    </div>
+  }
+</div>

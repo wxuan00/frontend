@@ -78,6 +78,11 @@ export class AuthService {
     return this.http.get(`http://localhost:8080/api/users/${id}`);
   }
 
+  // Get User with role + permissions details
+  getUserDetails(id: number): Observable<any> {
+    return this.http.get(`http://localhost:8080/api/users/${id}/details`);
+  }
+
   // Profile endpoints
   getProfile(): Observable<any> {
     return this.http.get('http://localhost:8080/api/profile');

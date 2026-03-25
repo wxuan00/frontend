@@ -97,6 +97,11 @@
 
     @if (loading) {
       <div class="table-loading">Loading users...</div>
+    } @else if (loadError) {
+      <div class="load-error">
+        <span>&#9888; Failed to load data. Is the server running?</span>
+        <button class="btn btn-sm btn-outline" (click)="fetchUsers()">&#8635; Retry</button>
+      </div>
     }
 
     @if (!loading) {
@@ -112,7 +117,6 @@
               <span class="sort-icon">{{ sortColumn === 'email' ? (sortDirection === 'asc' ? '&#9650;' : '&#9660;') : '&#8693;' }}</span>
             </th>
             <th>Contact</th>
-            <th>Permissions</th>
             <th class="sortable" (click)="sort('status')">
               Status
               <span class="sort-icon">{{ sortColumn === 'status' ? (sortDirection === 'asc' ? '&#9650;' : '&#9660;') : '&#8693;' }}</span>
@@ -134,12 +138,6 @@
             <td>{{ user.email }}</td>
             <td>{{ user.contactNumber || '-' }}</td>
             <td>
-              <div class="permission-tags">
-                <span class="perm-tag" *ngFor="let p of getUserPermissions(user)">{{ p.permissionName }}</span>
-                <span *ngIf="getUserPermissions(user).length === 0" class="text-muted">-</span>
-              </div>
-            </td>
-            <td>
               <span class="badge" [ngClass]="{
                 'badge-success': user.status === 'ACTIVE',
                 'badge-danger': user.status === 'SUSPENDED' || user.status === 'INACTIVE',
@@ -148,6 +146,7 @@
             </td>
             <td>
               <div class="action-btns">
+                <a [routerLink]="['/users', user.userId, 'view']" class="btn btn-sm btn-outline">View</a>
                 <a [routerLink]="['/users', user.userId, 'edit']" class="btn btn-sm btn-outline">Edit</a>
                 <button (click)="deleteUser(user.userId, user.firstName + ' ' + user.lastName)" class="btn btn-sm btn-danger">Delete</button>
               </div>

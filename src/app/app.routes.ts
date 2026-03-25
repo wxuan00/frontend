@@ -4,8 +4,10 @@ import { MfaComponent } from './features/auth/mfa/mfa.component';
 import { DashboardComponent } from './features/dashboard/analytics-dashboard/analytics-dashboard.component';
 import { UserListComponent } from './features/admin/user-list/user-list.component';
 import { UserFormComponent } from './features/admin/user-form/user-form.component';
+import { UserDetailComponent } from './features/admin/user-list/user-detail.component';
 import { RoleListComponent } from './features/admin/role-list/role-list.component';
 import { RoleFormComponent } from './features/admin/role-form/role-form.component';
+import { RoleDetailComponent } from './features/admin/role-list/role-detail.component';
 import { MerchantListComponent } from './features/inquiries/merchant-list/merchant-list.component';
 import { MerchantDetailComponent } from './features/inquiries/merchant-detail/merchant-detail.component';
 import { MerchantFormComponent } from './features/inquiries/merchant-form/merchant-form.component';
@@ -21,7 +23,6 @@ import { ViewProfileComponent } from './features/profile/view-profile/view-profi
 import { EditProfileComponent } from './features/profile/edit-profile/edit-profile.component';
 import { ChangePasswordComponent } from './features/profile/change-password/change-password.component';
 import { SummaryReportComponent } from './features/reports/summary-report/summary-report.component';
-import { AiAnalyticsComponent } from './features/analytics/ai-analytics/ai-analytics.component';
 import { authGuard } from './core/guards/auth-guard';
 import { adminGuard } from './core/guards/admin-guard';
 import { LayoutComponent } from './shared/components/layout/layout.component';
@@ -34,49 +35,51 @@ export const routes: Routes = [
     path: '', 
     component: LayoutComponent,
     canActivate: [authGuard],
+    runGuardsAndResolvers: 'always',
     children: [
-      { path: 'dashboard', component: DashboardComponent },
-      { path: 'analytics', component: AiAnalyticsComponent },
+      { path: 'dashboard', component: DashboardComponent, runGuardsAndResolvers: 'always' },
 
       // Admin-only routes: User management
-      { path: 'users', component: UserListComponent, canActivate: [adminGuard] },
-      { path: 'users/new', component: UserFormComponent, canActivate: [adminGuard] },
-      { path: 'users/:id/edit', component: UserFormComponent, canActivate: [adminGuard] },
+      { path: 'users', component: UserListComponent, canActivate: [adminGuard], runGuardsAndResolvers: 'always' },
+      { path: 'users/new', component: UserFormComponent, canActivate: [adminGuard], runGuardsAndResolvers: 'always' },
+      { path: 'users/:id/edit', component: UserFormComponent, canActivate: [adminGuard], runGuardsAndResolvers: 'always' },
+      { path: 'users/:id/view', component: UserDetailComponent, canActivate: [adminGuard], runGuardsAndResolvers: 'always' },
       
       // Admin-only routes: Role management
-      { path: 'roles', component: RoleListComponent, canActivate: [adminGuard] },
-      { path: 'roles/new', component: RoleFormComponent, canActivate: [adminGuard] },
-      { path: 'roles/:id/edit', component: RoleFormComponent, canActivate: [adminGuard] },
+      { path: 'roles', component: RoleListComponent, canActivate: [adminGuard], runGuardsAndResolvers: 'always' },
+      { path: 'roles/new', component: RoleFormComponent, canActivate: [adminGuard], runGuardsAndResolvers: 'always' },
+      { path: 'roles/:id/edit', component: RoleFormComponent, canActivate: [adminGuard], runGuardsAndResolvers: 'always' },
+      { path: 'roles/:id/view', component: RoleDetailComponent, canActivate: [adminGuard], runGuardsAndResolvers: 'always' },
 
       // Merchant inquiry - accessible by all (filtered by role in backend)
-      { path: 'merchants', component: MerchantListComponent },
-      { path: 'merchants/new', component: MerchantFormComponent, canActivate: [adminGuard] },
-      { path: 'merchants/:id/edit', component: MerchantFormComponent, canActivate: [adminGuard] },
-      { path: 'merchants/:id', component: MerchantDetailComponent },
+      { path: 'merchants', component: MerchantListComponent, runGuardsAndResolvers: 'always' },
+      { path: 'merchants/new', component: MerchantFormComponent, canActivate: [adminGuard], runGuardsAndResolvers: 'always' },
+      { path: 'merchants/:id/edit', component: MerchantFormComponent, canActivate: [adminGuard], runGuardsAndResolvers: 'always' },
+      { path: 'merchants/:id', component: MerchantDetailComponent, runGuardsAndResolvers: 'always' },
 
       // Transaction inquiry - accessible by all (filtered by role in backend)
-      { path: 'transactions', component: TransactionListComponent },
-      { path: 'transactions/:id', component: TransactionDetailComponent },
+      { path: 'transactions', component: TransactionListComponent, runGuardsAndResolvers: 'always' },
+      { path: 'transactions/:id', component: TransactionDetailComponent, runGuardsAndResolvers: 'always' },
 
       // Settlement inquiry - accessible by all (filtered by role in backend)
-      { path: 'settlements', component: SettlementListComponent },
-      { path: 'settlements/:id', component: SettlementDetailComponent },
+      { path: 'settlements', component: SettlementListComponent, runGuardsAndResolvers: 'always' },
+      { path: 'settlements/:id', component: SettlementDetailComponent, runGuardsAndResolvers: 'always' },
 
       // Credit Advice inquiry - accessible by all (filtered by role in backend)
-      { path: 'credit-advices', component: CreditAdviceListComponent },
-      { path: 'credit-advices/:id', component: CreditAdviceDetailComponent },
+      { path: 'credit-advices', component: CreditAdviceListComponent, runGuardsAndResolvers: 'always' },
+      { path: 'credit-advices/:id', component: CreditAdviceDetailComponent, runGuardsAndResolvers: 'always' },
 
       // Refund inquiry - accessible by all (filtered transactions of type REFUND)
-      { path: 'refunds', component: RefundListComponent },
-      { path: 'refunds/:id', component: RefundDetailComponent },
+      { path: 'refunds', component: RefundListComponent, runGuardsAndResolvers: 'always' },
+      { path: 'refunds/:id', component: RefundDetailComponent, runGuardsAndResolvers: 'always' },
 
       // Reports - accessible by all authenticated users
-      { path: 'reports', component: SummaryReportComponent },
+      { path: 'reports', component: SummaryReportComponent, runGuardsAndResolvers: 'always' },
 
       // Profile management - accessible by all authenticated users
-      { path: 'profile', component: ViewProfileComponent },
-      { path: 'profile/edit', component: EditProfileComponent },
-      { path: 'profile/change-password', component: ChangePasswordComponent },
+      { path: 'profile', component: ViewProfileComponent, runGuardsAndResolvers: 'always' },
+      { path: 'profile/edit', component: EditProfileComponent, runGuardsAndResolvers: 'always' },
+      { path: 'profile/change-password', component: ChangePasswordComponent, runGuardsAndResolvers: 'always' },
 
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]

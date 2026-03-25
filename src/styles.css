@@ -344,6 +344,18 @@ select.form-control {
   font-size: 0.9rem;
 }
 
+/* ===== LOAD ERROR / RETRY ===== */
+.load-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 40px 20px;
+  color: #b45309;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
 /* ===== SUCCESS & ERROR MESSAGES ===== */
 .success-msg {
   color: #2e7d32;

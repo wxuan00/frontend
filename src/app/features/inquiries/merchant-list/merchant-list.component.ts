@@ -21,6 +21,7 @@ export class MerchantListComponent implements OnInit {
   filteredMerchants: Merchant[] = [];
   merchants: Merchant[] = [];
   loading = true;
+  loadError = false;
   searchTerm: string = '';
   filterStatus: string = '';
   isAdmin = false;
@@ -51,16 +52,14 @@ export class MerchantListComponent implements OnInit {
 
   loadMerchants() {
     this.loading = true;
+    this.loadError = false;
     this.merchantService.getAllMerchants().subscribe({
       next: (data) => {
-        this.allMerchants = data;
+        this.allMerchants = data as Merchant[];
         this.applyFilters();
         this.loading = false;
       },
-      error: (err) => {
-        console.error(err);
-        this.loading = false;
-      }
+      error: () => { this.loading = false; this.loadError = true; }
     });
   }
 

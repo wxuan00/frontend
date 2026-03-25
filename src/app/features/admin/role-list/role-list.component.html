@@ -21,7 +21,7 @@
   @if (showForm) {
     <div class="card" style="max-width:560px;">
       <div class="card-header">
-        <h3>{{ editMode ? 'Edit Role' : 'Create New Role' }}</h3>
+        <h3>{{ editMode ? 'Edit Role' : 'Create New ' + (activeTab === 'bank' ? 'Bank' : 'Merchant') + ' Role' }}</h3>
       </div>
       <form (ngSubmit)="saveRole()">
         <div class="form-group">
@@ -30,15 +30,13 @@
           <span class="field-error" *ngIf="formErrors['roleName']">{{ formErrors['roleName'] }}</span>
         </div>
 
-        <div class="form-group">
-          <label>Role Type</label>
-          <select class="form-control" [class.input-error]="formErrors['roleType']" [(ngModel)]="formData.roleType" name="roleType">
-            <option value="">Select Type</option>
-            <option value="SYSTEM">System (Bank)</option>
-            <option value="BUSINESS">Business (Merchant)</option>
-          </select>
-          <span class="field-error" *ngIf="formErrors['roleType']">{{ formErrors['roleType'] }}</span>
-        </div>
+        @if (editMode) {
+          <div class="form-group">
+            <label>Role Type</label>
+            <input type="text" class="form-control" [value]="formData.roleType" readonly style="background:#f5f5f5; cursor:not-allowed;">
+            <small class="text-muted">Role type cannot be changed after creation.</small>
+          </div>
+        }
 
         <div class="form-group">
           <label>Description</label>
@@ -54,6 +52,14 @@
   }
 
   <div class="card">
+    @if (loading) {
+      <div class="table-loading">Loading roles...</div>
+    } @else if (loadError) {
+      <div class="load-error">
+        <span>&#9888; Failed to load data. Is the server running?</span>
+        <button class="btn btn-sm btn-outline" (click)="fetchRoles()">&#8635; Retry</button>
+      </div>
+    } @else {
     <div class="card-header">
       <h3>{{ activeTab === 'bank' ? 'Bank' : 'Merchant' }} Roles ({{ roles.length }})</h3>
     </div>
@@ -63,7 +69,6 @@
           <th>ID</th>
           <th>Name</th>
           <th>Type</th>
-          <th>Permissions</th>
           <th>Description</th>
           <th>Actions</th>
         </tr>
@@ -73,15 +78,10 @@
           <td class="id-cell">#{{ role.roleId }}</td>
           <td><span class="badge badge-primary">{{ role.roleName }}</span></td>
           <td>{{ role.roleType || '-' }}</td>
-          <td>
-            <div class="permission-tags">
-              <span class="perm-tag" *ngFor="let p of role.permissions">{{ p.permissionName }}</span>
-              <span *ngIf="!role.permissions || role.permissions.length === 0" class="text-muted">No permissions</span>
-            </div>
-          </td>
           <td>{{ role.description || '-' }}</td>
           <td>
             <div class="action-btns">
+              <a [routerLink]="['/roles', role.roleId, 'view']" class="btn btn-sm btn-outline">View</a>
               <button (click)="startEdit(role)" class="btn btn-sm btn-outline">Edit</button>
               <button (click)="deleteRole(role.roleId, role.roleName)" class="btn btn-sm btn-danger">Delete</button>
             </div>
@@ -93,6 +93,7 @@
     <div *ngIf="roles.length === 0" class="no-data">
       No {{ activeTab === 'bank' ? 'bank' : 'merchant' }} roles defined yet.
     </div>
+    }
   </div>
 
   <app-confirm-dialog
@@ -105,3 +106,4 @@
     (cancelled)="cancelDeleteRole()">
   </app-confirm-dialog>
 </div>
+

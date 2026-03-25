@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { RoleService } from '../../../core/services/role.service';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { ToastService } from '../../../core/services/toast.service';
@@ -8,7 +9,7 @@ import { ToastService } from '../../../core/services/toast.service';
 @Component({
   selector: 'app-role-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, ConfirmDialogComponent],
+  imports: [CommonModule, FormsModule, RouterModule, ConfirmDialogComponent],
   templateUrl: './role-list.component.html',
   styleUrls: ['./role-list.component.css']
 })
@@ -20,6 +21,7 @@ export class RoleListComponent implements OnInit {
   editId: number | null = null;
   activeTab: 'bank' | 'merchant' = 'bank';
   loading = true;
+  loadError = false;
 
   formData = {
     roleName: '',
@@ -41,16 +43,14 @@ export class RoleListComponent implements OnInit {
 
   fetchRoles() {
     this.loading = true;
+    this.loadError = false;
     this.roleService.getAllRolesWithPermissions().subscribe({
       next: (data) => {
         this.allRoles = data;
         this.applyFilter();
         this.loading = false;
       },
-      error: (err) => {
-        console.error(err);
-        this.loading = false;
-      }
+      error: () => { this.loading = false; this.loadError = true; }
     });
   }
 
@@ -108,13 +108,12 @@ export class RoleListComponent implements OnInit {
     if (!this.formData.roleName.trim()) {
       this.formErrors['roleName'] = 'Role name is required';
     }
-    if (!this.formData.roleType) {
-      this.formErrors['roleType'] = 'Role type is required';
-    }
     if (Object.keys(this.formErrors).length > 0) return;
 
     if (this.editMode && this.editId) {
-      this.roleService.updateRole(this.editId, this.formData).subscribe({
+      // Only update name and description, NOT roleType
+      const payload = { roleName: this.formData.roleName, description: this.formData.description, roleType: this.formData.roleType };
+      this.roleService.updateRole(this.editId, payload).subscribe({
         next: () => {
           this.toast.success('Role updated successfully');
           this.fetchRoles();
@@ -127,7 +126,12 @@ export class RoleListComponent implements OnInit {
         }
       });
     } else {
-      this.roleService.createRole(this.formData).subscribe({
+      // Set roleType based on active tab
+      const payload = {
+        ...this.formData,
+        roleType: this.activeTab === 'bank' ? 'SYSTEM' : 'BUSINESS'
+      };
+      this.roleService.createRole(payload).subscribe({
         next: () => {
           this.toast.success('Role created successfully');
           this.fetchRoles();
@@ -170,5 +174,6 @@ export class RoleListComponent implements OnInit {
     this.editMode = false;
     this.editId = null;
     this.formData = { roleName: '', roleType: '', description: '' };
+    this.formErrors = {};
   }
 }

@@ -23,8 +23,7 @@ export class TransactionListComponent implements OnInit {
   dateFrom = '';
   dateTo = '';
   loading = true;
-
-  // Pagination
+  loadError = false;
   currentPage = 1;
   pageSize = 10;
 
@@ -43,15 +42,14 @@ export class TransactionListComponent implements OnInit {
 
   loadTransactions() {
     this.loading = true;
+    this.loadError = false;
     this.transactionService.getAllTransactions().subscribe({
       next: (data) => {
         this.allTransactions = data;
         this.applyFilters();
         this.loading = false;
       },
-      error: () => {
-        this.loading = false;
-      }
+      error: () => { this.loading = false; this.loadError = true; }
     });
   }
 

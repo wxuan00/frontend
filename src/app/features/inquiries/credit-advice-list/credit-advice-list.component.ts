@@ -22,6 +22,7 @@ export class CreditAdviceListComponent implements OnInit {
   dateFrom = '';
   dateTo = '';
   loading = true;
+  loadError = false;
 
   currentPage = 1;
   pageSize = 10;
@@ -39,13 +40,14 @@ export class CreditAdviceListComponent implements OnInit {
 
   loadCreditAdvices() {
     this.loading = true;
+    this.loadError = false;
     this.creditAdviceService.getAllCreditAdvices().subscribe({
       next: (data) => {
-        this.allCreditAdvices = data;
+        this.allCreditAdvices = data as CreditAdvice[];
         this.applyFilters();
         this.loading = false;
       },
-      error: () => { this.loading = false; }
+      error: () => { this.loading = false; this.loadError = true; }
     });
   }
 

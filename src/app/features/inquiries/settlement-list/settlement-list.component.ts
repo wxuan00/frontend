@@ -22,6 +22,7 @@ export class SettlementListComponent implements OnInit {
   dateFrom = '';
   dateTo = '';
   loading = true;
+  loadError = false;
 
   currentPage = 1;
   pageSize = 10;
@@ -39,13 +40,14 @@ export class SettlementListComponent implements OnInit {
 
   loadSettlements() {
     this.loading = true;
+    this.loadError = false;
     this.settlementService.getAllSettlements().subscribe({
       next: (data) => {
-        this.allSettlements = data;
+        this.allSettlements = data as Settlement[];
         this.applyFilters();
         this.loading = false;
       },
-      error: () => { this.loading = false; }
+      error: () => { this.loading = false; this.loadError = true; }
     });
   }
 

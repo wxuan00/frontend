@@ -7,11 +7,20 @@
   display: grid;
   grid-template-columns: 300px 1fr;
   gap: 24px;
+  align-items: stretch;
+}
+
+.profile-grid > .card {
+  margin-bottom: 0;
+  box-sizing: border-box;
 }
 
 .profile-main {
   text-align: center;
   padding: 36px 24px;
+  display: flex;
+  flex-direction: column;
+  grid-row: 1 / 3;
 }
 
 .profile-avatar-area {
@@ -19,6 +28,7 @@
   flex-direction: column;
   align-items: center;
   gap: 12px;
+  flex: 1;
 }
 
 .avatar-large {
@@ -130,7 +140,7 @@
 
 /* MFA Settings */
 .mfa-settings {
-  grid-column: 1 / -1;
+  grid-column: 2 / 3;
   padding: 24px;
 }
 

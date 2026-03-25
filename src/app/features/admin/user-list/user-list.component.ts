@@ -21,6 +21,7 @@ export class UserListComponent implements OnInit {
   filteredUsers: User[] = [];
   users: User[] = [];
   loading = true;
+  loadError = false;
   showForm = false;
   searchTerm = '';
   filterStatus = '';
@@ -75,16 +76,14 @@ export class UserListComponent implements OnInit {
 
   fetchUsers() {
     this.loading = true;
+    this.loadError = false;
     this.authService.getAllUsers().subscribe({
       next: (data) => {
-        this.allUsers = data;
+        this.allUsers = data as User[];
         this.applyFilters();
         this.loading = false;
       },
-      error: (err) => {
-        console.error(err);
-        this.loading = false;
-      }
+      error: () => { this.loading = false; this.loadError = true; }
     });
   }
 

@@ -32,7 +32,12 @@
   <div class="card">
     @if (loading) {
       <div class="table-loading">Loading refunds...</div>
-    }
+    } @else if (loadError) {
+      <div class="load-error">
+        <span>&#9888; Failed to load data. Is the server running?</span>
+        <button class="btn btn-sm btn-outline" (click)="loadRefunds()">&#8635; Retry</button>
+      </div>
+    } @else {
       <div class="card-header">
         <h3>Refunds ({{ filteredRefunds.length }})</h3>
       </div>
@@ -86,5 +91,6 @@
         (pageChange)="onPageChange($event)"
         (pageSizeChange)="onPageSizeChange($event)">
       </app-pagination>
+    }
   </div>
 </div>
