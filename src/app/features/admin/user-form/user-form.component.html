@@ -4,10 +4,13 @@
       <h1>{{ isEditMode ? 'Edit User' : 'Create User' }}</h1>
       <div class="breadcrumb">Administration › Users › {{ isEditMode ? 'Edit' : 'New' }}</div>
     </div>
-    <a routerLink="/users" class="btn btn-secondary">← Back to Users</a>
+    <div style="display:flex; gap:10px;">
+      <a routerLink="/users" class="btn btn-secondary">← Back to Users</a>
+      <button *ngIf="isEditMode" (click)="confirmDelete()" class="btn btn-danger">&#128465; Delete</button>
+    </div>
   </div>
 
-  <div class="card" style="max-width:700px;">
+  <div class="card">
     <div class="card-header">
       <h3>{{ isEditMode ? 'Update User Information' : 'New User Details' }}</h3>
     </div>
@@ -40,19 +43,14 @@
         </div>
 
         <div class="form-group">
-          <label>{{ isEditMode ? 'New Password (leave blank to keep)' : 'Password *' }}</label>
-          <input type="password" class="form-control" [(ngModel)]="formData.password" name="password" placeholder="Enter password" [required]="!isEditMode">
-        </div>
-
-        <div class="form-group">
           <label>Role *</label>
           @if (isEditMode) {
-            <input type="text" class="form-control" [value]="formData.role === 'ADMIN' ? 'Admin User' : 'Merchant User'" readonly style="background:#f5f5f5; cursor:not-allowed;">
-            <small class="text-muted">Role type cannot be changed after creation.</small>
+            <input type="text" class="form-control" [value]="formData.role === 'ADMIN' ? 'Bank User' : 'Merchant User'" readonly style="background:#f5f5f5; cursor:not-allowed;">
+            <small class="text-muted">User type cannot be changed after creation.</small>
           } @else {
             <select class="form-control" [(ngModel)]="formData.role" name="role">
               <option value="MERCHANT">Merchant User</option>
-              <option value="ADMIN">Admin User</option>
+              <option value="ADMIN">Bank User</option>
             </select>
           }
         </div>
@@ -67,6 +65,25 @@
         </div>
       </div>
 
+      <!-- Role Assignment (both create and edit) -->
+      @if (allRoles.length > 0) {
+        <div class="permissions-section">
+          <div class="permissions-header">
+            <h4>&#128274; Assign Roles</h4>
+            <small class="text-muted">Select one or more roles to assign to this user.</small>
+          </div>
+          <div class="role-select-group">
+            @for (role of filteredRoles; track role.roleId) {
+              <label class="perm-item" [class.selected]="isRoleSelected(role.roleId)">
+                <input type="checkbox" [checked]="isRoleSelected(role.roleId)" (change)="toggleRole(role.roleId)">
+                <span class="perm-name">{{ role.roleName }}</span>
+                <span class="perm-desc">{{ role.roleType || '' }}{{ role.description ? ' — ' + role.description : '' }}</span>
+              </label>
+            }
+          </div>
+        </div>
+      }
+
       <div class="form-actions">
         <button type="button" (click)="cancel()" class="btn btn-secondary">Cancel</button>
         <button type="submit" class="btn btn-primary">{{ isEditMode ? 'Save Changes' : 'Create User' }}</button>
@@ -76,4 +93,14 @@
     <p *ngIf="message" class="success-msg">✅ {{ message }}</p>
     <p *ngIf="errorMessage" class="error-msg">⚠️ {{ errorMessage }}</p>
   </div>
+
+  <app-confirm-dialog
+    [visible]="showDeleteDialog"
+    title="Delete User"
+    [message]="'Are you sure you want to delete user \'' + deleteLabel + '\'? This action cannot be undone.'"
+    confirmText="Delete"
+    type="danger"
+    (confirmed)="onDeleteConfirmed()"
+    (cancelled)="showDeleteDialog = false">
+  </app-confirm-dialog>
 </div>

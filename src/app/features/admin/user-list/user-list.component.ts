@@ -1,15 +1,14 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { RoleService } from '../../../core/services/role.service';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 import { ToastService } from '../../../core/services/toast.service';
 import { User } from '../../../core/models/index';
-import { RouteRefreshService } from '../../../core/services/route-refresh.service';
-import { Subscription } from 'rxjs';
+import { Subscription, filter } from 'rxjs';
 
 @Component({
   selector: 'app-user-list',
@@ -28,6 +27,8 @@ export class UserListComponent implements OnInit, OnDestroy {
   searchTerm = '';
   filterStatus = '';
   activeTab: 'bank' | 'merchant' = 'bank';
+
+  private navSub?: Subscription;
 
   // Pagination
   pagination = { currentPage: 1, pageSize: 10, totalPages: 1, totalItems: 0 };
@@ -55,22 +56,27 @@ export class UserListComponent implements OnInit, OnDestroy {
   deleteTargetId: number | null = null;
   deleteTargetName = '';
 
-  private refreshSub!: Subscription;
-
   constructor(
     private authService: AuthService,
     private roleService: RoleService,
     private toast: ToastService,
-    private routeRefresh: RouteRefreshService
+    private router: Router
   ) {}
 
   ngOnInit(): void {
     this.fetchUsers();
     this.fetchRolePermissions();
-    this.refreshSub = this.routeRefresh.refresh$.subscribe(() => this.fetchUsers());
+    // Re-fetch whenever navigating back to this page
+    this.navSub = this.router.events.pipe(
+      filter(e => e instanceof NavigationEnd && e.urlAfterRedirects === '/users')
+    ).subscribe(() => {
+      this.fetchUsers();
+    });
   }
 
-  ngOnDestroy(): void { this.refreshSub?.unsubscribe(); }
+  ngOnDestroy(): void {
+    this.navSub?.unsubscribe();
+  }
 
   fetchRolePermissions() {
     this.roleService.getAllRolesWithPermissions().subscribe({

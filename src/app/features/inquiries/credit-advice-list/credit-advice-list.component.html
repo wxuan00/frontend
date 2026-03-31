@@ -5,25 +5,37 @@
       <div class="breadcrumb">Inquiries › Credit Advice</div>
     </div>
     <div class="header-actions">
-      <button class="btn btn-sm btn-ghost" (click)="clearFilters()">✕ Clear Filters</button>
     </div>
   </div>
 
-  <div class="filter-row">
-    <div class="search-bar">
-      <input type="text" placeholder="Search by Merchant Name, Advice Ref..." [(ngModel)]="searchTerm" (input)="applyFilters()">
-      <span class="search-icon">🔍</span>
+  <!-- Filters -->
+  <div class="filter-bar">
+    <div class="filter-item filter-search">
+      <label class="filter-label">Merchant Name</label>
+      <div class="search-input-wrap">
+        <span class="search-prefix">🔍</span>
+        <input type="text" placeholder="Enter merchant name" [(ngModel)]="filterMerchant" (input)="onFilterChange()">
+      </div>
     </div>
-    <select class="form-control filter-select" [(ngModel)]="filterStatus" (change)="applyFilters()" style="display:none;">
-      <option value="">All</option>
-    </select>
-  </div>
-
-  <div class="filter-row date-row">
-    <label class="date-label">Date Range:</label>
-    <input type="date" class="form-control date-input" [(ngModel)]="dateFrom" (change)="applyFilters()">
-    <span class="date-separator">to</span>
-    <input type="date" class="form-control date-input" [(ngModel)]="dateTo" (change)="applyFilters()">
+    <div class="filter-item">
+      <label class="filter-label">Account Number</label>
+      <div class="search-input-wrap">
+        <span class="search-prefix">🔍</span>
+        <input type="text" placeholder="Enter account number" [(ngModel)]="filterAccountNo" (input)="onFilterChange()">
+      </div>
+    </div>
+    <div class="filter-item">
+      <label class="filter-label">Date From</label>
+      <input type="date" class="form-control" [(ngModel)]="dateFrom" (change)="onFilterChange()">
+    </div>
+    <div class="filter-item">
+      <label class="filter-label">Date To</label>
+      <input type="date" class="form-control" [(ngModel)]="dateTo" (change)="onFilterChange()">
+    </div>
+    <div class="filter-item filter-action">
+      <label class="filter-label">&nbsp;</label>
+      <button class="btn btn-sm btn-ghost" (click)="clearFilters()">✕ Clear</button>
+    </div>
   </div>
 
   <div class="card">
@@ -32,11 +44,11 @@
     } @else if (loadError) {
       <div class="load-error">
         <span>&#9888; Failed to load data. Is the server running?</span>
-        <button class="btn btn-sm btn-outline" (click)="loadCreditAdvices()">&#8635; Retry</button>
+        <button class="btn btn-sm btn-outline" (click)="loadPage()">&#8635; Retry</button>
       </div>
     } @else {
       <div class="card-header">
-        <h3>Credit Advices ({{ filteredCreditAdvices.length }})</h3>
+        <h3>Credit Advices ({{ totalItems }})</h3>
       </div>
       <table class="data-table">
         <thead>
@@ -51,7 +63,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (ca of pagedCreditAdvices; track ca.creditAdviceId) {
+          @for (ca of creditAdvices; track ca.creditAdviceId) {
             <tr>
               <td class="id-cell">#{{ ca.creditAdviceId }}</td>
               <td><strong>{{ ca.merchantName || '-' }}</strong></td>
@@ -67,14 +79,14 @@
         </tbody>
       </table>
 
-      <div *ngIf="filteredCreditAdvices.length === 0" class="no-data">
+      <div *ngIf="creditAdvices.length === 0" class="no-data">
         No credit advices found.
       </div>
 
       <app-pagination
         [currentPage]="currentPage"
         [pageSize]="pageSize"
-        [totalItems]="filteredCreditAdvices.length"
+        [totalItems]="totalItems"
         (pageChange)="onPageChange($event)"
         (pageSizeChange)="onPageSizeChange($event)">
       </app-pagination>

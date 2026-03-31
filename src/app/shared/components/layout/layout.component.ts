@@ -1,13 +1,10 @@
-import { Component, ViewChild, OnInit, OnDestroy } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { SidebarComponent } from '../sidebar/sidebar.component';
 import { HeaderComponent } from '../header/header.component';
 import { FooterComponent } from '../footer/footer.component';
 import { ToastComponent } from '../toast/toast.component';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule, NavigationEnd } from '@angular/router';
-import { RouteRefreshService } from '../../../core/services/route-refresh.service';
-import { Subscription } from 'rxjs';
-import { filter } from 'rxjs/operators';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-layout',
@@ -28,23 +25,8 @@ import { filter } from 'rxjs/operators';
   `,
   styleUrls: ['./layout.component.css']
 })
-export class LayoutComponent implements OnInit, OnDestroy {
+export class LayoutComponent {
   @ViewChild('sidebarRef') sidebarRef!: SidebarComponent;
-  private sub!: Subscription;
-
-  constructor(private router: Router, private routeRefresh: RouteRefreshService) {}
-
-  ngOnInit() {
-    this.sub = this.router.events.pipe(
-      filter(e => e instanceof NavigationEnd)
-    ).subscribe(() => {
-      this.routeRefresh.trigger();
-    });
-  }
-
-  ngOnDestroy() {
-    this.sub?.unsubscribe();
-  }
 
   getMainMargin(): number {
     if (!this.sidebarRef) return 240;

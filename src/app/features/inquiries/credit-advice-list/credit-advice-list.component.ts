@@ -1,12 +1,9 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CreditAdviceService } from '../../../core/services/credit-advice.service';
-import { CreditAdvice } from '../../../core/models/index';
 import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
-import { RouteRefreshService } from '../../../core/services/route-refresh.service';
-import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-credit-advice-list',
@@ -15,11 +12,13 @@ import { Subscription } from 'rxjs';
   templateUrl: './credit-advice-list.component.html',
   styleUrls: ['./credit-advice-list.component.css']
 })
-export class CreditAdviceListComponent implements OnInit, OnDestroy {
-  allCreditAdvices: CreditAdvice[] = [];
-  filteredCreditAdvices: CreditAdvice[] = [];
-  pagedCreditAdvices: CreditAdvice[] = [];
-  searchTerm = '';
+export class CreditAdviceListComponent implements OnInit {
+  creditAdvices: any[] = [];
+  totalItems = 0;
+  totalPages = 0;
+
+  filterMerchant = '';
+  filterAccountNo = '';
   filterStatus = '';
   dateFrom = '';
   dateTo = '';
@@ -31,91 +30,50 @@ export class CreditAdviceListComponent implements OnInit, OnDestroy {
   sortField = 'paymentDate';
   sortDirection: 'asc' | 'desc' = 'desc';
 
-  private refreshSub!: Subscription;
+  private filterTimer: any;
 
   constructor(
     private router: Router,
-    private creditAdviceService: CreditAdviceService,
-    private routeRefresh: RouteRefreshService
+    private creditAdviceService: CreditAdviceService
   ) {}
 
   ngOnInit(): void {
-    this.loadCreditAdvices();
-    this.refreshSub = this.routeRefresh.refresh$.subscribe(() => this.loadCreditAdvices());
+    this.loadPage();
   }
 
-  ngOnDestroy(): void { this.refreshSub?.unsubscribe(); }
-
-  loadCreditAdvices() {
+  loadPage() {
     this.loading = true;
     this.loadError = false;
-    this.creditAdviceService.getAllCreditAdvices().subscribe({
+    this.creditAdviceService.getCreditAdvicesPage({
+      page: this.currentPage - 1,
+      size: this.pageSize,
+      sortBy: this.sortField,
+      sortDir: this.sortDirection,
+      merchantName: this.filterMerchant || undefined,
+      accountNo: this.filterAccountNo || undefined,
+      dateFrom: this.dateFrom || undefined,
+      dateTo: this.dateTo || undefined,
+    }).subscribe({
       next: (data) => {
-        this.allCreditAdvices = data as CreditAdvice[];
-        this.applyFilters();
+        this.creditAdvices = data.content ?? [];
+        this.totalItems = data.totalElements ?? 0;
+        this.totalPages = data.totalPages ?? 0;
         this.loading = false;
       },
       error: () => { this.loading = false; this.loadError = true; }
     });
   }
 
-  search() {
-    if (this.searchTerm.trim()) {
-      this.loading = true;
-      this.creditAdviceService.searchCreditAdvices(this.searchTerm).subscribe({
-        next: (data) => {
-          this.allCreditAdvices = data;
-          this.applyFilters();
-          this.loading = false;
-        },
-        error: () => { this.applyFilters(); this.loading = false; }
-      });
-    } else {
-      this.loadCreditAdvices();
-    }
+  onFilterChange() {
+    clearTimeout(this.filterTimer);
+    this.filterTimer = setTimeout(() => {
+      this.currentPage = 1;
+      this.loadPage();
+    }, 400);
   }
 
-  applyFilters() {
-    let filtered = [...this.allCreditAdvices];
-    if (this.searchTerm.trim()) {
-      const term = this.searchTerm.toLowerCase();
-      filtered = filtered.filter(ca =>
-        (ca.merchantName || '').toLowerCase().includes(term) ||
-        (ca.creditAdviceId?.toString() || '').includes(term) ||
-        (ca.accountNo || '').toLowerCase().includes(term)
-      );
-    }
-    if (this.dateFrom) {
-      const from = new Date(this.dateFrom);
-      filtered = filtered.filter(ca => ca.paymentDate && new Date(ca.paymentDate) >= from);
-    }
-    if (this.dateTo) {
-      const to = new Date(this.dateTo);
-      to.setHours(23, 59, 59, 999);
-      filtered = filtered.filter(ca => ca.paymentDate && new Date(ca.paymentDate) <= to);
-    }
-
-    filtered.sort((a, b) => {
-      const aVal = (a as any)[this.sortField];
-      const bVal = (b as any)[this.sortField];
-      if (aVal == null) return 1;
-      if (bVal == null) return -1;
-      const cmp = aVal > bVal ? 1 : aVal < bVal ? -1 : 0;
-      return this.sortDirection === 'asc' ? cmp : -cmp;
-    });
-
-    this.filteredCreditAdvices = filtered;
-    this.currentPage = 1;
-    this.updatePage();
-  }
-
-  updatePage() {
-    const start = (this.currentPage - 1) * this.pageSize;
-    this.pagedCreditAdvices = this.filteredCreditAdvices.slice(start, start + this.pageSize);
-  }
-
-  onPageChange(page: number) { this.currentPage = page; this.updatePage(); }
-  onPageSizeChange(size: number) { this.pageSize = size; this.currentPage = 1; this.updatePage(); }
+  onPageChange(page: number) { this.currentPage = page; this.loadPage(); }
+  onPageSizeChange(size: number) { this.pageSize = size; this.currentPage = 1; this.loadPage(); }
 
   sortBy(field: string) {
     if (this.sortField === field) {
@@ -124,20 +82,23 @@ export class CreditAdviceListComponent implements OnInit, OnDestroy {
       this.sortField = field;
       this.sortDirection = 'desc';
     }
-    this.applyFilters();
+    this.currentPage = 1;
+    this.loadPage();
   }
 
   getSortIcon(field: string): string {
-    if (this.sortField !== field) return '↕';
-    return this.sortDirection === 'asc' ? '↑' : '↓';
+    if (this.sortField !== field) return '\u21C5';
+    return this.sortDirection === 'asc' ? '\u2191' : '\u2193';
   }
 
   clearFilters() {
-    this.searchTerm = '';
+    this.filterMerchant = '';
+    this.filterAccountNo = '';
     this.filterStatus = '';
     this.dateFrom = '';
     this.dateTo = '';
-    this.loadCreditAdvices();
+    this.currentPage = 1;
+    this.loadPage();
   }
 
   viewDetails(id: number) {

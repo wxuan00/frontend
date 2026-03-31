@@ -45,21 +45,17 @@
         <thead>
           <tr>
             <th class="sortable" (click)="sort('merchantId')">
-              ID
-              <span class="sort-icon">{{ sortColumn === 'merchantId' ? (sortDirection === 'asc' ? '▲' : '▼') : '⇅' }}</span>
+              ID {{ getSortIcon('merchantId') }}
             </th>
             <th class="sortable" (click)="sort('merchantName')">
-              Merchant Name
-              <span class="sort-icon">{{ sortColumn === 'merchantName' ? (sortDirection === 'asc' ? '▲' : '▼') : '⇅' }}</span>
+              Merchant Name {{ getSortIcon('merchantName') }}
             </th>
             <th>Contact</th>
             <th class="sortable" (click)="sort('city')">
-              City
-              <span class="sort-icon">{{ sortColumn === 'city' ? (sortDirection === 'asc' ? '▲' : '▼') : '⇅' }}</span>
+              City {{ getSortIcon('city') }}
             </th>
             <th class="sortable" (click)="sort('status')">
-              Status
-              <span class="sort-icon">{{ sortColumn === 'status' ? (sortDirection === 'asc' ? '▲' : '▼') : '⇅' }}</span>
+              Status {{ getSortIcon('status') }}
             </th>
             <th>Actions</th>
           </tr>

@@ -8,9 +8,25 @@
     </div>
     <div class="header-actions">
       <button (click)="printDetail()" class="btn btn-ghost">&#128424; Print</button>
+      @if (refund && refund.status === 'PENDING') {
+        <button (click)="openCancelDialog()" class="btn btn-danger" [disabled]="cancelling">
+          {{ cancelling ? 'Cancelling...' : '✕ Cancel Request' }}
+        </button>
+      }
       <a routerLink="/refunds" class="btn btn-secondary">&larr; Back to List</a>
     </div>
   </div>
+
+<app-confirm-dialog
+  [visible]="showCancelDialog"
+  title="Cancel Refund Request"
+  message="Are you sure you want to cancel this refund request? This action cannot be undone."
+  confirmText="Yes, Cancel It"
+  cancelText="Keep Request"
+  type="danger"
+  (confirmed)="confirmCancelRefund()"
+  (cancelled)="dismissCancelDialog()">
+</app-confirm-dialog>
 
   @if (loading) {
     <div class="detail-grid">
@@ -47,7 +63,7 @@
         <span class="badge" [ngClass]="{
           'badge-success': refund.status === 'APPROVED',
           'badge-warning': refund.status === 'PENDING',
-          'badge-danger': refund.status === 'DECLINED'
+          'badge-danger': refund.status === 'DECLINED' || refund.status === 'CANCELLED'
         }">{{ refund.status }}</span>
       </div>
       <div class="summary-meta">

@@ -4,9 +4,7 @@
       <h1>Role Management</h1>
       <div class="breadcrumb">Administration &rsaquo; Roles</div>
     </div>
-    <button (click)="toggleForm()" class="btn btn-primary">
-      {{ showForm ? '&#10005; Cancel' : '+ Add Role' }}
-    </button>
+    <button (click)="goToCreateRole()" class="btn btn-primary">+ Add Role</button>
   </div>
 
   <div class="tabs">
@@ -17,39 +15,6 @@
       &#127978; Merchant Roles <span class="tab-count">{{ merchantRoleCount }}</span>
     </button>
   </div>
-
-  @if (showForm) {
-    <div class="card" style="max-width:560px;">
-      <div class="card-header">
-        <h3>{{ editMode ? 'Edit Role' : 'Create New ' + (activeTab === 'bank' ? 'Bank' : 'Merchant') + ' Role' }}</h3>
-      </div>
-      <form (ngSubmit)="saveRole()">
-        <div class="form-group">
-          <label>Role Name</label>
-          <input type="text" class="form-control" [class.input-error]="formErrors['roleName']" [(ngModel)]="formData.roleName" name="roleName" placeholder="e.g., ADMIN, MERCHANT">
-          <span class="field-error" *ngIf="formErrors['roleName']">{{ formErrors['roleName'] }}</span>
-        </div>
-
-        @if (editMode) {
-          <div class="form-group">
-            <label>Role Type</label>
-            <input type="text" class="form-control" [value]="formData.roleType" readonly style="background:#f5f5f5; cursor:not-allowed;">
-            <small class="text-muted">Role type cannot be changed after creation.</small>
-          </div>
-        }
-
-        <div class="form-group">
-          <label>Description</label>
-          <input type="text" class="form-control" [(ngModel)]="formData.description" name="description" placeholder="What this role can do...">
-        </div>
-
-        <div class="form-actions">
-          <button type="button" (click)="toggleForm()" class="btn btn-secondary">Cancel</button>
-          <button type="submit" class="btn btn-success">{{ editMode ? 'Update' : 'Create' }}</button>
-        </div>
-      </form>
-    </div>
-  }
 
   <div class="card">
     @if (loading) {
@@ -82,7 +47,7 @@
           <td>
             <div class="action-btns">
               <a [routerLink]="['/roles', role.roleId, 'view']" class="btn btn-sm btn-outline">View</a>
-              <button (click)="startEdit(role)" class="btn btn-sm btn-outline">Edit</button>
+              <a [routerLink]="['/roles', role.roleId, 'edit']" class="btn btn-sm btn-outline">Edit</a>
               <button (click)="deleteRole(role.roleId, role.roleName)" class="btn btn-sm btn-danger">Delete</button>
             </div>
           </td>

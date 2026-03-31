@@ -1,10 +1,73 @@
-.filter-row { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
-.search-bar { flex: 1; min-width: 240px; }
-.filter-select { width: 160px; flex-shrink: 0; }
-.date-row { margin-bottom: 20px; }
-.date-label { font-size: 0.85rem; font-weight: 600; color: #555; white-space: nowrap; }
-.date-input { width: 160px; padding: 8px 10px; font-size: 0.85rem; }
-.date-separator { color: #888; font-size: 0.85rem; }
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: flex-end;
+  margin-bottom: 20px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+
+.filter-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 130px;
+  flex: 1;
+}
+
+.filter-item.filter-search { flex: 2; min-width: 200px; }
+.filter-item.filter-action { flex: 0 0 auto; min-width: unset; }
+
+.filter-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.filter-item input[type="text"],
+.filter-item input[type="date"],
+.filter-item select {
+  height: 36px;
+  padding: 0 10px;
+  font-size: 0.84rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #fff;
+  color: #111;
+  transition: border-color 0.15s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.filter-item input:focus,
+.filter-item select:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 2px rgba(99,102,241,0.12);
+}
+
+.search-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-input-wrap .search-prefix {
+  position: absolute;
+  left: 9px;
+  font-size: 0.85rem;
+  pointer-events: none;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.search-input-wrap input { padding-left: 30px !important; width: 100%; }
 .header-actions { display: flex; gap: 8px; }
 .btn-ghost { background: none; border: 1px solid #ddd; color: #888; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 0.82rem; transition: all 0.15s; }
 .btn-ghost:hover { border-color: #111; color: #111; }

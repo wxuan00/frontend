@@ -5,28 +5,59 @@
       <div class="breadcrumb">Inquiries > Refunds</div>
     </div>
     <div class="header-actions">
-      <button class="btn btn-sm btn-ghost" (click)="clearFilters()">&#10005; Clear Filters</button>
     </div>
   </div>
 
-  <div class="filter-row">
-    <div class="search-bar">
-      <input type="text" placeholder="Search by Merchant Name, Ref No..." [(ngModel)]="searchTerm" (input)="applyFilters()">
-      <span class="search-icon">&#128269;</span>
+  <!-- Filters -->
+  <div class="filter-bar">
+    <div class="filter-item filter-search">
+      <label class="filter-label">Merchant Name</label>
+      <div class="search-input-wrap">
+        <span class="search-prefix">🔍</span>
+        <input type="text" placeholder="Enter merchant name" [(ngModel)]="filterMerchant" (input)="onFilterChange()">
+      </div>
     </div>
-    <select class="form-control filter-select" [(ngModel)]="filterStatus" (change)="applyFilters()">
-      <option value="">All Statuses</option>
-      <option value="APPROVED">Approved</option>
-      <option value="PENDING">Pending</option>
-      <option value="DECLINED">Declined</option>
-    </select>
-  </div>
-
-  <div class="filter-row date-row">
-    <label class="date-label">Date Range:</label>
-    <input type="date" class="form-control date-input" [(ngModel)]="dateFrom" (change)="applyFilters()">
-    <span class="date-separator">to</span>
-    <input type="date" class="form-control date-input" [(ngModel)]="dateTo" (change)="applyFilters()">
+    <div class="filter-item">
+      <label class="filter-label">Refund Reference Number</label>
+      <div class="search-input-wrap">
+        <span class="search-prefix">🔍</span>
+        <input type="text" placeholder="Enter refund reference number" [(ngModel)]="filterRefundRef" (input)="onFilterChange()">
+      </div>
+    </div>
+    <div class="filter-item">
+      <label class="filter-label">Status</label>
+      <div class="select-wrap">
+        <select [(ngModel)]="filterStatus" (change)="onFilterChange()">
+          <option value="">All Statuses</option>
+          <option value="APPROVED">Approved</option>
+          <option value="PENDING">Pending</option>
+          <option value="DECLINED">Declined</option>
+          <option value="CANCELLED">Cancelled</option>
+        </select>
+      </div>
+    </div>
+    <div class="filter-item">
+      <label class="filter-label">Type</label>
+      <div class="select-wrap">
+        <select [(ngModel)]="filterType" (change)="onFilterChange()">
+          <option value="">All Types</option>
+          <option value="FULL">Full</option>
+          <option value="PARTIAL">Partial</option>
+        </select>
+      </div>
+    </div>
+    <div class="filter-item">
+      <label class="filter-label">Date From</label>
+      <input type="date" class="form-control" [(ngModel)]="dateFrom" (change)="onFilterChange()">
+    </div>
+    <div class="filter-item">
+      <label class="filter-label">Date To</label>
+      <input type="date" class="form-control" [(ngModel)]="dateTo" (change)="onFilterChange()">
+    </div>
+    <div class="filter-item filter-action">
+      <label class="filter-label">&nbsp;</label>
+      <button class="btn btn-sm btn-ghost" (click)="clearFilters()">✕ Clear</button>
+    </div>
   </div>
 
   <div class="card">
@@ -35,20 +66,20 @@
     } @else if (loadError) {
       <div class="load-error">
         <span>&#9888; Failed to load data. Is the server running?</span>
-        <button class="btn btn-sm btn-outline" (click)="loadRefunds()">&#8635; Retry</button>
+        <button class="btn btn-sm btn-outline" (click)="loadPage()">&#8635; Retry</button>
       </div>
     } @else {
       <div class="card-header">
-        <h3>Refunds ({{ filteredRefunds.length }})</h3>
+        <h3>Refunds ({{ totalItems }})</h3>
       </div>
       <table class="data-table">
         <thead>
           <tr>
             <th class="sortable" (click)="sortBy('refundId')">Refund ID {{ getSortIcon('refundId') }}</th>
-            <th class="sortable" (click)="sortBy('merchantName')">Merchant {{ getSortIcon('merchantName') }}</th>
-            <th class="sortable" (click)="sortBy('refundAmount')">Refund Amt {{ getSortIcon('refundAmount') }}</th>
-            <th>Card No</th>
-            <th>Refund Ref</th>
+            <th class="sortable" (click)="sortBy('merchantName')">Merchant Name {{ getSortIcon('merchantName') }}</th>
+            <th class="sortable" (click)="sortBy('refundAmount')">Refund Amount {{ getSortIcon('refundAmount') }}</th>
+            <th>Card Number</th>
+            <th>Refund Reference Number</th>
             <th>Type</th>
             <th class="sortable" (click)="sortBy('status')">Status {{ getSortIcon('status') }}</th>
             <th class="sortable" (click)="sortBy('submissionDate')">Submitted {{ getSortIcon('submissionDate') }}</th>
@@ -56,7 +87,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (r of pagedRefunds; track r.refundId) {
+          @for (r of refunds; track r.refundId) {
             <tr>
               <td class="id-cell">#{{ r.refundId }}</td>
               <td><strong>{{ r.merchantName }}</strong></td>
@@ -68,7 +99,7 @@
                 <span class="badge" [ngClass]="{
                   'badge-success': r.status === 'APPROVED',
                   'badge-warning': r.status === 'PENDING',
-                  'badge-danger': r.status === 'DECLINED'
+                  'badge-danger': r.status === 'DECLINED' || r.status === 'CANCELLED'
                 }">{{ r.status }}</span>
               </td>
               <td class="date-cell">{{ formatDate(r.submissionDate!) }}</td>
@@ -80,14 +111,14 @@
         </tbody>
       </table>
 
-      <div *ngIf="filteredRefunds.length === 0" class="no-data">
+      <div *ngIf="refunds.length === 0" class="no-data">
         No refund records found.
       </div>
 
       <app-pagination
         [currentPage]="currentPage"
         [pageSize]="pageSize"
-        [totalItems]="filteredRefunds.length"
+        [totalItems]="totalItems"
         (pageChange)="onPageChange($event)"
         (pageSizeChange)="onPageSizeChange($event)">
       </app-pagination>

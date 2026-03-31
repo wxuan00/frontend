@@ -83,6 +83,11 @@ export class AuthService {
     return this.http.get(`http://localhost:8080/api/users/${id}/details`);
   }
 
+  // Admin: reset a user's password
+  adminResetPassword(userId: number, newPassword: string): Observable<any> {
+    return this.http.patch(`http://localhost:8080/api/users/${userId}/password`, { newPassword });
+  }
+
   // Profile endpoints
   getProfile(): Observable<any> {
     return this.http.get('http://localhost:8080/api/profile');

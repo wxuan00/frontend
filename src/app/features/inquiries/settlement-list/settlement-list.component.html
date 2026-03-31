@@ -5,28 +5,48 @@
       <div class="breadcrumb">Inquiries › Settlements</div>
     </div>
     <div class="header-actions">
-      <button class="btn btn-sm btn-ghost" (click)="clearFilters()">✕ Clear Filters</button>
     </div>
   </div>
 
-  <div class="filter-row">
-    <div class="search-bar">
-      <input type="text" placeholder="Search by Merchant Name, Settlement Ref..." [(ngModel)]="searchTerm" (input)="applyFilters()">
-      <span class="search-icon">🔍</span>
+  <!-- Filters -->
+  <div class="filter-bar">
+    <div class="filter-item filter-search">
+      <label class="filter-label">Merchant Name</label>
+      <div class="search-input-wrap">
+        <span class="search-prefix">🔍</span>
+        <input type="text" placeholder="Enter merchant name" [(ngModel)]="filterMerchant" (input)="onFilterChange()">
+      </div>
     </div>
-    <select class="form-control filter-select" [(ngModel)]="filterStatus" (change)="applyFilters()">
-      <option value="">All Types</option>
-      <option value="NORMAL">Normal</option>
-      <option value="ADJUSTMENT">Adjustment</option>
-      <option value="CHARGEBACK">Chargeback</option>
-    </select>
-  </div>
-
-  <div class="filter-row date-row">
-    <label class="date-label">Date Range:</label>
-    <input type="date" class="form-control date-input" [(ngModel)]="dateFrom" (change)="applyFilters()">
-    <span class="date-separator">to</span>
-    <input type="date" class="form-control date-input" [(ngModel)]="dateTo" (change)="applyFilters()">
+    <div class="filter-item">
+      <label class="filter-label">Settlement Number</label>
+      <div class="search-input-wrap">
+        <span class="search-prefix">🔍</span>
+        <input type="text" placeholder="Enter settlement number" [(ngModel)]="filterSettlementNo" (input)="onFilterChange()">
+      </div>
+    </div>
+    <div class="filter-item">
+      <label class="filter-label">Type</label>
+      <div class="select-wrap">
+        <select [(ngModel)]="filterStatus" (change)="onFilterChange()">
+          <option value="">All Types</option>
+          <option value="NORMAL">Normal</option>
+          <option value="ADJUSTMENT">Adjustment</option>
+          <option value="CHARGEBACK">Chargeback</option>
+        </select>
+      </div>
+    </div>
+    <div class="filter-item">
+      <label class="filter-label">Date From</label>
+      <input type="date" class="form-control" [(ngModel)]="dateFrom" (change)="onFilterChange()">
+    </div>
+    <div class="filter-item">
+      <label class="filter-label">Date To</label>
+      <input type="date" class="form-control" [(ngModel)]="dateTo" (change)="onFilterChange()">
+    </div>
+    <div class="filter-item filter-action">
+      <label class="filter-label">&nbsp;</label>
+      <button class="btn btn-sm btn-ghost" (click)="clearFilters()">✕ Clear</button>
+    </div>
   </div>
 
   <div class="card">
@@ -35,11 +55,11 @@
     } @else if (loadError) {
       <div class="load-error">
         <span>&#9888; Failed to load data. Is the server running?</span>
-        <button class="btn btn-sm btn-outline" (click)="loadSettlements()">&#8635; Retry</button>
+        <button class="btn btn-sm btn-outline" (click)="loadPage()">&#8635; Retry</button>
       </div>
     } @else {
       <div class="card-header">
-        <h3>Settlements ({{ filteredSettlements.length }})</h3>
+        <h3>Settlements ({{ totalItems }})</h3>
       </div>
       <table class="data-table">
         <thead>
@@ -54,7 +74,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (s of pagedSettlements; track s.settlementId) {
+          @for (s of settlements; track s.settlementId) {
             <tr>
               <td class="id-cell">{{ s.settlementNo || '#' + s.settlementId }}</td>
               <td><strong>{{ s.merchantName || '-' }}</strong></td>
@@ -70,14 +90,14 @@
         </tbody>
       </table>
 
-      <div *ngIf="filteredSettlements.length === 0" class="no-data">
+      <div *ngIf="settlements.length === 0" class="no-data">
         No settlements found.
       </div>
 
       <app-pagination
         [currentPage]="currentPage"
         [pageSize]="pageSize"
-        [totalItems]="filteredSettlements.length"
+        [totalItems]="totalItems"
         (pageChange)="onPageChange($event)"
         (pageSizeChange)="onPageSizeChange($event)">
       </app-pagination>

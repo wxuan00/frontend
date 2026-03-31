@@ -1,12 +1,9 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TransactionService } from '../../../core/services/transaction.service';
-import { Transaction } from '../../../core/models/index';
 import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
-import { RouteRefreshService } from '../../../core/services/route-refresh.service';
-import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-transaction-list',
@@ -15,128 +12,80 @@ import { Subscription } from 'rxjs';
   templateUrl: './transaction-list.component.html',
   styleUrls: ['./transaction-list.component.css']
 })
-export class TransactionListComponent implements OnInit, OnDestroy {
-  allTransactions: Transaction[] = [];
-  filteredTransactions: Transaction[] = [];
-  pagedTransactions: Transaction[] = [];
-  searchTerm = '';
+export class TransactionListComponent implements OnInit {
+  transactions: any[] = [];
+  totalItems = 0;
+  totalPages = 0;
+
+  filterTxnId = '';
+  filterMerchant = '';
+  filterCard = '';
   filterStatus = '';
   filterChannel = '';
   dateFrom = '';
   dateTo = '';
   loading = true;
   loadError = false;
+
   currentPage = 1;
   pageSize = 10;
-
-  // Sorting
   sortField = 'txnDate';
   sortDirection: 'asc' | 'desc' = 'desc';
 
-  private refreshSub!: Subscription;
+  private filterTimer: any;
 
   constructor(
     private router: Router,
     private transactionService: TransactionService,
-    private routeRefresh: RouteRefreshService
   ) {}
 
   ngOnInit(): void {
-    this.loadTransactions();
-    this.refreshSub = this.routeRefresh.refresh$.subscribe(() => this.loadTransactions());
+    this.loadPage();
   }
 
-  ngOnDestroy(): void { this.refreshSub?.unsubscribe(); }
-
-  loadTransactions() {
+  loadPage() {
     this.loading = true;
     this.loadError = false;
-    this.transactionService.getAllTransactions().subscribe({
+    this.transactionService.getTransactionsPage({
+      page: this.currentPage - 1,
+      size: this.pageSize,
+      sortBy: this.sortField,
+      sortDir: this.sortDirection,
+      merchantName: this.filterMerchant || undefined,
+      txnId: this.filterTxnId || undefined,
+      cardNo: this.filterCard || undefined,
+      status: this.filterStatus || undefined,
+      channel: this.filterChannel || undefined,
+      dateFrom: this.dateFrom || undefined,
+      dateTo: this.dateTo || undefined,
+    }).subscribe({
       next: (data) => {
-        this.allTransactions = data;
-        this.applyFilters();
+        this.transactions = data.content ?? [];
+        this.totalItems = data.totalElements ?? 0;
+        this.totalPages = data.totalPages ?? 0;
         this.loading = false;
       },
       error: () => { this.loading = false; this.loadError = true; }
     });
   }
 
-  search() {
-    if (this.searchTerm.trim()) {
-      this.loading = true;
-      this.transactionService.searchTransactions(this.searchTerm).subscribe({
-        next: (data) => {
-          this.allTransactions = data;
-          this.applyFilters();
-          this.loading = false;
-        },
-        error: () => {
-          this.applyFilters();
-          this.loading = false;
-        }
-      });
-    } else {
-      this.loadTransactions();
-    }
-  }
-
-  applyFilters() {
-    let filtered = [...this.allTransactions];
-
-    if (this.searchTerm.trim()) {
-      const term = this.searchTerm.toLowerCase();
-      filtered = filtered.filter(t =>
-        (t.merchantName || '').toLowerCase().includes(term) ||
-        (t.transactionId?.toString() || '').includes(term) ||
-        (t.cardNo || '').toLowerCase().includes(term) ||
-        (t.paymentChannel || '').toLowerCase().includes(term)
-      );
-    }
-    if (this.filterStatus) {
-      filtered = filtered.filter(t => t.status === this.filterStatus);
-    }
-    if (this.filterChannel) {
-      filtered = filtered.filter(t => t.paymentChannel === this.filterChannel);
-    }
-    if (this.dateFrom) {
-      const from = new Date(this.dateFrom);
-      filtered = filtered.filter(t => t.txnDate && new Date(t.txnDate) >= from);
-    }
-    if (this.dateTo) {
-      const to = new Date(this.dateTo);
-      to.setHours(23, 59, 59, 999);
-      filtered = filtered.filter(t => t.txnDate && new Date(t.txnDate) <= to);
-    }
-
-    // Sort
-    filtered.sort((a, b) => {
-      const aVal = (a as any)[this.sortField];
-      const bVal = (b as any)[this.sortField];
-      if (aVal == null) return 1;
-      if (bVal == null) return -1;
-      const cmp = aVal > bVal ? 1 : aVal < bVal ? -1 : 0;
-      return this.sortDirection === 'asc' ? cmp : -cmp;
-    });
-
-    this.filteredTransactions = filtered;
-    this.currentPage = 1;
-    this.updatePage();
-  }
-
-  updatePage() {
-    const start = (this.currentPage - 1) * this.pageSize;
-    this.pagedTransactions = this.filteredTransactions.slice(start, start + this.pageSize);
+  onFilterChange() {
+    clearTimeout(this.filterTimer);
+    this.filterTimer = setTimeout(() => {
+      this.currentPage = 1;
+      this.loadPage();
+    }, 400);
   }
 
   onPageChange(page: number) {
     this.currentPage = page;
-    this.updatePage();
+    this.loadPage();
   }
 
   onPageSizeChange(size: number) {
     this.pageSize = size;
     this.currentPage = 1;
-    this.updatePage();
+    this.loadPage();
   }
 
   sortBy(field: string) {
@@ -146,21 +95,25 @@ export class TransactionListComponent implements OnInit, OnDestroy {
       this.sortField = field;
       this.sortDirection = 'desc';
     }
-    this.applyFilters();
+    this.currentPage = 1;
+    this.loadPage();
   }
 
   getSortIcon(field: string): string {
-    if (this.sortField !== field) return '↕';
-    return this.sortDirection === 'asc' ? '↑' : '↓';
+    if (this.sortField !== field) return '\u21C5';
+    return this.sortDirection === 'asc' ? '\u2191' : '\u2193';
   }
 
   clearFilters() {
-    this.searchTerm = '';
+    this.filterTxnId = '';
+    this.filterMerchant = '';
+    this.filterCard = '';
     this.filterStatus = '';
     this.filterChannel = '';
     this.dateFrom = '';
     this.dateTo = '';
-    this.loadTransactions();
+    this.currentPage = 1;
+    this.loadPage();
   }
 
   viewDetails(id: number) {

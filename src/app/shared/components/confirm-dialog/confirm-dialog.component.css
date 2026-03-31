@@ -49,6 +49,8 @@
 
 .dialog-actions .btn {
   min-width: 100px;
+  justify-content: center;
+  text-align: center;
 }
 
 @keyframes fadeIn {

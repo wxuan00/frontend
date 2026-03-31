@@ -45,4 +45,16 @@ export class RoleService {
   deleteRole(id: number): Observable<any> {
     return this.http.delete<any>(`${this.apiUrl}/${id}`);
   }
+
+  assignUserRole(userId: number, roleId: number | null): Observable<any> {
+    return this.http.put<any>(`http://localhost:8080/api/users/${userId}/role`, { roleId });
+  }
+
+  syncUserRoles(userId: number, roleIds: number[]): Observable<any> {
+    return this.http.put<any>(`http://localhost:8080/api/users/${userId}/roles`, roleIds);
+  }
+
+  unassignUserRole(userId: number, roleId: number): Observable<any> {
+    return this.http.delete<any>(`http://localhost:8080/api/users/${userId}/roles/${roleId}`);
+  }
 }

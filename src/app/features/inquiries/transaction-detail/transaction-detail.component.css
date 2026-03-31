@@ -86,3 +86,52 @@
 @media print {
   .page-header .header-actions, .btn-ghost, .btn-secondary { display: none !important; }
 }
+
+/* ===== REFUND MODAL ===== */
+.modal-backdrop {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 1000;
+}
+.modal-panel {
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  background: #fff; border-radius: 12px; width: 440px; max-width: 95vw;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2); z-index: 1001;
+}
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 24px 16px; border-bottom: 1px solid #eee;
+}
+.modal-header h3 { margin: 0; font-size: 1rem; font-weight: 700; }
+.btn-close {
+  background: none; border: none; font-size: 1rem; cursor: pointer;
+  color: #888; padding: 4px 8px; border-radius: 4px; line-height: 1;
+}
+.btn-close:hover { color: #111; background: #f5f5f5; }
+.modal-body { padding: 20px 24px; }
+.modal-footer {
+  display: flex; gap: 10px; justify-content: flex-end;
+  padding: 16px 24px; border-top: 1px solid #eee;
+}
+.modal-info-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 6px 0; border-bottom: 1px solid #f5f5f5;
+}
+.modal-label { font-size: 0.82rem; color: #888; }
+.modal-value { font-size: 0.9rem; font-weight: 600; color: #111; }
+.amount-highlight { color: #2ecc71; font-size: 1rem; }
+.mt-16 { margin-top: 16px; }
+.mt-12 { margin-top: 12px; }
+.form-label { display: block; font-size: 0.82rem; font-weight: 600; color: #555; margin-bottom: 8px; }
+.radio-group { display: flex; flex-direction: column; gap: 8px; }
+.radio-option {
+  display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px;
+  border: 1.5px solid #e0e0e0; border-radius: 8px; cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.radio-option:hover { border-color: #aaa; }
+.radio-option.selected { border-color: #111; background: #fafafa; }
+.radio-option input[type="radio"] { margin-top: 2px; flex-shrink: 0; }
+.radio-content { display: flex; flex-direction: column; gap: 2px; }
+.radio-title { font-size: 0.88rem; font-weight: 600; color: #111; }
+.radio-desc { font-size: 0.78rem; color: #888; }
+.field-error { color: #e74c3c; font-size: 0.78rem; margin-top: 4px; }
+.field-hint { color: #aaa; font-size: 0.75rem; margin-top: 4px; }

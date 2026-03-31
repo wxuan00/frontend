@@ -88,6 +88,45 @@
   color: #888;
 }
 
+/* Roles list */
+.roles-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.role-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border: 1px solid #e8e8e8;
+  border-radius: 6px;
+  background: #fafafa;
+  gap: 12px;
+}
+.role-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.role-type-label {
+  font-size: 0.75rem;
+  color: #888;
+  background: #f0f0f0;
+  padding: 2px 7px;
+  border-radius: 3px;
+}
+.role-desc {
+  font-size: 0.8rem;
+  color: #666;
+}
+.role-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
 @media (max-width: 900px) {
   .detail-grid {
     grid-template-columns: 1fr;

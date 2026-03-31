@@ -2,11 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { RefundService } from '../../../core/services/refund.service';
+import { ToastService } from '../../../core/services/toast.service';
+import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-refund-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, ConfirmDialogComponent],
   templateUrl: './refund-detail.component.html',
   styleUrls: ['./refund-detail.component.css']
 })
@@ -14,14 +16,21 @@ export class RefundDetailComponent implements OnInit {
   refund: any = null;
   refundId: number = 0;
   loading = true;
+  showCancelDialog = false;
+  cancelling = false;
 
   constructor(
     private route: ActivatedRoute,
-    private refundService: RefundService
+    private refundService: RefundService,
+    private toastService: ToastService
   ) {}
 
   ngOnInit(): void {
     this.refundId = +this.route.snapshot.paramMap.get('id')!;
+    this.loadRefund();
+  }
+
+  loadRefund(): void {
     this.refundService.getRefundById(this.refundId).subscribe({
       next: (data) => {
         this.refund = data;
@@ -43,5 +52,29 @@ export class RefundDetailComponent implements OnInit {
 
   printDetail(): void {
     window.print();
+  }
+
+  openCancelDialog(): void {
+    this.showCancelDialog = true;
+  }
+
+  dismissCancelDialog(): void {
+    this.showCancelDialog = false;
+  }
+
+  confirmCancelRefund(): void {
+    this.showCancelDialog = false;
+    this.cancelling = true;
+    this.refundService.cancelRefund(this.refundId).subscribe({
+      next: (data) => {
+        this.refund = data;
+        this.cancelling = false;
+        this.toastService.success('Refund request cancelled successfully.');
+      },
+      error: () => {
+        this.cancelling = false;
+        this.toastService.error('Failed to cancel refund request.');
+      }
+    });
   }
 }

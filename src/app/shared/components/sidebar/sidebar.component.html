@@ -58,13 +58,6 @@
         <span class="nav-icon">📄</span>
         <span class="nav-label" *ngIf="!collapsed || mobileOpen">Credit Advice</span>
       </a>
-
-      <div class="nav-section-label" *ngIf="!collapsed || mobileOpen">REPORTS</div>
-
-      <a routerLink="/reports" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()" [title]="collapsed ? 'Summary Report' : ''">
-        <span class="nav-icon">📊</span>
-        <span class="nav-label" *ngIf="!collapsed || mobileOpen">Summary Report</span>
-      </a>
     } @else {
       <div class="nav-section-label" *ngIf="!collapsed || mobileOpen">MY BUSINESS</div>
 
@@ -91,13 +84,6 @@
       <a routerLink="/credit-advices" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()" [title]="collapsed ? 'My Credit Advice' : ''">
         <span class="nav-icon">📄</span>
         <span class="nav-label" *ngIf="!collapsed || mobileOpen">My Credit Advice</span>
-      </a>
-
-      <div class="nav-section-label" *ngIf="!collapsed || mobileOpen">REPORTS</div>
-
-      <a routerLink="/reports" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()" [title]="collapsed ? 'Summary Report' : ''">
-        <span class="nav-icon">📊</span>
-        <span class="nav-label" *ngIf="!collapsed || mobileOpen">Summary Report</span>
       </a>
     }
 

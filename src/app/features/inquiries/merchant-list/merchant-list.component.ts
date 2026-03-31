@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -8,8 +8,6 @@ import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialo
 import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 import { ToastService } from '../../../core/services/toast.service';
 import { Merchant } from '../../../core/models/index';
-import { RouteRefreshService } from '../../../core/services/route-refresh.service';
-import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-merchant-list',
@@ -18,7 +16,7 @@ import { Subscription } from 'rxjs';
   templateUrl: './merchant-list.component.html',
   styleUrls: ['./merchant-list.component.css']
 })
-export class MerchantListComponent implements OnInit, OnDestroy {
+export class MerchantListComponent implements OnInit {
   allMerchants: Merchant[] = [];
   filteredMerchants: Merchant[] = [];
   merchants: Merchant[] = [];
@@ -40,23 +38,17 @@ export class MerchantListComponent implements OnInit, OnDestroy {
   deleteTargetId: number | null = null;
   deleteTargetName = '';
 
-  private refreshSub!: Subscription;
-
   constructor(
     private merchantService: MerchantService,
     private authService: AuthService,
     private router: Router,
-    private toast: ToastService,
-    private routeRefresh: RouteRefreshService
+    private toast: ToastService
   ) {}
 
   ngOnInit() {
     this.isAdmin = this.authService.isAdmin();
     this.loadMerchants();
-    this.refreshSub = this.routeRefresh.refresh$.subscribe(() => this.loadMerchants());
   }
-
-  ngOnDestroy(): void { this.refreshSub?.unsubscribe(); }
 
   loadMerchants() {
     this.loading = true;
@@ -140,6 +132,11 @@ export class MerchantListComponent implements OnInit, OnDestroy {
       this.sortDirection = 'asc';
     }
     this.applyFilters();
+  }
+
+  getSortIcon(field: string): string {
+    if (this.sortColumn !== field) return '\u21C5';
+    return this.sortDirection === 'asc' ? '\u2191' : '\u2193';
   }
 
   onPageChange(page: number) {

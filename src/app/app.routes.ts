@@ -22,7 +22,6 @@ import { RefundDetailComponent } from './features/inquiries/refund-detail/refund
 import { ViewProfileComponent } from './features/profile/view-profile/view-profile.component';
 import { EditProfileComponent } from './features/profile/edit-profile/edit-profile.component';
 import { ChangePasswordComponent } from './features/profile/change-password/change-password.component';
-import { SummaryReportComponent } from './features/reports/summary-report/summary-report.component';
 import { authGuard } from './core/guards/auth-guard';
 import { adminGuard } from './core/guards/admin-guard';
 import { LayoutComponent } from './shared/components/layout/layout.component';
@@ -72,9 +71,6 @@ export const routes: Routes = [
       // Refund inquiry - accessible by all (filtered transactions of type REFUND)
       { path: 'refunds', component: RefundListComponent, runGuardsAndResolvers: 'always' },
       { path: 'refunds/:id', component: RefundDetailComponent, runGuardsAndResolvers: 'always' },
-
-      // Reports - accessible by all authenticated users
-      { path: 'reports', component: SummaryReportComponent, runGuardsAndResolvers: 'always' },
 
       // Profile management - accessible by all authenticated users
       { path: 'profile', component: ViewProfileComponent, runGuardsAndResolvers: 'always' },

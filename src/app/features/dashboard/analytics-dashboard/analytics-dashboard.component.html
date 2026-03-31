@@ -35,6 +35,9 @@
     <button class="tab-btn" [class.active]="activeTab === 'insights'" (click)="switchTab('insights')">
       💡 Insights
     </button>
+    <button class="tab-btn" [class.active]="activeTab === 'reports'" (click)="switchTab('reports')">
+      📋 Reports
+    </button>
   </div>
 
   <!-- ==================== TAB: DASHBOARD ==================== -->
@@ -482,6 +485,107 @@
           }
         </div>
       }
+    }
+  }
+
+  <!-- ==================== TAB: REPORTS ==================== -->
+  @if (activeTab === 'reports') {
+    <div class="report-toolbar">
+      <div class="report-toolbar-left">
+        <button class="btn btn-secondary btn-sm" (click)="loadReport()">🔄 Refresh</button>
+      </div>
+      <div class="report-toolbar-right">
+        <button class="btn btn-secondary btn-sm" (click)="exportSummaryCsv()">📥 Export Summary CSV</button>
+        <button class="btn btn-secondary btn-sm" (click)="exportTransactionsCsv()">📥 Export Transactions</button>
+        <button class="btn btn-secondary btn-sm" (click)="exportSettlementsCsv()">📥 Export Settlements</button>
+        <button class="btn btn-primary btn-sm" (click)="printReport()">🖨️ Print</button>
+      </div>
+    </div>
+
+    @if (reportLoading) {
+      <div class="loading-state"><div class="spinner"></div><p>Loading report...</p></div>
+    } @else if (reportError) {
+      <div class="no-data">⚠️ {{ reportError }}</div>
+    } @else if (!report) {
+      <div class="no-data">No report data. Click Refresh to load.</div>
+    } @else {
+      <div class="report-meta">
+        <span>📅 Generated: <strong>{{ formatReportDate(report.generatedAt) }}</strong></span>
+        <span>👤 By: <strong>{{ report.generatedBy }}</strong></span>
+        <span class="badge badge-primary">{{ report.type === 'ADMIN_SUMMARY' ? 'Admin Report' : 'Merchant Report' }}</span>
+      </div>
+
+      <!-- Stats Row -->
+      <div class="stats-row">
+        <div *ngIf="userRole === 'ADMIN'" class="stat-card">
+          <div class="stat-icon blue">👥</div>
+          <div class="stat-info"><h4>Total Users</h4><div class="stat-value">{{ report.totalUsers }}</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green">🏢</div>
+          <div class="stat-info"><h4>Total Merchants</h4><div class="stat-value">{{ report.totalMerchants }}</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon purple">💳</div>
+          <div class="stat-info"><h4>Total Transactions</h4><div class="stat-value">{{ report.totalTransactions }}</div></div>
+        </div>
+        <div *ngIf="userRole === 'ADMIN'" class="stat-card">
+          <div class="stat-icon teal">📋</div>
+          <div class="stat-info"><h4>Total Settlements</h4><div class="stat-value">{{ report.totalSettlements }}</div></div>
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="charts-row">
+        <div *ngIf="userRole === 'ADMIN' && merchantBreakdown.length > 0" class="card chart-card">
+          <div class="card-header"><h3>🏢 Merchant Status Breakdown</h3></div>
+          <div class="chart-content">
+            <div class="bar-chart">
+              <div *ngFor="let item of merchantBreakdown" class="bar-row">
+                <div class="bar-label"><span class="bar-dot" [style.background]="item.color"></span>{{ item.label }}</div>
+                <div class="bar-track"><div class="bar-fill" [style.width.%]="item.percent" [style.background]="item.color"></div></div>
+                <div class="bar-value">{{ item.value }} <span class="bar-pct">({{ item.percent }}%)</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div *ngIf="transactionBreakdown.length > 0" class="card chart-card">
+          <div class="card-header"><h3>💳 Transaction Status Breakdown</h3></div>
+          <div class="chart-content">
+            <div class="bar-chart">
+              <div *ngFor="let item of transactionBreakdown" class="bar-row">
+                <div class="bar-label"><span class="bar-dot" [style.background]="item.color"></span>{{ item.label }}</div>
+                <div class="bar-track"><div class="bar-fill" [style.width.%]="item.percent" [style.background]="item.color"></div></div>
+                <div class="bar-value">{{ item.value }} <span class="bar-pct">({{ item.percent }}%)</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detailed Breakdown Table -->
+      <div class="card">
+        <div class="card-header"><h3>📋 Detailed Breakdown</h3></div>
+        <table class="data-table">
+          <thead>
+            <tr><th>Metric</th><th>Value</th></tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="userRole === 'ADMIN'"><td>Total Users</td><td>{{ report.totalUsers }}</td></tr>
+            <tr><td>Total Merchants</td><td>{{ report.totalMerchants }}</td></tr>
+            <tr *ngIf="userRole === 'ADMIN'"><td>Active Merchants</td><td>{{ report.activeMerchants }}</td></tr>
+            <tr *ngIf="userRole === 'ADMIN'"><td>Pending Merchants</td><td>{{ report.pendingMerchants }}</td></tr>
+            <tr *ngIf="userRole === 'ADMIN'"><td>Suspended Merchants</td><td>{{ report.suspendedMerchants }}</td></tr>
+            <tr><td>Total Transactions</td><td>{{ report.totalTransactions }}</td></tr>
+            <tr><td>Approved Transactions</td><td>{{ report.approvedTransactions }}</td></tr>
+            <tr><td>Pending Transactions</td><td>{{ report.pendingTransactions }}</td></tr>
+            <tr><td>Declined Transactions</td><td>{{ report.declinedTransactions }}</td></tr>
+            <tr *ngIf="userRole === 'ADMIN'"><td>Total Settlements</td><td>{{ report.totalSettlements }}</td></tr>
+            <tr *ngIf="userRole === 'ADMIN'"><td>Total Credit Advices</td><td>{{ report.totalCreditAdvices }}</td></tr>
+            <tr><td>Total Refunds</td><td>{{ report.totalRefunds }}</td></tr>
+          </tbody>
+        </table>
+      </div>
     }
   }
 </div>

@@ -12,3 +12,66 @@
   margin-top: 4px;
   display: block;
 }
+
+.permissions-section {
+  margin-top: 24px;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 18px;
+}
+
+.permissions-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.permissions-header h4 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #111;
+}
+
+.role-select-group {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 6px;
+}
+
+.perm-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 9px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.1s;
+  font-size: 0.83rem;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+}
+
+.perm-item:hover { background: #f3f4f6; }
+
+.perm-item.selected {
+  background: #eef2ff;
+  border-color: #6366f1;
+}
+
+.perm-item input[type="radio"] {
+  margin-top: 3px;
+  flex-shrink: 0;
+  accent-color: #6366f1;
+}
+
+.perm-name {
+  font-weight: 600;
+  color: #111;
+}
+
+.perm-desc {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-left: 4px;
+}

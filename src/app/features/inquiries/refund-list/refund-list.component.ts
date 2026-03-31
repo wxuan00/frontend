@@ -1,12 +1,9 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { RefundService } from '../../../core/services/refund.service';
-import { Refund } from '../../../core/models/index';
 import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
-import { RouteRefreshService } from '../../../core/services/route-refresh.service';
-import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-refund-list',
@@ -15,12 +12,15 @@ import { Subscription } from 'rxjs';
   templateUrl: './refund-list.component.html',
   styleUrls: ['./refund-list.component.css']
 })
-export class RefundListComponent implements OnInit, OnDestroy {
-  allRefunds: Refund[] = [];
-  filteredRefunds: Refund[] = [];
-  pagedRefunds: Refund[] = [];
-  searchTerm = '';
+export class RefundListComponent implements OnInit {
+  refunds: any[] = [];
+  totalItems = 0;
+  totalPages = 0;
+
+  filterMerchant = '';
+  filterRefundRef = '';
   filterStatus = '';
+  filterType = '';
   dateFrom = '';
   dateTo = '';
   loading = true;
@@ -31,94 +31,52 @@ export class RefundListComponent implements OnInit, OnDestroy {
   sortField = 'submissionDate';
   sortDirection: 'asc' | 'desc' = 'desc';
 
-  private refreshSub!: Subscription;
+  private filterTimer: any;
 
   constructor(
     private router: Router,
-    private refundService: RefundService,
-    private routeRefresh: RouteRefreshService
+    private refundService: RefundService
   ) {}
 
   ngOnInit(): void {
-    this.loadRefunds();
-    this.refreshSub = this.routeRefresh.refresh$.subscribe(() => this.loadRefunds());
+    this.loadPage();
   }
 
-  ngOnDestroy(): void { this.refreshSub?.unsubscribe(); }
-
-  loadRefunds() {
+  loadPage() {
     this.loading = true;
     this.loadError = false;
-    this.refundService.getAllRefunds().subscribe({
+    this.refundService.getRefundsPage({
+      page: this.currentPage - 1,
+      size: this.pageSize,
+      sortBy: this.sortField,
+      sortDir: this.sortDirection,
+      merchantName: this.filterMerchant || undefined,
+      refundRefNo: this.filterRefundRef || undefined,
+      status: this.filterStatus || undefined,
+      refundType: this.filterType || undefined,
+      dateFrom: this.dateFrom || undefined,
+      dateTo: this.dateTo || undefined,
+    }).subscribe({
       next: (data) => {
-        this.allRefunds = data as Refund[];
-        this.applyFilters();
+        this.refunds = data.content ?? [];
+        this.totalItems = data.totalElements ?? 0;
+        this.totalPages = data.totalPages ?? 0;
         this.loading = false;
       },
       error: () => { this.loading = false; this.loadError = true; }
     });
   }
 
-  search() {
-    if (this.searchTerm.trim()) {
-      this.loading = true;
-      this.refundService.searchRefunds(this.searchTerm).subscribe({
-        next: (data) => {
-          this.allRefunds = data;
-          this.applyFilters();
-          this.loading = false;
-        },
-        error: () => { this.applyFilters(); this.loading = false; }
-      });
-    } else {
-      this.loadRefunds();
-    }
+  onFilterChange() {
+    clearTimeout(this.filterTimer);
+    this.filterTimer = setTimeout(() => {
+      this.currentPage = 1;
+      this.loadPage();
+    }, 400);
   }
 
-  applyFilters() {
-    let filtered = [...this.allRefunds];
-    if (this.searchTerm.trim()) {
-      const term = this.searchTerm.toLowerCase();
-      filtered = filtered.filter(r =>
-        (r.merchantName || '').toLowerCase().includes(term) ||
-        (r.refundId?.toString() || '').includes(term) ||
-        (r.cardNo || '').toLowerCase().includes(term)
-      );
-    }
-    if (this.filterStatus) {
-      filtered = filtered.filter(r => r.status === this.filterStatus);
-    }
-    if (this.dateFrom) {
-      const from = new Date(this.dateFrom);
-      filtered = filtered.filter(r => r.submissionDate && new Date(r.submissionDate) >= from);
-    }
-    if (this.dateTo) {
-      const to = new Date(this.dateTo);
-      to.setHours(23, 59, 59, 999);
-      filtered = filtered.filter(r => r.submissionDate && new Date(r.submissionDate) <= to);
-    }
-
-    filtered.sort((a, b) => {
-      const aVal = (a as any)[this.sortField];
-      const bVal = (b as any)[this.sortField];
-      if (aVal == null) return 1;
-      if (bVal == null) return -1;
-      const cmp = aVal > bVal ? 1 : aVal < bVal ? -1 : 0;
-      return this.sortDirection === 'asc' ? cmp : -cmp;
-    });
-
-    this.filteredRefunds = filtered;
-    this.currentPage = 1;
-    this.updatePage();
-  }
-
-  updatePage() {
-    const start = (this.currentPage - 1) * this.pageSize;
-    this.pagedRefunds = this.filteredRefunds.slice(start, start + this.pageSize);
-  }
-
-  onPageChange(page: number) { this.currentPage = page; this.updatePage(); }
-  onPageSizeChange(size: number) { this.pageSize = size; this.currentPage = 1; this.updatePage(); }
+  onPageChange(page: number) { this.currentPage = page; this.loadPage(); }
+  onPageSizeChange(size: number) { this.pageSize = size; this.currentPage = 1; this.loadPage(); }
 
   sortBy(field: string) {
     if (this.sortField === field) {
@@ -127,20 +85,24 @@ export class RefundListComponent implements OnInit, OnDestroy {
       this.sortField = field;
       this.sortDirection = 'desc';
     }
-    this.applyFilters();
+    this.currentPage = 1;
+    this.loadPage();
   }
 
   getSortIcon(field: string): string {
-    if (this.sortField !== field) return '↕';
-    return this.sortDirection === 'asc' ? '↑' : '↓';
+    if (this.sortField !== field) return '\u21C5';
+    return this.sortDirection === 'asc' ? '\u2191' : '\u2193';
   }
 
   clearFilters() {
-    this.searchTerm = '';
+    this.filterMerchant = '';
+    this.filterRefundRef = '';
     this.filterStatus = '';
+    this.filterType = '';
     this.dateFrom = '';
     this.dateTo = '';
-    this.loadRefunds();
+    this.currentPage = 1;
+    this.loadPage();
   }
 
   viewDetails(id: number) {

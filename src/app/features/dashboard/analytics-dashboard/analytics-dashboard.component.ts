@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth.service';
 import { DashboardService } from '../../../core/services/dashboard.service';
 import { AnalyticsApiService } from '../../../core/services/analytics-api.service';
+import { ReportService } from '../../../core/services/report.service';
 import { Chart, registerables } from 'chart.js';
 
 Chart.register(...registerables);
@@ -21,7 +22,14 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   userName: string = '';
 
   // Active tab
-  activeTab: 'dashboard' | 'overview' | 'trends' | 'scorecard' | 'anomalies' | 'insights' = 'dashboard';
+  activeTab: 'dashboard' | 'overview' | 'trends' | 'scorecard' | 'anomalies' | 'insights' | 'reports' = 'dashboard';
+
+  // Report data
+  report: any = null;
+  reportLoading = false;
+  reportError = '';
+  merchantBreakdown: { label: string; value: number; color: string; percent: number }[] = [];
+  transactionBreakdown: { label: string; value: number; color: string; percent: number }[] = [];
 
   // Dashboard stats
   totalUsers: number = 0;
@@ -72,7 +80,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(
     private authService: AuthService,
     private dashboardService: DashboardService,
-    private analyticsApi: AnalyticsApiService
+    private analyticsApi: AnalyticsApiService,
+    private reportService: ReportService
   ) {}
 
   ngOnInit() {
@@ -112,7 +121,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // ===== Tab Switching =====
 
-  switchTab(tab: 'dashboard' | 'overview' | 'trends' | 'scorecard' | 'anomalies' | 'insights') {
+  switchTab(tab: 'dashboard' | 'overview' | 'trends' | 'scorecard' | 'anomalies' | 'insights' | 'reports') {
     this.activeTab = tab;
     this.destroyCharts();
 
@@ -124,6 +133,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     if (tab === 'trends') {
       setTimeout(() => this.renderTrendCharts(), 50);
+    }
+    if (tab === 'reports' && !this.report && !this.reportLoading) {
+      this.loadReport();
     }
   }
 
@@ -212,6 +224,79 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       },
       error: () => { this.revenueLoading = false; }
     });
+  }
+
+  loadReport() {
+    this.reportLoading = true;
+    this.reportError = '';
+    this.reportService.getSummaryReport().subscribe({
+      next: (data) => {
+        this.report = data;
+        this.buildReportChartData();
+        this.reportLoading = false;
+      },
+      error: () => {
+        this.reportError = 'Failed to load report data.';
+        this.reportLoading = false;
+      }
+    });
+  }
+
+  private buildReportChartData() {
+    if (!this.report) return;
+    if (this.userRole === 'ADMIN') {
+      const totalM = (this.report.activeMerchants || 0) + (this.report.pendingMerchants || 0) + (this.report.suspendedMerchants || 0);
+      if (totalM > 0) {
+        this.merchantBreakdown = [
+          { label: 'Active', value: this.report.activeMerchants || 0, color: '#22c55e', percent: Math.round(((this.report.activeMerchants || 0) / totalM) * 100) },
+          { label: 'Pending', value: this.report.pendingMerchants || 0, color: '#f59e0b', percent: Math.round(((this.report.pendingMerchants || 0) / totalM) * 100) },
+          { label: 'Suspended', value: this.report.suspendedMerchants || 0, color: '#ef4444', percent: Math.round(((this.report.suspendedMerchants || 0) / totalM) * 100) }
+        ];
+      }
+    }
+    const totalT = (this.report.approvedTransactions || 0) + (this.report.pendingTransactions || 0) + (this.report.declinedTransactions || 0);
+    if (totalT > 0) {
+      this.transactionBreakdown = [
+        { label: 'Approved', value: this.report.approvedTransactions || 0, color: '#22c55e', percent: Math.round(((this.report.approvedTransactions || 0) / totalT) * 100) },
+        { label: 'Pending', value: this.report.pendingTransactions || 0, color: '#f59e0b', percent: Math.round(((this.report.pendingTransactions || 0) / totalT) * 100) },
+        { label: 'Declined', value: this.report.declinedTransactions || 0, color: '#ef4444', percent: Math.round(((this.report.declinedTransactions || 0) / totalT) * 100) }
+      ];
+    }
+  }
+
+  exportSummaryCsv() {
+    this.reportService.exportSummaryReportCsv().subscribe({
+      next: (blob) => this.downloadFile(blob, 'summary-report.csv'),
+      error: () => {}
+    });
+  }
+
+  exportTransactionsCsv() {
+    this.reportService.exportTransactionsCsv().subscribe({
+      next: (blob) => this.downloadFile(blob, 'transactions-export.csv'),
+      error: () => {}
+    });
+  }
+
+  exportSettlementsCsv() {
+    this.reportService.exportSettlementsCsv().subscribe({
+      next: (blob) => this.downloadFile(blob, 'settlements-export.csv'),
+      error: () => {}
+    });
+  }
+
+  private downloadFile(blob: Blob, filename: string) {
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename; a.click();
+    window.URL.revokeObjectURL(url);
+  }
+
+  printReport() { window.print(); }
+
+  formatReportDate(dateStr: string): string {
+    if (!dateStr) return '-';
+    return new Date(dateStr).toLocaleDateString('en-MY', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
   }
 
   recompute() {
