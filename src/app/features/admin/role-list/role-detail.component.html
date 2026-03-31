@@ -44,22 +44,6 @@
             <span class="detail-label">Total Permissions</span>
             <span class="detail-value"><strong>{{ (role.permissions || []).length }}</strong></span>
           </div>
-          <div class="detail-row">
-            <span class="detail-label">Created By</span>
-            <span class="detail-value">{{ role.createdBy || '-' }}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">Created Date</span>
-            <span class="detail-value">{{ role.createdAt ? (role.createdAt | date:'dd MMM yyyy, HH:mm') : '-' }}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">Last Modified By</span>
-            <span class="detail-value">{{ role.lastModifiedBy || '-' }}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">Last Modified Date</span>
-            <span class="detail-value">{{ role.lastModifiedAt ? (role.lastModifiedAt | date:'dd MMM yyyy, HH:mm') : '-' }}</span>
-          </div>
         </div>
       </div>
 
@@ -81,6 +65,29 @@
               </div>
             }
           }
+        </div>
+      </div>
+
+      <!-- Maintenance Info Card (full-width bottom row) -->
+      <div class="card detail-card maintenance-card">
+        <div class="card-header"><h3>&#128221; Maintenance Info</h3></div>
+        <div class="detail-body maintenance-body">
+          <div class="detail-row">
+            <span class="detail-label">Created By</span>
+            <span class="detail-value">{{ role.createdBy || '-' }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Created Date</span>
+            <span class="detail-value">{{ role.createdAt ? (role.createdAt | date:'dd MMM yyyy, HH:mm') : '-' }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Last Modified By</span>
+            <span class="detail-value">{{ role.lastModifiedBy || '-' }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Last Modified Date</span>
+            <span class="detail-value">{{ role.lastModifiedAt ? (role.lastModifiedAt | date:'dd MMM yyyy, HH:mm') : '-' }}</span>
+          </div>
         </div>
       </div>
     </div>

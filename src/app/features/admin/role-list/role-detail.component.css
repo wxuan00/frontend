@@ -1,8 +1,34 @@
 .detail-grid {
   display: grid;
-  grid-template-columns: 320px 1fr;
-  gap: 20px;
-  align-items: start;
+  grid-template-columns: 300px 1fr;
+  gap: 24px;
+  align-items: stretch;
+}
+
+.detail-grid > .card {
+  margin-bottom: 0;
+  box-sizing: border-box;
+}
+
+/* Role info card: left column, row 1 only */
+.role-info-card {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Maintenance card spans full width at the bottom */
+.maintenance-card {
+  grid-column: 1 / -1;
+}
+
+.maintenance-body {
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px 40px;
+}
+
+.maintenance-body .detail-row {
+  margin: 0;
 }
 
 .detail-card .detail-body {
@@ -49,7 +75,6 @@
 }
 
 .perm-scroll {
-  max-height: 540px;
   overflow-y: auto;
   padding-right: 4px;
 }
@@ -123,5 +148,11 @@
 @media (max-width: 900px) {
   .detail-grid {
     grid-template-columns: 1fr;
+  }
+  .maintenance-card {
+    grid-column: auto;
+  }
+  .maintenance-body {
+    grid-template-columns: 1fr !important;
   }
 }

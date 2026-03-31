@@ -1,8 +1,29 @@
 .detail-grid {
   display: grid;
-  grid-template-columns: 340px 1fr;
-  gap: 20px;
-  align-items: start;
+  grid-template-columns: 300px 1fr;
+  gap: 24px;
+  align-items: stretch;
+}
+
+.detail-grid > .card {
+  margin-bottom: 0;
+  box-sizing: border-box;
+}
+
+/* Identity card spans both rows like profile-main */
+.identity-card {
+  grid-row: 1 / 3;
+  text-align: center;
+  padding: 36px 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+.identity-card .detail-body {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
 .detail-card .detail-body {
@@ -12,9 +33,13 @@
   gap: 0;
 }
 
+.identity-card .detail-row {
+  padding: 10px 0;
+}
+
 .user-avatar-lg {
-  width: 72px;
-  height: 72px;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
   background: #111;
   color: #fff;
@@ -23,7 +48,45 @@
   justify-content: center;
   font-size: 2rem;
   font-weight: 700;
-  margin: 0 auto 20px;
+  margin: 0 auto 12px;
+}
+
+.identity-name {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #111;
+  margin: 0 0 4px;
+}
+
+.identity-email {
+  font-size: 0.85rem;
+  color: #888;
+  margin: 0 0 16px;
+}
+
+.identity-quick-stats {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  padding: 16px 0;
+  border-top: 1px solid #f0f0f0;
+  border-bottom: 1px solid #f0f0f0;
+  margin-bottom: 16px;
+}
+
+.quick-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.quick-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .detail-row {
@@ -130,5 +193,8 @@
 @media (max-width: 900px) {
   .detail-grid {
     grid-template-columns: 1fr;
+  }
+  .identity-card {
+    grid-row: auto;
   }
 }
