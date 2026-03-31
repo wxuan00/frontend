@@ -27,13 +27,13 @@ import { Router } from '@angular/router';
 
           <form (ngSubmit)="onLogin()">
             <div class="form-group">
-              <label>Email Address</label>
+              <label>Email or Display Name</label>
               <input 
-                type="email" 
+                type="text" 
                 class="form-control" 
-                [(ngModel)]="email" 
-                name="email" 
-                placeholder="Enter your email"
+                [(ngModel)]="identifier" 
+                name="identifier" 
+                placeholder="Enter your email or display name"
                 required>
             </div>
 
@@ -202,7 +202,7 @@ import { Router } from '@angular/router';
   `]
 })
 export class LoginComponent {
-  email = '';
+  identifier = '';
   password = '';
   errorMessage = '';
   loading = false;
@@ -212,24 +212,30 @@ export class LoginComponent {
   onLogin() {
     this.loading = true;
     this.errorMessage = '';
-    const credentials = { email: this.email, password: this.password };
+    const credentials = { identifier: this.identifier, password: this.password };
     
     this.authService.login(credentials).subscribe({
       next: (res) => {
         this.loading = false;
-        
-        // Check if MFA is required
         if (res.mfaRequired) {
-          // Token is already saved by the service, redirect to MFA
           this.router.navigate(['/mfa']);
         } else {
-          // No MFA required, go to dashboard
-          this.router.navigate(['/dashboard']);
+          // Check mustChangePassword after login
+          this.authService.getCurrentUser().subscribe({
+            next: (user) => {
+              if (user.mustChangePassword) {
+                this.router.navigate(['/profile/change-password']);
+              } else {
+                this.router.navigate(['/dashboard']);
+              }
+            },
+            error: () => this.router.navigate(['/dashboard'])
+          });
         }
       },
       error: (err) => {
         this.loading = false;
-        this.errorMessage = 'Invalid email or password. Please try again.';
+        this.errorMessage = err.error?.message || err.message || 'Invalid credentials. Please try again.';
       }
     });
   }

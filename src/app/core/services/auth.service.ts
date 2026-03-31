@@ -101,6 +101,10 @@ export class AuthService {
     return this.http.put('http://localhost:8080/api/profile/password', passwords);
   }
 
+  clearMustChangePassword(): Observable<any> {
+    return this.http.patch('http://localhost:8080/api/auth/clear-must-change-password', {});
+  }
+
   // ============ MFA Setup Methods ============
 
   // Get MFA status

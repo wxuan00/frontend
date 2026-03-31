@@ -3,12 +3,15 @@
     <div>
       <h1>Settlement Detail</h1>
       <div class="breadcrumb">
-        <a routerLink="/settlements">Inquiries › Settlements</a> › #{{ settlementId }}
+        <a routerLink="/credit-advices">Inquiries &rsaquo; Credit Advice</a>
+        <span *ngIf="settlement?.creditAdviceId"> &rsaquo; <a [routerLink]="['/credit-advices', settlement.creditAdviceId]">CA #{{ settlement.creditAdviceId }}</a></span>
+        &rsaquo; Settlement #{{ settlementId }}
       </div>
     </div>
     <div class="header-actions">
-      <button (click)="printDetail()" class="btn btn-ghost">🖨️ Print</button>
-      <a routerLink="/settlements" class="btn btn-secondary">← Back to List</a>
+      <button (click)="printDetail()" class="btn btn-ghost">&#128424; Print</button>
+      <a *ngIf="settlement?.creditAdviceId" [routerLink]="['/credit-advices', settlement.creditAdviceId]" class="btn btn-secondary">&larr; Back to Credit Advice</a>
+      <a *ngIf="!settlement?.creditAdviceId" routerLink="/credit-advices" class="btn btn-secondary">&larr; Back</a>
     </div>
   </div>
 
@@ -90,5 +93,40 @@
         <span>{{ formatDate(settlement.settlementDate) }}</span>
       </div>
     </div>
+  </div>
+
+  <!-- Nested Transactions Table -->
+  <div *ngIf="settlement && !loading" class="card" style="margin-top:24px;">
+    <div class="card-header">
+      <h3>💳 Transactions ({{ transactions.length }})</h3>
+    </div>
+    <div *ngIf="transactionsLoading" style="padding:20px;text-align:center;color:#888;">Loading transactions...</div>
+    <table *ngIf="!transactionsLoading && transactions.length > 0" class="data-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Merchant</th>
+          <th>Card No</th>
+          <th>Channel</th>
+          <th>Amount</th>
+          <th>Status</th>
+          <th>Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let t of transactions">
+          <td class="id-cell">#{{ t.transactionId }}</td>
+          <td>{{ t.merchantName || '-' }}</td>
+          <td>{{ t.cardNo || '-' }}</td>
+          <td>{{ t.paymentChannel || '-' }}</td>
+          <td class="amount-cell">{{ t.currency }} {{ formatAmount(t.amount) }}</td>
+          <td><span class="badge" [ngClass]="{'badge-success': t.status==='APPROVED','badge-danger': t.status==='FAILED' || t.status==='DECLINED','badge-warning': t.status==='PENDING'}">{{ t.status }}</span></td>
+          <td>{{ formatDate(t.txnDate) }}</td>
+          <td><a [routerLink]="['/transactions', t.transactionId]" class="btn btn-sm btn-outline">View</a></td>
+        </tr>
+      </tbody>
+    </table>
+    <div *ngIf="!transactionsLoading && transactions.length === 0" style="padding:20px;text-align:center;color:#888;">No transactions found for this settlement.</div>
   </div>
 </div>

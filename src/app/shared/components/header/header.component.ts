@@ -23,7 +23,7 @@ export class HeaderComponent implements OnInit {
     this.userRole = this.authService.getUserRole();
     this.authService.getProfile().subscribe({
       next: (data) => {
-        this.userName = data.firstName ? `${data.firstName} ${data.lastName}` : (data.displayName || data.email);
+        this.userName = data.displayName || (data.firstName ? `${data.firstName} ${data.lastName}` : data.email);
       },
       error: () => {
         this.userName = 'User';

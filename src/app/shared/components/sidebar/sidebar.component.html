@@ -34,29 +34,24 @@
 
       <div class="nav-section-label" *ngIf="!collapsed || mobileOpen">INQUIRIES</div>
 
-      <a routerLink="/merchants" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()" [title]="collapsed ? 'All Merchants' : ''">
+      <a routerLink="/merchants" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()" [title]="collapsed ? 'Merchant Inquiry' : ''">
         <span class="nav-icon">🏢</span>
-        <span class="nav-label" *ngIf="!collapsed || mobileOpen">All Merchants</span>
+        <span class="nav-label" *ngIf="!collapsed || mobileOpen">Merchant Inquiry</span>
       </a>
 
-      <a routerLink="/transactions" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()" [title]="collapsed ? 'All Transactions' : ''">
+      <a routerLink="/transactions" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()" [title]="collapsed ? 'Transaction Inquiry' : ''">
         <span class="nav-icon">💳</span>
-        <span class="nav-label" *ngIf="!collapsed || mobileOpen">All Transactions</span>
+        <span class="nav-label" *ngIf="!collapsed || mobileOpen">Transaction Inquiry</span>
       </a>
 
-      <a routerLink="/refunds" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()" [title]="collapsed ? 'Refund Inquiry' : ''">
-        <span class="nav-icon">🔄</span>
-        <span class="nav-label" *ngIf="!collapsed || mobileOpen">Refund Inquiry</span>
+      <a routerLink="/refunds" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()" [title]="collapsed ? 'Refund Transaction Inquiry' : ''">
+        <span class="nav-icon">&#128260;</span>
+        <span class="nav-label" *ngIf="!collapsed || mobileOpen">Refund Transaction Inquiry</span>
       </a>
 
-      <a routerLink="/settlements" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()" [title]="collapsed ? 'Settlements' : ''">
-        <span class="nav-icon">📋</span>
-        <span class="nav-label" *ngIf="!collapsed || mobileOpen">Settlements</span>
-      </a>
-
-      <a routerLink="/credit-advices" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()" [title]="collapsed ? 'Credit Advice' : ''">
-        <span class="nav-icon">📄</span>
-        <span class="nav-label" *ngIf="!collapsed || mobileOpen">Credit Advice</span>
+      <a routerLink="/credit-advices" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()" [title]="collapsed ? 'Credit Advice Inquiry' : ''">
+        <span class="nav-icon">&#128196;</span>
+        <span class="nav-label" *ngIf="!collapsed || mobileOpen">Credit Advice Inquiry</span>
       </a>
     } @else {
       <div class="nav-section-label" *ngIf="!collapsed || mobileOpen">MY BUSINESS</div>
@@ -72,17 +67,12 @@
       </a>
 
       <a routerLink="/refunds" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()" [title]="collapsed ? 'My Refunds' : ''">
-        <span class="nav-icon">🔄</span>
+        <span class="nav-icon">&#128260;</span>
         <span class="nav-label" *ngIf="!collapsed || mobileOpen">My Refunds</span>
       </a>
 
-      <a routerLink="/settlements" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()" [title]="collapsed ? 'My Settlements' : ''">
-        <span class="nav-icon">📋</span>
-        <span class="nav-label" *ngIf="!collapsed || mobileOpen">My Settlements</span>
-      </a>
-
       <a routerLink="/credit-advices" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()" [title]="collapsed ? 'My Credit Advice' : ''">
-        <span class="nav-icon">📄</span>
+        <span class="nav-icon">&#128196;</span>
         <span class="nav-label" *ngIf="!collapsed || mobileOpen">My Credit Advice</span>
       </a>
     }

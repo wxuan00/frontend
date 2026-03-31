@@ -38,6 +38,10 @@ export class TransactionService {
     return this.http.get<any>(`${this.apiUrl}/${id}`);
   }
 
+  getTransactionsBySettlement(settlementId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/by-settlement/${settlementId}`);
+  }
+
   searchTransactions(keyword: string): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/search?keyword=${keyword}`);
   }

@@ -36,6 +36,10 @@ export class SettlementService {
     return this.http.get<any>(`${this.apiUrl}/${id}`);
   }
 
+  getSettlementsByCreditAdvice(creditAdviceId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/by-credit-advice/${creditAdviceId}`);
+  }
+
   searchSettlements(keyword: string): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/search?keyword=${keyword}`);
   }

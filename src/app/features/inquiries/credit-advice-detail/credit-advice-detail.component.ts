@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { CreditAdviceService } from '../../../core/services/credit-advice.service';
+import { SettlementService } from '../../../core/services/settlement.service';
 
 @Component({
   selector: 'app-credit-advice-detail',
@@ -14,10 +15,13 @@ export class CreditAdviceDetailComponent implements OnInit {
   creditAdvice: any = null;
   creditAdviceId: number = 0;
   loading = true;
+  settlements: any[] = [];
+  settlementsLoading = false;
 
   constructor(
     private route: ActivatedRoute,
-    private creditAdviceService: CreditAdviceService
+    private creditAdviceService: CreditAdviceService,
+    private settlementService: SettlementService
   ) {}
 
   ngOnInit(): void {
@@ -26,10 +30,17 @@ export class CreditAdviceDetailComponent implements OnInit {
       next: (data) => {
         this.creditAdvice = data;
         this.loading = false;
+        this.loadSettlements();
       },
-      error: () => {
-        this.loading = false;
-      }
+      error: () => { this.loading = false; }
+    });
+  }
+
+  loadSettlements(): void {
+    this.settlementsLoading = true;
+    this.settlementService.getSettlementsByCreditAdvice(this.creditAdviceId).subscribe({
+      next: (data) => { this.settlements = data; this.settlementsLoading = false; },
+      error: () => { this.settlementsLoading = false; }
     });
   }
 
@@ -39,6 +50,11 @@ export class CreditAdviceDetailComponent implements OnInit {
       year: 'numeric', month: 'short', day: 'numeric',
       hour: '2-digit', minute: '2-digit'
     });
+  }
+
+  formatAmount(val: any): string {
+    if (val == null) return '-';
+    return Number(val).toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
   printDetail(): void {

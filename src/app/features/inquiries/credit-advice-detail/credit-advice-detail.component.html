@@ -82,4 +82,37 @@
       </div>
     </div>
   </div>
+
+  <!-- Nested Settlements Table -->
+  <div *ngIf="creditAdvice && !loading" class="card" style="margin-top:24px;">
+    <div class="card-header">
+      <h3>&#128196; Settlements ({{ settlements.length }})</h3>
+    </div>
+    <div *ngIf="settlementsLoading" style="padding:20px;text-align:center;color:#888;">Loading settlements...</div>
+    <table *ngIf="!settlementsLoading && settlements.length > 0" class="data-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Settlement No</th>
+          <th>Type</th>
+          <th>Settlement Amount</th>
+          <th>Payment Amount</th>
+          <th>Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let s of settlements">
+          <td class="id-cell">#{{ s.settlementId }}</td>
+          <td>{{ s.settlementNo || '-' }}</td>
+          <td>{{ s.settlementType || '-' }}</td>
+          <td class="amount-cell">{{ s.currency }} {{ formatAmount(s.settlementAmount) }}</td>
+          <td class="amount-cell">{{ s.currency }} {{ formatAmount(s.paymentAmount) }}</td>
+          <td>{{ formatDate(s.settlementDate) }}</td>
+          <td><a [routerLink]="['/settlements', s.settlementId]" class="btn btn-sm btn-outline">View</a></td>
+        </tr>
+      </tbody>
+    </table>
+    <div *ngIf="!settlementsLoading && settlements.length === 0" style="padding:20px;text-align:center;color:#888;">No settlements found for this credit advice.</div>
+  </div>
 </div>

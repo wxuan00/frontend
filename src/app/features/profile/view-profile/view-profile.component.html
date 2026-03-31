@@ -19,8 +19,8 @@
     <!-- Profile Card -->
     <div class="card profile-main">
       <div class="profile-avatar-area">
-        <div class="avatar-large">{{ (user.firstName || 'U').charAt(0) }}</div>
-        <h2>{{ user.firstName }} {{ user.lastName }}</h2>
+        <div class="avatar-large">{{ (user.displayName || user.firstName || 'U').charAt(0) }}</div>
+        <h2>{{ user.displayName || (user.firstName + ' ' + user.lastName) }}</h2>
         <span class="badge badge-primary">{{ user.role }}</span>
         <p class="profile-email">{{ user.email }}</p>
       </div>
