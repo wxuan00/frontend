@@ -24,6 +24,9 @@ export class UserFormComponent implements OnInit {
   message = '';
   errorMessage = '';
 
+  /** Locked user type determined from query param on create ('ADMIN' | 'MERCHANT') */
+  userType: 'ADMIN' | 'MERCHANT' = 'MERCHANT';
+
   // Delete dialog
   showDeleteDialog = false;
   deleteLabel = '';
@@ -58,6 +61,13 @@ export class UserFormComponent implements OnInit {
       error: () => {}
     });
 
+    // On create: lock user type from query param (ADMIN = Bank User, MERCHANT = Merchant User)
+    const typeParam = this.route.snapshot.queryParamMap.get('type');
+    if (typeParam === 'ADMIN' || typeParam === 'MERCHANT') {
+      this.userType = typeParam;
+      this.formData.role = typeParam;
+    }
+
     const idParam = this.route.snapshot.paramMap.get('id');
     if (idParam) {
       this.isEditMode = true;
@@ -74,6 +84,7 @@ export class UserFormComponent implements OnInit {
               role: user.role || 'MERCHANT',
               status: user.status || 'ACTIVE'
             };
+            this.userType = (user.role === 'ADMIN' ? 'ADMIN' : 'MERCHANT');
             // Pre-select all assigned roles
             if (user.roles && user.roles.length > 0) {
               this.selectedRoleIds = new Set(user.roles.map((r: any) => r.roleId));

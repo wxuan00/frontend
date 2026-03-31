@@ -12,7 +12,11 @@
 
   <div class="card">
     <div class="card-header">
-      <h3>{{ isEditMode ? 'Update Role' : 'New Role Details' }}</h3>
+      <h3>
+        {{ isEditMode
+          ? (formData.roleType === 'SYSTEM' ? 'Update Bank Role Details' : 'Update Merchant Role Details')
+          : (formData.roleType === 'SYSTEM' ? 'New Bank Role Details' : 'New Merchant Role Details') }}
+      </h3>
     </div>
 
     <form (ngSubmit)="onSubmit()">

@@ -172,6 +172,11 @@ export class UserListComponent implements OnInit, OnDestroy {
     }
   }
 
+  goToCreateUser() {
+    const type = this.activeTab === 'bank' ? 'ADMIN' : 'MERCHANT';
+    this.router.navigate(['/users', 'new'], { queryParams: { type } });
+  }
+
   switchTab(tab: 'bank' | 'merchant') {
     this.activeTab = tab;
     this.searchTerm = '';
