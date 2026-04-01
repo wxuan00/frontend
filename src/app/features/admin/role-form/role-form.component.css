@@ -79,9 +79,10 @@
 }
 
 .perm-item {
-  display: flex;
+  display: grid;
+  grid-template-columns: 14px 1fr;
   align-items: flex-start;
-  gap: 8px;
+  gap: 6px 8px;
   padding: 7px 10px;
   border-radius: 6px;
   cursor: pointer;
@@ -98,27 +99,29 @@
 }
 
 .perm-item input[type="checkbox"] {
-  margin-top: 2px;
+  margin-top: 3px;
   flex-shrink: 0;
   accent-color: #6366f1;
   width: 14px;
   height: 14px;
 }
 
+.perm-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
 .perm-name {
   font-weight: 600;
   color: #111;
-  display: block;
 }
 
 .perm-desc {
   font-size: 0.75rem;
   color: #6b7280;
-  margin-left: auto;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 200px;
+  line-height: 1.4;
 }
 
 .form-actions {

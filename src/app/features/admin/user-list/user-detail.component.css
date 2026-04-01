@@ -110,35 +110,9 @@
   text-align: right;
   color: #111;
   font-size: 0.9rem;
+  padding-right: 24px;
 }
 
-/* Permissions */
-.perm-module {
-  margin-bottom: 14px;
-}
-.perm-module-title {
-  font-weight: 700;
-  font-size: 0.75rem;
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
-  color: #555;
-  margin-bottom: 8px;
-}
-.perm-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-.perm-tag {
-  display: inline-block;
-  padding: 3px 10px;
-  background: #f0f0f0;
-  border: 1px solid #e0e0e0;
-  border-radius: 4px;
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: #444;
-}
 .no-data {
   color: #aaa;
   font-style: italic;

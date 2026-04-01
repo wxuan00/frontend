@@ -10,25 +10,11 @@
   box-sizing: border-box;
 }
 
-/* Role info card: left column, row 1 only */
+/* Role info card spans both rows — left column */
 .role-info-card {
+  grid-row: 1 / 3;
   display: flex;
   flex-direction: column;
-}
-
-/* Maintenance card spans full width at the bottom */
-.maintenance-card {
-  grid-column: 1 / -1;
-}
-
-.maintenance-body {
-  display: grid !important;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 8px 40px;
-}
-
-.maintenance-body .detail-row {
-  margin: 0;
 }
 
 .detail-card .detail-body {
@@ -68,6 +54,7 @@
   text-align: right;
   color: #111;
   font-size: 0.9rem;
+  padding-right: 24px;
 }
 .id-cell {
   font-family: 'Courier New', monospace;
@@ -77,30 +64,6 @@
 .perm-scroll {
   overflow-y: auto;
   padding-right: 4px;
-}
-
-.perm-checkbox {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 5px 0;
-  cursor: pointer;
-  font-size: 0.875rem;
-}
-.perm-checkbox input[type="checkbox"] {
-  width: 15px;
-  height: 15px;
-  cursor: pointer;
-  accent-color: #2563eb;
-  flex-shrink: 0;
-}
-.perm-name {
-  font-weight: 600;
-  color: #222;
-}
-.perm-desc {
-  color: #888;
-  font-size: 0.8rem;
 }
 
 /* Permissions */
@@ -149,10 +112,7 @@
   .detail-grid {
     grid-template-columns: 1fr;
   }
-  .maintenance-card {
-    grid-column: auto;
-  }
-  .maintenance-body {
-    grid-template-columns: 1fr !important;
+  .role-info-card {
+    grid-row: auto;
   }
 }

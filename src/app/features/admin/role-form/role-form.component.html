@@ -72,8 +72,10 @@
                       <input type="checkbox"
                         [checked]="isSelected(perm.permissionId)"
                         (change)="togglePermission(perm.permissionId)">
-                      <span class="perm-name">{{ perm.permissionName }}</span>
-                      <span class="perm-desc">{{ perm.description }}</span>
+                      <span class="perm-text">
+                        <span class="perm-name">{{ perm.permissionName }}</span>
+                        <span class="perm-desc" *ngIf="perm.description">{{ perm.description }}</span>
+                      </span>
                     </label>
                   }
                 </div>
