@@ -4,11 +4,12 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 import { RefundService } from '../../../core/services/refund.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { MaskCardPipe } from '../../../shared/pipes/mask-card.pipe';
 
 @Component({
   selector: 'app-refund-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, ConfirmDialogComponent],
+  imports: [CommonModule, RouterModule, ConfirmDialogComponent, MaskCardPipe],
   templateUrl: './refund-detail.component.html',
   styleUrls: ['./refund-detail.component.css']
 })

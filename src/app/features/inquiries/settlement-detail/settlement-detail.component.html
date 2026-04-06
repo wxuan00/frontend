@@ -118,7 +118,7 @@
         <tr *ngFor="let t of transactions">
           <td class="id-cell">#{{ t.transactionId }}</td>
           <td>{{ t.merchantName || '-' }}</td>
-          <td>{{ t.cardNo || '-' }}</td>
+          <td>{{ t.cardNo | maskCard }}</td>
           <td>{{ t.paymentChannel || '-' }}</td>
           <td class="amount-cell">{{ t.currency }} {{ formatAmount(t.amount) }}</td>
           <td><span class="badge" [ngClass]="{'badge-success': t.status==='APPROVED','badge-danger': t.status==='FAILED' || t.status==='DECLINED','badge-warning': t.status==='PENDING'}">{{ t.status }}</span></td>

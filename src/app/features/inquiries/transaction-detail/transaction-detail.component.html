@@ -159,7 +159,7 @@
       </div>
       <div class="detail-row">
         <label>Card No</label>
-        <span>{{ transaction.cardNo || '-' }}</span>
+        <span>{{ transaction.cardNo | maskCard }}</span>
       </div>
       <div class="detail-row">
         <label>Ref No</label>

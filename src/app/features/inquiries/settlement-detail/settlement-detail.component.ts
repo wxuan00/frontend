@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { SettlementService } from '../../../core/services/settlement.service';
 import { TransactionService } from '../../../core/services/transaction.service';
+import { MaskCardPipe } from '../../../shared/pipes/mask-card.pipe';
 
 @Component({
   selector: 'app-settlement-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, MaskCardPipe],
   templateUrl: './settlement-detail.component.html',
   styleUrls: ['./settlement-detail.component.css']
 })

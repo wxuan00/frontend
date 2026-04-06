@@ -17,7 +17,7 @@
         <input type="text" placeholder="Enter merchant name" [(ngModel)]="filterMerchant" (input)="onFilterChange()">
       </div>
     </div>
-    <div class="filter-item">
+    <div class="filter-item filter-search">
       <label class="filter-label">Refund Reference Number</label>
       <div class="search-input-wrap">
         <span class="search-prefix">🔍</span>
@@ -92,7 +92,7 @@
               <td class="id-cell">#{{ r.refundId }}</td>
               <td><strong>{{ r.merchantName }}</strong></td>
               <td class="amount-cell refund-amount">{{ r.currency }} {{ r.refundAmount | number:'1.2-2' }}</td>
-              <td>{{ r.cardNo || '-' }}</td>
+              <td>{{ r.cardNo | maskCard }}</td>
               <td class="id-cell">{{ r.refundRefNo || '-' }}</td>
               <td>{{ r.refundType || '-' }}</td>
               <td>

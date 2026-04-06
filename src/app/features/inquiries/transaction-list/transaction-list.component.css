@@ -1,9 +1,9 @@
 /* ── Filter Bar ─────────────────────────────────────────── */
 .filter-bar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: flex-end;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px 12px;
+  align-items: end;
   margin-bottom: 20px;
   background: #fff;
   border: 1px solid #e5e7eb;
@@ -15,18 +15,15 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
-  min-width: 130px;
-  flex: 1;
+  min-width: 0;
 }
 
 .filter-item.filter-search {
-  flex: 2;
-  min-width: 200px;
+  grid-column: span 2;
 }
 
 .filter-item.filter-action {
-  flex: 0 0 auto;
-  min-width: unset;
+  justify-self: start;
 }
 
 .filter-label {

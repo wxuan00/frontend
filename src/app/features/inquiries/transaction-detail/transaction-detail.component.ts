@@ -5,11 +5,12 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TransactionService } from '../../../core/services/transaction.service';
 import { RefundService } from '../../../core/services/refund.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { MaskCardPipe } from '../../../shared/pipes/mask-card.pipe';
 
 @Component({
   selector: 'app-transaction-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, MaskCardPipe],
   templateUrl: './transaction-detail.component.html',
   styleUrls: ['./transaction-detail.component.css']
 })

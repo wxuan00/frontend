@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TransactionService } from '../../../core/services/transaction.service';
 import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
+import { MaskCardPipe } from '../../../shared/pipes/mask-card.pipe';
 
 @Component({
   selector: 'app-transaction-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, PaginationComponent],
+  imports: [CommonModule, FormsModule, PaginationComponent, MaskCardPipe],
   templateUrl: './transaction-list.component.html',
   styleUrls: ['./transaction-list.component.css']
 })

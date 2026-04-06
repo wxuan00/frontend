@@ -103,7 +103,7 @@
                 <span class="badge badge-info">{{ t.paymentChannel }}</span>
               </td>
               <td class="amount-cell">{{ t.currency }} {{ t.amount | number:'1.2-2' }}</td>
-              <td>{{ t.cardNo || '-' }}</td>
+              <td>{{ t.cardNo | maskCard }}</td>
               <td>
                 <span class="badge" [ngClass]="{
                   'badge-success': t.status === 'APPROVED',
