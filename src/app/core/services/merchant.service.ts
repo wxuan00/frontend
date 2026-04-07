@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class MerchantService {
-  private apiUrl = 'http://localhost:8080/api/merchants';
+  private apiUrl = 'http://localhost:8001/api/merchants';
 
   constructor(private http: HttpClient) {}
 

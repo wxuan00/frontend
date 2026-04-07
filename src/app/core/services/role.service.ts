@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class RoleService {
-  private apiUrl = 'http://localhost:8080/api/roles';
+  private apiUrl = 'http://localhost:8001/api/roles';
 
   constructor(private http: HttpClient) {}
 
@@ -47,14 +47,14 @@ export class RoleService {
   }
 
   assignUserRole(userId: number, roleId: number | null): Observable<any> {
-    return this.http.put<any>(`http://localhost:8080/api/users/${userId}/role`, { roleId });
+    return this.http.put<any>(`http://localhost:8001/api/users/${userId}/role`, { roleId });
   }
 
   syncUserRoles(userId: number, roleIds: number[]): Observable<any> {
-    return this.http.put<any>(`http://localhost:8080/api/users/${userId}/roles`, roleIds);
+    return this.http.put<any>(`http://localhost:8001/api/users/${userId}/roles`, roleIds);
   }
 
   unassignUserRole(userId: number, roleId: number): Observable<any> {
-    return this.http.delete<any>(`http://localhost:8080/api/users/${userId}/roles/${roleId}`);
+    return this.http.delete<any>(`http://localhost:8001/api/users/${userId}/roles/${roleId}`);
   }
 }

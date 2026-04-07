@@ -1,6 +1,8 @@
 import { Routes } from '@angular/router';
 import { LoginComponent } from './features/auth/login/login.component';
 import { MfaComponent } from './features/auth/mfa/mfa.component';
+import { ForgotPasswordComponent } from './features/auth/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './features/auth/reset-password/reset-password.component';
 import { DashboardComponent } from './features/dashboard/analytics-dashboard/analytics-dashboard.component';
 import { UserListComponent } from './features/admin/user-list/user-list.component';
 import { UserFormComponent } from './features/admin/user-form/user-form.component';
@@ -29,6 +31,9 @@ import { LayoutComponent } from './shared/components/layout/layout.component';
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'mfa', component: MfaComponent },
+  { path: 'forgot-password', component: ForgotPasswordComponent },
+  { path: 'reset-password', component: ResetPasswordComponent },
+  { path: 'reset-password/:token', component: ResetPasswordComponent },
 
   { 
     path: '', 
@@ -37,6 +42,7 @@ export const routes: Routes = [
     runGuardsAndResolvers: 'always',
     children: [
       { path: 'dashboard', component: DashboardComponent, runGuardsAndResolvers: 'always' },
+      { path: 'ai-analytics', component: DashboardComponent, data: { tab: 'ai-analytics' }, runGuardsAndResolvers: 'always' },
 
       // Admin-only routes: User management
       { path: 'users', component: UserListComponent, canActivate: [adminGuard], runGuardsAndResolvers: 'always' },

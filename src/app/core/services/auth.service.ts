@@ -7,7 +7,7 @@ import { Observable, tap } from 'rxjs';
 })
 export class AuthService {
 
-  private apiUrl = 'http://localhost:8080/api/auth'; // Connects to Spring Boot
+  private apiUrl = 'http://localhost:8001/api/auth'; // Connects to Spring Boot
 
   constructor(private http: HttpClient) { }
 
@@ -55,76 +55,86 @@ export class AuthService {
   }
 
   getAllUsers(): Observable<any> {
-    return this.http.get('http://localhost:8080/api/users');
+    return this.http.get('http://localhost:8001/api/users');
   }
 
   // Create User
   createUser(user: any): Observable<any> {
-    return this.http.post('http://localhost:8080/api/users', user);
+    return this.http.post('http://localhost:8001/api/users', user);
   }
 
   // Delete User
   deleteUser(id: number): Observable<any> {
-    return this.http.delete(`http://localhost:8080/api/users/${id}`);
+    return this.http.delete(`http://localhost:8001/api/users/${id}`);
   }
 
   // Update User
   updateUser(id: number, user: any): Observable<any> {
-    return this.http.put(`http://localhost:8080/api/users/${id}`, user);
+    return this.http.put(`http://localhost:8001/api/users/${id}`, user);
   }
 
   // Get User by ID
   getUserById(id: number): Observable<any> {
-    return this.http.get(`http://localhost:8080/api/users/${id}`);
+    return this.http.get(`http://localhost:8001/api/users/${id}`);
   }
 
   // Get User with role + permissions details
   getUserDetails(id: number): Observable<any> {
-    return this.http.get(`http://localhost:8080/api/users/${id}/details`);
+    return this.http.get(`http://localhost:8001/api/users/${id}/details`);
   }
 
   // Admin: reset a user's password
   adminResetPassword(userId: number, newPassword: string): Observable<any> {
-    return this.http.patch(`http://localhost:8080/api/users/${userId}/password`, { newPassword });
+    return this.http.patch(`http://localhost:8001/api/users/${userId}/password`, { newPassword });
   }
 
   // Profile endpoints
   getProfile(): Observable<any> {
-    return this.http.get('http://localhost:8080/api/profile');
+    return this.http.get('http://localhost:8001/api/profile');
   }
 
   updateProfile(updates: any): Observable<any> {
-    return this.http.put('http://localhost:8080/api/profile', updates);
+    return this.http.put('http://localhost:8001/api/profile', updates);
   }
 
   changePassword(passwords: any): Observable<any> {
-    return this.http.put('http://localhost:8080/api/profile/password', passwords);
+    return this.http.put('http://localhost:8001/api/profile/password', passwords);
   }
 
   clearMustChangePassword(): Observable<any> {
-    return this.http.patch('http://localhost:8080/api/auth/clear-must-change-password', {});
+    return this.http.patch('http://localhost:8001/api/auth/clear-must-change-password', {});
   }
 
   // ============ MFA Setup Methods ============
 
   // Get MFA status
   getMfaStatus(): Observable<any> {
-    return this.http.get('http://localhost:8080/api/profile/mfa/status');
+    return this.http.get('http://localhost:8001/api/profile/mfa/status');
   }
 
   // Generate MFA setup (secret + QR code)
   setupMfa(): Observable<any> {
-    return this.http.post('http://localhost:8080/api/profile/mfa/setup', {});
+    return this.http.post('http://localhost:8001/api/profile/mfa/setup', {});
   }
 
   // Enable MFA with secret and verification code
   enableMfa(secret: string, code: string): Observable<any> {
-    return this.http.post('http://localhost:8080/api/profile/mfa/enable', { secret, code });
+    return this.http.post('http://localhost:8001/api/profile/mfa/enable', { secret, code });
   }
 
   // Disable MFA
   disableMfa(password: string, code: string): Observable<any> {
-    return this.http.post('http://localhost:8080/api/profile/mfa/disable', { password, code });
+    return this.http.post('http://localhost:8001/api/profile/mfa/disable', { password, code });
+  }
+
+  // Forgot password - request reset token
+  forgotPassword(email: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/forgot-password`, { email });
+  }
+
+  // Reset password using token
+  resetPassword(token: string, newPassword: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/reset-password`, { token, newPassword });
   }
 
   // Helper method to get user role from localStorage

@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class SettlementService {
-  private apiUrl = 'http://localhost:8080/api/settlements';
+  private apiUrl = 'http://localhost:8001/api/settlements';
 
   constructor(private http: HttpClient) {}
 

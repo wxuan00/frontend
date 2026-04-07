@@ -1,13 +1,14 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   template: `
     <div class="login-page">
       <div class="login-left">
@@ -51,6 +52,10 @@ import { Router } from '@angular/router';
             <button type="submit" class="btn-login" [disabled]="loading">
               {{ loading ? 'Signing in...' : 'Sign In' }}
             </button>
+
+            <div class="forgot-link">
+              <a routerLink="/forgot-password">Forgot password?</a>
+            </div>
           </form>
 
           <div *ngIf="errorMessage" class="error-alert">
@@ -184,6 +189,20 @@ import { Router } from '@angular/router';
 
     .btn-login:hover { background: #333; }
     .btn-login:disabled { background: #bbb; cursor: not-allowed; }
+
+    .forgot-link {
+      margin-top: 14px;
+      text-align: center;
+    }
+
+    .forgot-link a {
+      color: #555;
+      font-size: 0.85rem;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .forgot-link a:hover { color: #111; text-decoration: underline; }
 
     .error-alert {
       margin-top: 20px;

@@ -5,11 +5,6 @@
       <h1>Welcome back, {{ userName }}! 👋</h1>
       <p>Here's what's happening with your portal today.</p>
     </div>
-    @if (userRole === 'ADMIN') {
-      <button class="btn btn-recompute" (click)="recompute()" [disabled]="recomputing">
-        {{ recomputing ? '⏳ Recomputing...' : '🔄 Recompute Analytics' }}
-      </button>
-    }
   </div>
 
   <!-- Tabs -->
@@ -17,26 +12,8 @@
     <button class="tab-btn" [class.active]="activeTab === 'dashboard'" (click)="switchTab('dashboard')">
       📊 Dashboard
     </button>
-    <button class="tab-btn" [class.active]="activeTab === 'overview'" (click)="switchTab('overview')">
-      📈 AI Overview
-    </button>
-    <button class="tab-btn" [class.active]="activeTab === 'trends'" (click)="switchTab('trends')">
-      📈 Trends
-    </button>
-    <button class="tab-btn" [class.active]="activeTab === 'scorecard'" (click)="switchTab('scorecard')">
-      🏆 Scorecard
-    </button>
-    <button class="tab-btn" [class.active]="activeTab === 'anomalies'" (click)="switchTab('anomalies')">
-      ⚠️ Anomalies
-      @if (anomalies.length > 0) {
-        <span class="anomaly-badge">{{ anomalies.length }}</span>
-      }
-    </button>
-    <button class="tab-btn" [class.active]="activeTab === 'insights'" (click)="switchTab('insights')">
-      💡 Insights
-    </button>
-    <button class="tab-btn" [class.active]="activeTab === 'reports'" (click)="switchTab('reports')">
-      📋 Reports
+    <button class="tab-btn" [class.active]="activeTab === 'ai-analytics'" (click)="switchTab('ai-analytics')">
+      🤖 AI Analytics
     </button>
   </div>
 
@@ -87,66 +64,6 @@
           <h4>{{ userRole === 'ADMIN' ? 'Total Settlements' : 'My Settlements' }}</h4>
           <div class="stat-value">{{ totalSettlements }}</div>
         </div>
-      </div>
-    </div>
-
-    <!-- Quick Actions -->
-    <div class="card">
-      <div class="card-header">
-        <h3>Quick Actions</h3>
-      </div>
-      <div class="quick-actions">
-        @if (userRole === 'ADMIN') {
-          <a routerLink="/users" class="action-card">
-            <div class="action-icon blue">👥</div>
-            <span>Manage Users</span>
-          </a>
-          <a routerLink="/merchants" class="action-card">
-            <div class="action-icon green">🏢</div>
-            <span>View Merchants</span>
-          </a>
-          <a routerLink="/transactions" class="action-card">
-            <div class="action-icon orange">💳</div>
-            <span>View Transactions</span>
-          </a>
-          <a routerLink="/settlements" class="action-card">
-            <div class="action-icon teal">📋</div>
-            <span>View Settlements</span>
-          </a>
-          <a routerLink="/refunds" class="action-card">
-            <div class="action-icon red">↩️</div>
-            <span>View Refunds</span>
-          </a>
-          <a routerLink="/reports" class="action-card">
-            <div class="action-icon purple">📊</div>
-            <span>View Reports</span>
-          </a>
-        } @else {
-          <a routerLink="/merchants" class="action-card">
-            <div class="action-icon green">🏢</div>
-            <span>My Merchant</span>
-          </a>
-          <a routerLink="/transactions" class="action-card">
-            <div class="action-icon orange">💳</div>
-            <span>My Transactions</span>
-          </a>
-          <a routerLink="/settlements" class="action-card">
-            <div class="action-icon teal">📋</div>
-            <span>My Settlements</span>
-          </a>
-          <a routerLink="/refunds" class="action-card">
-            <div class="action-icon red">↩️</div>
-            <span>My Refunds</span>
-          </a>
-          <a routerLink="/reports" class="action-card">
-            <div class="action-icon teal">📊</div>
-            <span>My Reports</span>
-          </a>
-        }
-        <a routerLink="/profile" class="action-card">
-          <div class="action-icon purple">👤</div>
-          <span>My Profile</span>
-        </a>
       </div>
     </div>
 
@@ -230,312 +147,29 @@
         </table>
       </div>
     }
-  }
 
-  <!-- ==================== TAB: AI OVERVIEW ==================== -->
-  @if (activeTab === 'overview') {
-    @if (overviewLoading) {
-      <div class="loading-state"><div class="spinner"></div><p>Analyzing data...</p></div>
-    } @else if (aiOverview) {
-      <div class="kpi-grid">
-        <div class="kpi-card">
-          <div class="kpi-label">Total Revenue</div>
-          <div class="kpi-value">{{ formatCurrency(aiOverview.totalRevenue) }}</div>
-          <div class="kpi-sub">Approved transactions</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">Net Revenue</div>
-          <div class="kpi-value">{{ formatCurrency(aiOverview.netAfterRefunds || aiOverview.totalSales) }}</div>
-          <div class="kpi-sub">After refunds</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">Total Transactions</div>
-          <div class="kpi-value">{{ formatNumber(aiOverview.totalTransactions) }}</div>
-          <div class="kpi-sub">All statuses</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">Avg Transaction</div>
-          <div class="kpi-value">{{ formatCurrency(aiOverview.avgTransactionValue) }}</div>
-          <div class="kpi-sub">Per approved txn</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">Decline Rate</div>
-          <div class="kpi-value kpi-danger" [class.kpi-success]="(aiOverview.overallDeclineRate || aiOverview.declineRate) < 10">
-            {{ (aiOverview.overallDeclineRate || aiOverview.declineRate || 0).toFixed(1) }}%
-          </div>
-          <div class="kpi-sub">{{ aiOverview.declinedTransactions || aiOverview.declinedCount || 0 }} declined</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">Refund Rate</div>
-          <div class="kpi-value" [class.kpi-danger]="(aiOverview.refundRate || 0) > 10">
-            {{ (aiOverview.refundRate || 0).toFixed(1) }}%
-          </div>
-          <div class="kpi-sub">{{ aiOverview.totalRefunds || aiOverview.refundCount || 0 }} refunds</div>
-        </div>
-      </div>
-
-      <div class="overview-row">
-        <div class="card">
-          <div class="card-header"><h3>Approved vs Others</h3></div>
-          <div class="status-bars">
-            @if (aiOverview.totalTransactions > 0) {
-              <div class="status-bar-item">
-                <div class="status-bar-label"><span>Approved</span><span class="status-bar-count">{{ aiOverview.approvedTransactions || aiOverview.approvedCount || 0 }}</span></div>
-                <div class="status-bar-track"><div class="status-bar-fill approved" [style.width.%]="((aiOverview.approvedTransactions || aiOverview.approvedCount || 0) / aiOverview.totalTransactions * 100)"></div></div>
-              </div>
-              <div class="status-bar-item">
-                <div class="status-bar-label"><span>Declined</span><span class="status-bar-count">{{ aiOverview.declinedTransactions || aiOverview.declinedCount || 0 }}</span></div>
-                <div class="status-bar-track"><div class="status-bar-fill declined" [style.width.%]="((aiOverview.declinedTransactions || aiOverview.declinedCount || 0) / aiOverview.totalTransactions * 100)"></div></div>
-              </div>
-              <div class="status-bar-item">
-                <div class="status-bar-label"><span>Pending</span><span class="status-bar-count">{{ aiOverview.pendingTransactions || 0 }}</span></div>
-                <div class="status-bar-track"><div class="status-bar-fill pending" [style.width.%]="((aiOverview.pendingTransactions || 0) / aiOverview.totalTransactions * 100)"></div></div>
-              </div>
-            }
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-header"><h3>Revenue by Channel</h3></div>
-          <div class="chart-container"><canvas #revenueByChannelChart></canvas></div>
-        </div>
-      </div>
-
-      @if (revenue) {
-        <div class="overview-row">
-          <div class="card card-wide">
-            <div class="card-header"><h3>Monthly Revenue Trend</h3></div>
-            <div class="chart-container"><canvas #monthlyRevenueChart></canvas></div>
-          </div>
-          @if (userRole === 'ADMIN' && revenue.byMerchant) {
-            <div class="card">
-              <div class="card-header"><h3>Top Merchants by Revenue</h3></div>
-              <div class="chart-container chart-tall"><canvas #revenueByMerchantChart></canvas></div>
-            </div>
-          }
-        </div>
-      }
-    }
-  }
-
-  <!-- ==================== TAB: TRENDS ==================== -->
-  @if (activeTab === 'trends') {
-    @if (trendsLoading) {
-      <div class="loading-state"><div class="spinner"></div><p>Computing trends...</p></div>
-    } @else if (trends) {
-      <div class="comparison-grid">
-        <div class="comparison-card">
-          <div class="comparison-header">
-            <span class="comparison-icon">📅</span>
-            <h4>This Week vs Last Week</h4>
-          </div>
-          <div class="comparison-body">
-            <div class="comparison-metric">
-              <span class="metric-label">Transactions</span>
-              <span class="metric-value">{{ trends.thisWeekCount }}</span>
-              <span class="metric-change" [class.positive]="trends.weeklyChange > 0" [class.negative]="trends.weeklyChange < 0">{{ formatPercent(trends.weeklyChange) }}</span>
-            </div>
-            <div class="comparison-metric">
-              <span class="metric-label">Revenue</span>
-              <span class="metric-value">{{ formatCurrency(trends.thisWeekRevenue) }}</span>
-              <span class="metric-change" [class.positive]="trends.weeklyRevenueChange > 0" [class.negative]="trends.weeklyRevenueChange < 0">{{ formatPercent(trends.weeklyRevenueChange) }}</span>
-            </div>
-            <div class="comparison-vs"><span>vs. {{ trends.lastWeekCount }} txns / {{ formatCurrency(trends.lastWeekRevenue) }}</span></div>
-          </div>
-        </div>
-        <div class="comparison-card">
-          <div class="comparison-header">
-            <span class="comparison-icon">📆</span>
-            <h4>This Month vs Last Month</h4>
-          </div>
-          <div class="comparison-body">
-            <div class="comparison-metric">
-              <span class="metric-label">Transactions</span>
-              <span class="metric-value">{{ trends.thisMonthCount }}</span>
-              <span class="metric-change" [class.positive]="trends.monthlyChange > 0" [class.negative]="trends.monthlyChange < 0">{{ formatPercent(trends.monthlyChange) }}</span>
-            </div>
-            <div class="comparison-metric">
-              <span class="metric-label">Revenue</span>
-              <span class="metric-value">{{ formatCurrency(trends.thisMonthRevenue) }}</span>
-              <span class="metric-change" [class.positive]="trends.monthlyRevenueChange > 0" [class.negative]="trends.monthlyRevenueChange < 0">{{ formatPercent(trends.monthlyRevenueChange) }}</span>
-            </div>
-            <div class="comparison-vs"><span>vs. {{ trends.lastMonthCount }} txns / {{ formatCurrency(trends.lastMonthRevenue) }}</span></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="chart-grid">
-        <div class="card card-wide">
-          <div class="card-header"><h3>Daily Transaction Volume (Last 30 Days)</h3></div>
-          <div class="chart-container"><canvas #trendLineChart></canvas></div>
-        </div>
-      </div>
-      <div class="chart-grid two-col">
-        <div class="card">
-          <div class="card-header"><h3>Daily Revenue (Last 30 Days)</h3></div>
-          <div class="chart-container"><canvas #trendRevenueChart></canvas></div>
-        </div>
-        <div class="card">
-          <div class="card-header"><h3>Weekly Decline Rate Trend</h3></div>
-          <div class="chart-container"><canvas #declineRateChart></canvas></div>
-        </div>
-      </div>
-    }
-  }
-
-  <!-- ==================== TAB: SCORECARD ==================== -->
-  @if (activeTab === 'scorecard') {
-    @if (scorecardLoading) {
-      <div class="loading-state"><div class="spinner"></div><p>Scoring merchants...</p></div>
-    } @else {
-      <div class="scorecard-list">
-        @for (m of scorecard; track m.merchantId) {
-          <div class="scorecard-card">
-            <div class="scorecard-left">
-              <div class="scorecard-rank">
-                @if ($index === 0) { 🥇 }
-                @else if ($index === 1) { 🥈 }
-                @else if ($index === 2) { 🥉 }
-                @else { {{ $index + 1 }} }
-              </div>
-              <div class="scorecard-info">
-                <h4>{{ m.merchantName }}</h4>
-                <span class="badge" [ngClass]="{'badge-success': m.status === 'ACTIVE', 'badge-warning': m.status === 'PENDING', 'badge-danger': m.status === 'SUSPENDED'}">{{ m.status }}</span>
-              </div>
-            </div>
-            <div class="scorecard-metrics">
-              <div class="metric-item"><span class="metric-sm-label">Revenue</span><span class="metric-sm-value">{{ formatCurrency(m.revenue) }}</span></div>
-              <div class="metric-item"><span class="metric-sm-label">Transactions</span><span class="metric-sm-value">{{ m.totalTransactions }}</span></div>
-              <div class="metric-item"><span class="metric-sm-label">Avg Txn</span><span class="metric-sm-value">{{ formatCurrency(m.avgTransactionValue) }}</span></div>
-              <div class="metric-item"><span class="metric-sm-label">Decline</span><span class="metric-sm-value" [class.text-danger]="m.declineRate > 15">{{ m.declineRate }}%</span></div>
-              <div class="metric-item"><span class="metric-sm-label">Refund</span><span class="metric-sm-value">{{ m.refundRate }}%</span></div>
-            </div>
-            <div class="scorecard-score">
-              <div class="health-score-ring" [style.--score-color]="getHealthBarColor(m.healthScore)">
-                <span class="health-score-value">{{ m.healthScore }}</span>
-              </div>
-              <span class="rating-label" [style.color]="getRatingColor(m.rating)">{{ m.rating }}</span>
-            </div>
-          </div>
-        }
-        @if (scorecard.length === 0) {
-          <div class="no-data">No merchant scorecard data available.</div>
-        }
-      </div>
-    }
-  }
-
-  <!-- ==================== TAB: ANOMALIES ==================== -->
-  @if (activeTab === 'anomalies') {
-    @if (anomaliesLoading) {
-      <div class="loading-state"><div class="spinner"></div><p>Scanning for anomalies...</p></div>
-    } @else {
-      @if (anomalies.length === 0) {
-        <div class="empty-state">
-          <span class="empty-icon">✅</span>
-          <h3>All Clear</h3>
-          <p>No anomalies detected. All merchant activities appear normal.</p>
-        </div>
-      } @else {
-        <div class="anomaly-list">
-          @for (a of anomalies; track $index) {
-            <div class="anomaly-card" [ngClass]="{'anomaly-danger': a.severity === 'danger', 'anomaly-warning': a.severity === 'warning', 'anomaly-info': a.severity === 'info'}">
-              <div class="anomaly-icon">{{ getSeverityIcon(a.severity) }}</div>
-              <div class="anomaly-content">
-                <div class="anomaly-header-row">
-                  <span class="anomaly-merchant">{{ a.merchantName }}</span>
-                  <span class="anomaly-type badge badge-primary">{{ a.type }}</span>
-                </div>
-                <p class="anomaly-message">{{ a.message }}</p>
-                <span class="anomaly-time">Detected: {{ a.detectedAt | date:'short' }}</span>
-              </div>
-            </div>
-          }
-        </div>
-      }
-    }
-  }
-
-  <!-- ==================== TAB: INSIGHTS ==================== -->
-  @if (activeTab === 'insights') {
-    @if (insightsLoading) {
-      <div class="loading-state"><div class="spinner"></div><p>Generating AI insights...</p></div>
-    } @else {
-      @if (insights.length === 0) {
-        <div class="no-data">No insights available. Try recomputing analytics.</div>
-      } @else {
-        <div class="insights-grid">
-          @for (insight of insights; track $index) {
-            <div class="ai-insight-card" [ngClass]="{'insight-success': insight.severity === 'success', 'insight-warning': insight.severity === 'warning', 'insight-danger': insight.severity === 'danger', 'insight-info': insight.severity === 'info'}">
-              <div class="ai-insight-icon">
-                @switch (insight.severity) {
-                  @case ('success') { ✅ }
-                  @case ('warning') { ⚠️ }
-                  @case ('danger') { 🚨 }
-                  @default { 💡 }
-                }
-              </div>
-              <div class="ai-insight-content">
-                <h4>{{ insight.title }}</h4>
-                <p>{{ insight.message }}</p>
-                @if (insight.category) {
-                  <span class="ai-insight-category">{{ insight.category }}</span>
-                }
-              </div>
-            </div>
-          }
-        </div>
-      }
-    }
-  }
-
-  <!-- ==================== TAB: REPORTS ==================== -->
-  @if (activeTab === 'reports') {
+    <!-- Export / Report Section -->
+    <div class="section-header">
+      <h2>📋 Reports & Export</h2>
+    </div>
     <div class="report-toolbar">
       <div class="report-toolbar-left">
-        <button class="btn btn-secondary btn-sm" (click)="loadReport()">🔄 Refresh</button>
+        <button class="btn btn-secondary btn-sm" (click)="loadReport()" [disabled]="reportLoading">🔄 Refresh Report</button>
       </div>
       <div class="report-toolbar-right">
-        <button class="btn btn-secondary btn-sm" (click)="exportSummaryCsv()">📥 Export Summary CSV</button>
-        <button class="btn btn-secondary btn-sm" (click)="exportTransactionsCsv()">📥 Export Transactions</button>
-        <button class="btn btn-secondary btn-sm" (click)="exportSettlementsCsv()">📥 Export Settlements</button>
+        <button class="btn btn-secondary btn-sm" (click)="exportSummaryCsv()">📥 Summary CSV</button>
+        <button class="btn btn-secondary btn-sm" (click)="exportTransactionsCsv()">📥 Transactions</button>
+        <button class="btn btn-secondary btn-sm" (click)="exportSettlementsCsv()">📥 Settlements</button>
         <button class="btn btn-primary btn-sm" (click)="printReport()">🖨️ Print</button>
       </div>
     </div>
 
-    @if (reportLoading) {
-      <div class="loading-state"><div class="spinner"></div><p>Loading report...</p></div>
-    } @else if (reportError) {
-      <div class="no-data">⚠️ {{ reportError }}</div>
-    } @else if (!report) {
-      <div class="no-data">No report data. Click Refresh to load.</div>
-    } @else {
+    @if (report) {
       <div class="report-meta">
         <span>📅 Generated: <strong>{{ formatReportDate(report.generatedAt) }}</strong></span>
         <span>👤 By: <strong>{{ report.generatedBy }}</strong></span>
-        <span class="badge badge-primary">{{ report.type === 'ADMIN_SUMMARY' ? 'Admin Report' : 'Merchant Report' }}</span>
       </div>
 
-      <!-- Stats Row -->
-      <div class="stats-row">
-        <div *ngIf="userRole === 'ADMIN'" class="stat-card">
-          <div class="stat-icon blue">👥</div>
-          <div class="stat-info"><h4>Total Users</h4><div class="stat-value">{{ report.totalUsers }}</div></div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon green">🏢</div>
-          <div class="stat-info"><h4>Total Merchants</h4><div class="stat-value">{{ report.totalMerchants }}</div></div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon purple">💳</div>
-          <div class="stat-info"><h4>Total Transactions</h4><div class="stat-value">{{ report.totalTransactions }}</div></div>
-        </div>
-        <div *ngIf="userRole === 'ADMIN'" class="stat-card">
-          <div class="stat-icon teal">📋</div>
-          <div class="stat-info"><h4>Total Settlements</h4><div class="stat-value">{{ report.totalSettlements }}</div></div>
-        </div>
-      </div>
-
-      <!-- Charts Row -->
       <div class="charts-row">
         <div *ngIf="userRole === 'ADMIN' && merchantBreakdown.length > 0" class="card chart-card">
           <div class="card-header"><h3>🏢 Merchant Status Breakdown</h3></div>
@@ -562,30 +196,408 @@
           </div>
         </div>
       </div>
-
-      <!-- Detailed Breakdown Table -->
-      <div class="card">
-        <div class="card-header"><h3>📋 Detailed Breakdown</h3></div>
-        <table class="data-table">
-          <thead>
-            <tr><th>Metric</th><th>Value</th></tr>
-          </thead>
-          <tbody>
-            <tr *ngIf="userRole === 'ADMIN'"><td>Total Users</td><td>{{ report.totalUsers }}</td></tr>
-            <tr><td>Total Merchants</td><td>{{ report.totalMerchants }}</td></tr>
-            <tr *ngIf="userRole === 'ADMIN'"><td>Active Merchants</td><td>{{ report.activeMerchants }}</td></tr>
-            <tr *ngIf="userRole === 'ADMIN'"><td>Pending Merchants</td><td>{{ report.pendingMerchants }}</td></tr>
-            <tr *ngIf="userRole === 'ADMIN'"><td>Suspended Merchants</td><td>{{ report.suspendedMerchants }}</td></tr>
-            <tr><td>Total Transactions</td><td>{{ report.totalTransactions }}</td></tr>
-            <tr><td>Approved Transactions</td><td>{{ report.approvedTransactions }}</td></tr>
-            <tr><td>Pending Transactions</td><td>{{ report.pendingTransactions }}</td></tr>
-            <tr><td>Declined Transactions</td><td>{{ report.declinedTransactions }}</td></tr>
-            <tr *ngIf="userRole === 'ADMIN'"><td>Total Settlements</td><td>{{ report.totalSettlements }}</td></tr>
-            <tr *ngIf="userRole === 'ADMIN'"><td>Total Credit Advices</td><td>{{ report.totalCreditAdvices }}</td></tr>
-            <tr><td>Total Refunds</td><td>{{ report.totalRefunds }}</td></tr>
-          </tbody>
-        </table>
-      </div>
     }
+  }
+
+  <!-- ==================== TAB: AI ANALYTICS ==================== -->
+  @if (activeTab === 'ai-analytics') {
+
+    <div class="ai-intro-banner">
+      <div class="ai-intro-icon">🤖</div>
+      <div>
+        <h2>AI-Powered Analytics</h2>
+        <p>Three machine learning models analyse your transaction data and provide actionable recommendations to help you retain customers and grow revenue.</p>
+      </div>
+    </div>
+
+    <!-- ── RFM SEGMENTATION ── -->
+    <div class="models-section">
+      <div class="models-section-header">
+        <h2>🧩 RFM Customer Segmentation <span class="model-badge">K-Means</span></h2>
+        <p>Groups customers into segments based on three behaviours: how <strong>recently</strong> they purchased, how <strong>frequently</strong> they buy, and how much <strong>money</strong> they spend.</p>
+      </div>
+
+      @if (rfmLoading) {
+        <div class="loading-state"><div class="spinner"></div><p>Running K-Means segmentation...</p></div>
+      } @else if (rfmData?.error) {
+        <div class="sidecar-error">⚠️ {{ rfmData.error }}</div>
+      } @else if (rfmData) {
+        <div class="models-row">
+          <div class="model-kpi-group">
+            <div class="model-kpi">
+              <div class="model-kpi-label">Total Customers</div>
+              <div class="model-kpi-value">{{ rfmData.totalCustomers }}</div>
+            </div>
+            <div class="model-kpi">
+              <div class="model-kpi-label">Clusters</div>
+              <div class="model-kpi-value">{{ rfmData.clusterSummary?.length || 0 }}</div>
+            </div>
+            <div class="model-kpi has-tooltip">
+              <div class="model-kpi-label">
+                Cluster Quality
+                <span class="info-tooltip" title="Measures how well-separated the customer groups are. Ranges from -1 to 1: above 0.5 = strong grouping, 0.25-0.5 = reasonable, below 0.25 = overlapping groups.">ⓘ</span>
+              </div>
+              <div class="model-kpi-value" [ngClass]="{
+                'kpi-success': rfmData.silhouetteScore > 0.5,
+                'kpi-warning': rfmData.silhouetteScore >= 0.25 && rfmData.silhouetteScore <= 0.5,
+                'kpi-danger': rfmData.silhouetteScore < 0.25
+              }">
+                @if (rfmData.silhouetteScore != null) {
+                  {{ rfmData.silhouetteScore | number:'1.3-3' }}
+                  <span class="kpi-verdict">
+                    {{ rfmData.silhouetteScore > 0.5 ? 'Strong' : rfmData.silhouetteScore >= 0.25 ? 'Fair' : 'Weak' }}
+                  </span>
+                } @else {
+                  N/A
+                }
+              </div>
+            </div>
+            <div class="model-kpi">
+              <div class="model-kpi-label">Data As Of</div>
+              <div class="model-kpi-value model-kpi-sm">{{ rfmData.snapshotDate }}</div>
+            </div>
+          </div>
+
+          <div class="card model-chart-card">
+            <div class="card-header"><h3>Customer Segments Distribution</h3></div>
+            <div class="chart-container" style="height: 220px;">
+              <canvas #rfmBarChart></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><h3>Cluster Detail</h3></div>
+          <table class="model-table">
+            <thead>
+              <tr>
+                <th>Segment</th>
+                <th>Customers</th>
+                <th>Avg Recency (days)</th>
+                <th>Avg Frequency</th>
+                <th>Avg Monetary (MYR)</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (seg of rfmData.clusterSummary; track seg.cluster) {
+                <tr>
+                  <td>
+                    <span class="cluster-dot" [style.background]="getClusterColor(seg.label)"></span>
+                    {{ seg.label }}
+                  </td>
+                  <td>{{ seg.count }}</td>
+                  <td>{{ seg.avgRecency | number:'1.1-1' }}</td>
+                  <td>{{ seg.avgFrequency | number:'1.1-1' }}</td>
+                  <td>{{ seg.avgMonetary | number:'1.2-2' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <!-- RFM-specific suggestions -->
+        @if (rfmTips.length > 0) {
+          <div class="model-tips">
+            <h4 class="tips-heading">💡 What You Can Do</h4>
+            <div class="boost-grid">
+              @for (tip of rfmTips; track $index) {
+                <div class="boost-card" [ngClass]="{
+                  'boost-success': tip.severity === 'success',
+                  'boost-warning': tip.severity === 'warning',
+                  'boost-danger': tip.severity === 'danger',
+                  'boost-info': tip.severity === 'info'
+                }">
+                  <div class="boost-icon">{{ tip.icon }}</div>
+                  <div class="boost-content">
+                    <h4>{{ tip.title }}</h4>
+                    <p>{{ tip.message }}</p>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      }
+    </div>
+
+    <!-- ── CHURN PREDICTION + XAI ── -->
+    <div class="models-section">
+      <div class="models-section-header">
+        <h2>⚡ Customer Churn Prediction <span class="model-badge model-badge-blue">Logistic Regression / XGBoost</span></h2>
+        <p>Predicts which customers are likely to <strong>stop buying</strong> based on their recent transaction patterns. Customers with <strong>&gt;70% probability</strong> are flagged as high risk.</p>
+      </div>
+
+      @if (churnLoading) {
+        <div class="loading-state"><div class="spinner"></div><p>Running churn prediction model...</p></div>
+      } @else if (churnData?.error) {
+        <div class="sidecar-error">⚠️ {{ churnData.error }}</div>
+      } @else if (churnData) {
+        @if (churnData.fallbackMode) {
+          <div class="fallback-notice">ℹ️ <strong>Heuristic Mode:</strong> {{ churnData.fallbackReason }}</div>
+        }
+        <div class="models-row">
+          <div class="model-kpi-group">
+            <div class="model-kpi model-kpi-danger">
+              <div class="model-kpi-label">High Risk Customers</div>
+              <div class="model-kpi-value">{{ churnData.highRiskCount }}</div>
+              <div class="model-kpi-sub">probability &gt; 70%</div>
+            </div>
+            <div class="model-kpi" [class.model-kpi-danger]="churnData.churnRate > 20" [class.model-kpi-warning]="churnData.churnRate > 10 && churnData.churnRate <= 20">
+              <div class="model-kpi-label">
+                Churn Rate
+                <span class="info-tooltip" title="Percentage of customers the AI predicts are likely to leave (probability > 50%). Lower is better — healthy businesses typically have under 10%.">ⓘ</span>
+              </div>
+              <div class="model-kpi-value">{{ churnData.churnRate }}%</div>
+            </div>
+            <div class="model-kpi model-kpi-info has-tooltip">
+              <div class="model-kpi-label">
+                Accuracy
+                <span class="info-tooltip" title="How often the AI model correctly predicts whether a customer will churn or stay. Higher is better — 80%+ is considered good.">ⓘ</span>
+              </div>
+              <div class="model-kpi-value">
+                {{ churnData.modelAccuracy != null ? (churnData.modelAccuracy * 100 | number:'1.1-1') + '%' : 'N/A' }}
+              </div>
+            </div>
+            <div class="model-kpi model-kpi-info has-tooltip">
+              <div class="model-kpi-label">
+                Reliability
+                <span class="info-tooltip" title="ROC-AUC measures how well the model distinguishes between customers who will churn vs. stay. Ranges from 0 to 1: above 0.8 = excellent, 0.7-0.8 = good, 0.5 = no better than random guessing.">ⓘ</span>
+              </div>
+              <div class="model-kpi-value">
+                @if (churnData.rocAuc != null) {
+                  {{ churnData.rocAuc | number:'1.3-3' }}
+                  <span class="kpi-verdict">
+                    {{ churnData.rocAuc > 0.8 ? 'Excellent' : churnData.rocAuc > 0.7 ? 'Good' : churnData.rocAuc > 0.5 ? 'Fair' : 'Poor' }}
+                  </span>
+                } @else {
+                  N/A
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- At-risk customers table -->
+        <div class="card">
+          <div class="card-header"><h3>Top At-Risk Customers (by Churn Probability)</h3></div>
+          <table class="model-table">
+            <thead>
+              <tr>
+                <th>Card</th>
+                <th>Recency (days)</th>
+                <th>Frequency</th>
+                <th>Monetary (MYR)</th>
+                <th>Churn Probability</th>
+                <th>Risk Level</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (p of (churnData.predictions | slice:0:15); track $index) {
+                <tr>
+                  <td class="mono">{{ maskCard($any(p).cardNo) }}</td>
+                  <td>{{ $any(p).recency }}</td>
+                  <td>{{ $any(p).frequency }}</td>
+                  <td>{{ $any(p).monetary | number:'1.2-2' }}</td>
+                  <td>
+                    <div class="prob-bar-wrap">
+                      <div class="prob-bar" [style.width.%]="$any(p).churnProbability * 100" [style.background]="getChurnRiskColor($any(p).churnProbability)"></div>
+                      <span>{{ ($any(p).churnProbability * 100) | number:'1.1-1' }}%</span>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="risk-badge" [style.color]="getChurnRiskColor($any(p).churnProbability)">
+                      {{ getChurnRiskLabel($any(p).churnProbability) }}
+                    </span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+          @if (churnData.predictions?.length > 15) {
+            <div class="table-note">Showing top 15 of {{ churnData.totalCustomers }} customers</div>
+          }
+        </div>
+
+        <!-- Churn-specific suggestions -->
+        @if (churnTips.length > 0) {
+          <div class="model-tips">
+            <h4 class="tips-heading">💡 What You Can Do</h4>
+            <div class="boost-grid">
+              @for (tip of churnTips; track $index) {
+                <div class="boost-card" [ngClass]="{
+                  'boost-success': tip.severity === 'success',
+                  'boost-warning': tip.severity === 'warning',
+                  'boost-danger': tip.severity === 'danger',
+                  'boost-info': tip.severity === 'info'
+                }">
+                  <div class="boost-icon">{{ tip.icon }}</div>
+                  <div class="boost-content">
+                    <h4>{{ tip.title }}</h4>
+                    <p>{{ tip.message }}</p>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- SHAP Explainability -->
+        @if (churnData.globalFeatureImportance) {
+          <div class="xai-section">
+            <div class="xai-header">
+              <h3>🔍 Why Does the AI Think This?</h3>
+              <p>The charts below show which customer behaviours (recency, frequency, spending) matter most in the AI's decisions — so you know <em>exactly</em> where to focus your retention efforts.</p>
+            </div>
+
+            <div class="xai-grid">
+              <!-- Global Feature Importance -->
+              <div class="card">
+                <div class="card-header">
+                  <h3>Which Factors Matter Most?</h3>
+                  <span class="chart-legend-note">Bigger bar = bigger influence on the AI's prediction</span>
+                </div>
+                <div class="chart-container" style="height: 180px;">
+                  <canvas #shapImportanceChart></canvas>
+                </div>
+              </div>
+
+              <!-- Per-Customer Waterfall -->
+              <div class="card">
+                <div class="card-header">
+                  <h3>Individual Customer Breakdown</h3>
+                  <span class="chart-legend-note">
+                    <span style="color: #ef4444">■</span> pushes towards churn &nbsp;
+                    <span style="color: #22c55e">■</span> pushes towards staying
+                  </span>
+                </div>
+
+                <div class="xai-customer-selector">
+                  <label>Select customer:</label>
+                  <select (change)="selectCustomerForXAI(+$any($event.target).value)">
+                    @for (p of (churnData.predictions | slice:0:20); track $index) {
+                      <option [value]="$index" [selected]="$index === selectedCustomerIdx">
+                        {{ maskCard($any(p).cardNo) }} — {{ ($any(p).churnProbability * 100).toFixed(1) }}% risk
+                      </option>
+                    }
+                  </select>
+                </div>
+
+                @if (selectedCustomer) {
+                  <div class="xai-customer-summary">
+                    <span class="xai-chip">Recency: {{ selectedCustomer.recency }} days</span>
+                    <span class="xai-chip">Frequency: {{ selectedCustomer.frequency }} txns</span>
+                    <span class="xai-chip">Monetary: MYR {{ selectedCustomer.monetary | number:'1.2-2' }}</span>
+                    <span class="xai-chip xai-chip-result" [style.background]="getChurnRiskColor(selectedCustomer.churnProbability)">
+                      Churn: {{ (selectedCustomer.churnProbability * 100) | number:'1.1-1' }}%
+                    </span>
+                  </div>
+
+                  <div class="chart-container" style="height: 180px;">
+                    <canvas #shapWaterfallChart></canvas>
+                  </div>
+
+                  @if (selectedCustomer.shapBreakdown) {
+                    <div class="xai-explanation">
+                      <strong>Explanation:</strong>
+                      @for (entry of getShapSorted(selectedCustomer.shapBreakdown); track entry.key) {
+                        @if (entry.value > 0) {
+                          <span class="xai-factor xai-factor-risk">{{ entry.key === 'Recency' ? 'Long time since last purchase' : entry.key === 'Frequency' ? 'Low number of purchases' : 'Low total spending' }} → increases churn risk</span>
+                        } @else {
+                          <span class="xai-factor xai-factor-safe">{{ entry.key === 'Recency' ? 'Purchased recently' : entry.key === 'Frequency' ? 'Buys frequently' : 'High total spending' }} → decreases churn risk</span>
+                        }
+                      }
+                    </div>
+                  }
+                }
+              </div>
+            </div>
+          </div>
+        }
+      }
+    </div>
+
+    <!-- ── CASH-FLOW FORECAST ── -->
+    <div class="models-section">
+      <div class="models-section-header">
+        <h2>📅 Cash Flow Forecast <span class="model-badge model-badge-green">Prophet</span></h2>
+        <p>Uses historical daily revenue patterns to predict how much revenue you can expect over the next <strong>{{ forecastData?.horizonDays || 30 }} days</strong>, including trends and weekly patterns.</p>
+      </div>
+
+      @if (forecastLoading) {
+        <div class="loading-state"><div class="spinner"></div><p>Running Prophet forecast...</p></div>
+      } @else if (forecastData?.error) {
+        <div class="sidecar-error">⚠️ {{ forecastData.error }}</div>
+      } @else if (forecastData) {
+        @if (forecastData.fallbackMode) {
+          <div class="fallback-notice">ℹ️ <strong>Heuristic Mode:</strong> {{ forecastData.fallbackReason }}</div>
+        }
+        <div class="models-row">
+          <div class="model-kpi-group">
+            <div class="model-kpi model-kpi-info">
+              <div class="model-kpi-label">Predicted Revenue</div>
+              <div class="model-kpi-value">{{ formatCurrency(forecastData.totalPredicted) }}</div>
+              <div class="model-kpi-sub">next {{ forecastData.horizonDays }} days</div>
+            </div>
+            <div class="model-kpi has-tooltip" [class.model-kpi-success]="forecastData.changePercent > 0" [class.model-kpi-danger]="forecastData.changePercent < 0">
+              <div class="model-kpi-label">
+                Growth Trend
+                <span class="info-tooltip" title="Compares the AI's predicted revenue for the next period against the same number of past days. Positive = growing, negative = declining.">ⓘ</span>
+              </div>
+              <div class="model-kpi-value">
+                {{ forecastData.changePercent != null ? formatPercent(forecastData.changePercent) : 'N/A' }}
+              </div>
+            </div>
+            <div class="model-kpi">
+              <div class="model-kpi-label">Latest Data Point</div>
+              <div class="model-kpi-value model-kpi-sm">{{ forecastData.lastActualDate }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>Daily Revenue: Actual vs AI Forecast</h3>
+            <span class="chart-legend-note">Shaded area = 80% confidence range (likely range)</span>
+          </div>
+          <div class="chart-container" style="height: 280px;">
+            <canvas #forecastLineChart></canvas>
+          </div>
+        </div>
+
+        <!-- Forecast-specific suggestions -->
+        @if (forecastTips.length > 0) {
+          <div class="model-tips">
+            <h4 class="tips-heading">💡 What You Can Do</h4>
+            <div class="boost-grid">
+              @for (tip of forecastTips; track $index) {
+                <div class="boost-card" [ngClass]="{
+                  'boost-success': tip.severity === 'success',
+                  'boost-warning': tip.severity === 'warning',
+                  'boost-danger': tip.severity === 'danger',
+                  'boost-info': tip.severity === 'info'
+                }">
+                  <div class="boost-icon">{{ tip.icon }}</div>
+                  <div class="boost-content">
+                    <h4>{{ tip.title }}</h4>
+                    <p>{{ tip.message }}</p>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      }
+    </div>
+
+    <!-- AI Analytics Export Section -->
+    <div class="section-header" style="margin-top: 24px;">
+      <h2>📥 Export AI Analytics Report</h2>
+    </div>
+    <div class="report-toolbar">
+      <div class="report-toolbar-right">
+        <button class="btn btn-secondary btn-sm" (click)="exportAiAnalyticsCsv()">📥 Export AI Report CSV</button>
+        <button class="btn btn-primary btn-sm" (click)="printReport()">🖨️ Print AI Report</button>
+      </div>
+    </div>
   }
 </div>

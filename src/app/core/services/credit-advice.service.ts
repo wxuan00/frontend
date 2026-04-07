@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class CreditAdviceService {
-  private apiUrl = 'http://localhost:8080/api/credit-advices';
+  private apiUrl = 'http://localhost:8001/api/credit-advices';
 
   constructor(private http: HttpClient) {}
 
