@@ -50,6 +50,24 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   churnLoading = true;
   forecastLoading = true;
 
+  // Accordion state for AI Models
+  expandedModels: { [key: string]: boolean } = { rfm: true, churn: false, forecast: false };
+
+  isModelExpanded(model: string): boolean {
+    return !!this.expandedModels[model];
+  }
+
+  toggleModel(model: string) {
+    const wasOpen = this.expandedModels[model];
+    this.expandedModels[model] = !wasOpen;
+    if (!wasOpen) {
+      this.destroyCharts();
+      if (model === 'rfm' && this.rfmData) setTimeout(() => this.renderRfmChart(), 200);
+      else if (model === 'churn' && this.churnData) setTimeout(() => this.renderShapCharts(), 200);
+      else if (model === 'forecast' && this.forecastData) setTimeout(() => this.renderForecastChart(), 200);
+    }
+  }
+
   // XAI / SHAP state
   selectedCustomerIdx: number | null = null;
   rfmTips: { icon: string; title: string; message: string; severity: string }[] = [];

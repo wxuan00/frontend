@@ -210,384 +210,399 @@
       </div>
     </div>
 
-    <!-- ── RFM SEGMENTATION ── -->
-    <div class="models-section">
-      <div class="models-section-header">
-        <h2>🧩 RFM Customer Segmentation <span class="model-badge">K-Means</span></h2>
-        <p>Groups customers into segments based on three behaviours: how <strong>recently</strong> they purchased, how <strong>frequently</strong> they buy, and how much <strong>money</strong> they spend.</p>
-      </div>
+    <div class="accordion-list">
 
-      @if (rfmLoading) {
-        <div class="loading-state"><div class="spinner"></div><p>Running K-Means segmentation...</p></div>
-      } @else if (rfmData?.error) {
-        <div class="sidecar-error">⚠️ {{ rfmData.error }}</div>
-      } @else if (rfmData) {
-        <div class="models-row">
-          <div class="model-kpi-group">
-            <div class="model-kpi">
-              <div class="model-kpi-label">Total Customers</div>
-              <div class="model-kpi-value">{{ rfmData.totalCustomers }}</div>
-            </div>
-            <div class="model-kpi">
-              <div class="model-kpi-label">Clusters</div>
-              <div class="model-kpi-value">{{ rfmData.clusterSummary?.length || 0 }}</div>
-            </div>
-            <div class="model-kpi has-tooltip">
-              <div class="model-kpi-label">
-                Cluster Quality
-                <span class="info-tooltip" title="Measures how well-separated the customer groups are. Ranges from -1 to 1: above 0.5 = strong grouping, 0.25-0.5 = reasonable, below 0.25 = overlapping groups.">ⓘ</span>
-              </div>
-              <div class="model-kpi-value" [ngClass]="{
-                'kpi-success': rfmData.silhouetteScore > 0.5,
-                'kpi-warning': rfmData.silhouetteScore >= 0.25 && rfmData.silhouetteScore <= 0.5,
-                'kpi-danger': rfmData.silhouetteScore < 0.25
-              }">
-                @if (rfmData.silhouetteScore != null) {
-                  {{ rfmData.silhouetteScore | number:'1.3-3' }}
-                  <span class="kpi-verdict">
-                    {{ rfmData.silhouetteScore > 0.5 ? 'Strong' : rfmData.silhouetteScore >= 0.25 ? 'Fair' : 'Weak' }}
-                  </span>
-                } @else {
-                  N/A
-                }
-              </div>
-            </div>
-            <div class="model-kpi">
-              <div class="model-kpi-label">Data As Of</div>
-              <div class="model-kpi-value model-kpi-sm">{{ rfmData.snapshotDate }}</div>
+      <!-- ═══════════════════════════════════ -->
+      <!-- CARD 1 · RFM Customer Segmentation -->
+      <!-- ═══════════════════════════════════ -->
+      <div class="accordion-card" [class.accordion-open]="isModelExpanded('rfm')">
+        <button class="accordion-card-header" (click)="toggleModel('rfm')" type="button">
+          <div class="acc-title">
+            <span class="acc-icon">🧩</span>
+            <div>
+              <span class="acc-name">RFM Customer Segmentation</span>
+              <span class="model-badge">K-Means</span>
             </div>
           </div>
-
-          <div class="card model-chart-card">
-            <div class="card-header"><h3>Customer Segments Distribution</h3></div>
-            <div class="chart-container" style="height: 220px;">
-              <canvas #rfmBarChart></canvas>
-            </div>
+          <div class="acc-meta">
+            @if (rfmData && !rfmData.error) {
+              <span class="acc-stat">{{ rfmData.totalCustomers }} customers · {{ rfmData.clusterSummary?.length || 0 }} clusters</span>
+            } @else if (rfmLoading) {
+              <span class="acc-stat acc-stat-loading">Loading…</span>
+            }
+            <span class="acc-chevron">{{ isModelExpanded('rfm') ? '▲' : '▼' }}</span>
           </div>
-        </div>
+        </button>
 
-        <div class="card">
-          <div class="card-header"><h3>Cluster Detail</h3></div>
-          <table class="model-table">
-            <thead>
-              <tr>
-                <th>Segment</th>
-                <th>Customers</th>
-                <th>Avg Recency (days)</th>
-                <th>Avg Frequency</th>
-                <th>Avg Monetary (MYR)</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (seg of rfmData.clusterSummary; track seg.cluster) {
-                <tr>
-                  <td>
-                    <span class="cluster-dot" [style.background]="getClusterColor(seg.label)"></span>
-                    {{ seg.label }}
-                  </td>
-                  <td>{{ seg.count }}</td>
-                  <td>{{ seg.avgRecency | number:'1.1-1' }}</td>
-                  <td>{{ seg.avgFrequency | number:'1.1-1' }}</td>
-                  <td>{{ seg.avgMonetary | number:'1.2-2' }}</td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
+        @if (isModelExpanded('rfm')) {
+          <div class="accordion-card-body">
+            <p class="acc-desc">Groups customers into segments based on three behaviours: how <strong>recently</strong> they purchased, how <strong>frequently</strong> they buy, and how much <strong>money</strong> they spend.</p>
 
-        <!-- RFM-specific suggestions -->
-        @if (rfmTips.length > 0) {
-          <div class="model-tips">
-            <h4 class="tips-heading">💡 What You Can Do</h4>
-            <div class="boost-grid">
-              @for (tip of rfmTips; track $index) {
-                <div class="boost-card" [ngClass]="{
-                  'boost-success': tip.severity === 'success',
-                  'boost-warning': tip.severity === 'warning',
-                  'boost-danger': tip.severity === 'danger',
-                  'boost-info': tip.severity === 'info'
-                }">
-                  <div class="boost-icon">{{ tip.icon }}</div>
-                  <div class="boost-content">
-                    <h4>{{ tip.title }}</h4>
-                    <p>{{ tip.message }}</p>
+            @if (rfmLoading) {
+              <div class="loading-state"><div class="spinner"></div><p>Running K-Means segmentation...</p></div>
+            } @else if (rfmData?.error) {
+              <div class="sidecar-error">⚠️ {{ rfmData.error }}</div>
+            } @else if (rfmData) {
+              <div class="models-row">
+                <div class="model-kpi-group">
+                  <div class="model-kpi">
+                    <div class="model-kpi-label">Total Customers</div>
+                    <div class="model-kpi-value">{{ rfmData.totalCustomers }}</div>
                   </div>
-                </div>
-              }
-            </div>
-          </div>
-        }
-      }
-    </div>
-
-    <!-- ── CHURN PREDICTION + XAI ── -->
-    <div class="models-section">
-      <div class="models-section-header">
-        <h2>⚡ Customer Churn Prediction <span class="model-badge model-badge-blue">Logistic Regression / XGBoost</span></h2>
-        <p>Predicts which customers are likely to <strong>stop buying</strong> based on their recent transaction patterns. Customers with <strong>&gt;70% probability</strong> are flagged as high risk.</p>
-      </div>
-
-      @if (churnLoading) {
-        <div class="loading-state"><div class="spinner"></div><p>Running churn prediction model...</p></div>
-      } @else if (churnData?.error) {
-        <div class="sidecar-error">⚠️ {{ churnData.error }}</div>
-      } @else if (churnData) {
-        @if (churnData.fallbackMode) {
-          <div class="fallback-notice">ℹ️ <strong>Heuristic Mode:</strong> {{ churnData.fallbackReason }}</div>
-        }
-        <div class="models-row">
-          <div class="model-kpi-group">
-            <div class="model-kpi model-kpi-danger">
-              <div class="model-kpi-label">High Risk Customers</div>
-              <div class="model-kpi-value">{{ churnData.highRiskCount }}</div>
-              <div class="model-kpi-sub">probability &gt; 70%</div>
-            </div>
-            <div class="model-kpi" [class.model-kpi-danger]="churnData.churnRate > 20" [class.model-kpi-warning]="churnData.churnRate > 10 && churnData.churnRate <= 20">
-              <div class="model-kpi-label">
-                Churn Rate
-                <span class="info-tooltip" title="Percentage of customers the AI predicts are likely to leave (probability > 50%). Lower is better — healthy businesses typically have under 10%.">ⓘ</span>
-              </div>
-              <div class="model-kpi-value">{{ churnData.churnRate }}%</div>
-            </div>
-            <div class="model-kpi model-kpi-info has-tooltip">
-              <div class="model-kpi-label">
-                Accuracy
-                <span class="info-tooltip" title="How often the AI model correctly predicts whether a customer will churn or stay. Higher is better — 80%+ is considered good.">ⓘ</span>
-              </div>
-              <div class="model-kpi-value">
-                {{ churnData.modelAccuracy != null ? (churnData.modelAccuracy * 100 | number:'1.1-1') + '%' : 'N/A' }}
-              </div>
-            </div>
-            <div class="model-kpi model-kpi-info has-tooltip">
-              <div class="model-kpi-label">
-                Reliability
-                <span class="info-tooltip" title="ROC-AUC measures how well the model distinguishes between customers who will churn vs. stay. Ranges from 0 to 1: above 0.8 = excellent, 0.7-0.8 = good, 0.5 = no better than random guessing.">ⓘ</span>
-              </div>
-              <div class="model-kpi-value">
-                @if (churnData.rocAuc != null) {
-                  {{ churnData.rocAuc | number:'1.3-3' }}
-                  <span class="kpi-verdict">
-                    {{ churnData.rocAuc > 0.8 ? 'Excellent' : churnData.rocAuc > 0.7 ? 'Good' : churnData.rocAuc > 0.5 ? 'Fair' : 'Poor' }}
-                  </span>
-                } @else {
-                  N/A
-                }
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- At-risk customers table -->
-        <div class="card">
-          <div class="card-header"><h3>Top At-Risk Customers (by Churn Probability)</h3></div>
-          <table class="model-table">
-            <thead>
-              <tr>
-                <th>Card</th>
-                <th>Recency (days)</th>
-                <th>Frequency</th>
-                <th>Monetary (MYR)</th>
-                <th>Churn Probability</th>
-                <th>Risk Level</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (p of (churnData.predictions | slice:0:15); track $index) {
-                <tr>
-                  <td class="mono">{{ maskCard($any(p).cardNo) }}</td>
-                  <td>{{ $any(p).recency }}</td>
-                  <td>{{ $any(p).frequency }}</td>
-                  <td>{{ $any(p).monetary | number:'1.2-2' }}</td>
-                  <td>
-                    <div class="prob-bar-wrap">
-                      <div class="prob-bar" [style.width.%]="$any(p).churnProbability * 100" [style.background]="getChurnRiskColor($any(p).churnProbability)"></div>
-                      <span>{{ ($any(p).churnProbability * 100) | number:'1.1-1' }}%</span>
+                  <div class="model-kpi">
+                    <div class="model-kpi-label">Clusters</div>
+                    <div class="model-kpi-value">{{ rfmData.clusterSummary?.length || 0 }}</div>
+                  </div>
+                  <div class="model-kpi has-tooltip">
+                    <div class="model-kpi-label">
+                      Cluster Quality
+                      <span class="info-tooltip" title="Measures how well-separated the customer groups are. Ranges from -1 to 1: above 0.5 = strong grouping, 0.25-0.5 = reasonable, below 0.25 = overlapping groups.">ⓘ</span>
                     </div>
-                  </td>
-                  <td>
-                    <span class="risk-badge" [style.color]="getChurnRiskColor($any(p).churnProbability)">
-                      {{ getChurnRiskLabel($any(p).churnProbability) }}
-                    </span>
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-          @if (churnData.predictions?.length > 15) {
-            <div class="table-note">Showing top 15 of {{ churnData.totalCustomers }} customers</div>
-          }
-        </div>
-
-        <!-- Churn-specific suggestions -->
-        @if (churnTips.length > 0) {
-          <div class="model-tips">
-            <h4 class="tips-heading">💡 What You Can Do</h4>
-            <div class="boost-grid">
-              @for (tip of churnTips; track $index) {
-                <div class="boost-card" [ngClass]="{
-                  'boost-success': tip.severity === 'success',
-                  'boost-warning': tip.severity === 'warning',
-                  'boost-danger': tip.severity === 'danger',
-                  'boost-info': tip.severity === 'info'
-                }">
-                  <div class="boost-icon">{{ tip.icon }}</div>
-                  <div class="boost-content">
-                    <h4>{{ tip.title }}</h4>
-                    <p>{{ tip.message }}</p>
+                    <div class="model-kpi-value" [ngClass]="{
+                      'kpi-success': rfmData.silhouetteScore > 0.5,
+                      'kpi-warning': rfmData.silhouetteScore >= 0.25 && rfmData.silhouetteScore <= 0.5,
+                      'kpi-danger': rfmData.silhouetteScore < 0.25
+                    }">
+                      @if (rfmData.silhouetteScore != null) {
+                        {{ rfmData.silhouetteScore | number:'1.3-3' }}
+                        <span class="kpi-verdict">
+                          {{ rfmData.silhouetteScore > 0.5 ? 'Strong' : rfmData.silhouetteScore >= 0.25 ? 'Fair' : 'Weak' }}
+                        </span>
+                      } @else {
+                        N/A
+                      }
+                    </div>
+                  </div>
+                  <div class="model-kpi">
+                    <div class="model-kpi-label">Data As Of</div>
+                    <div class="model-kpi-value model-kpi-sm">{{ rfmData.snapshotDate }}</div>
                   </div>
                 </div>
-              }
-            </div>
-          </div>
-        }
-
-        <!-- SHAP Explainability -->
-        @if (churnData.globalFeatureImportance) {
-          <div class="xai-section">
-            <div class="xai-header">
-              <h3>🔍 Why Does the AI Think This?</h3>
-              <p>The charts below show which customer behaviours (recency, frequency, spending) matter most in the AI's decisions — so you know <em>exactly</em> where to focus your retention efforts.</p>
-            </div>
-
-            <div class="xai-grid">
-              <!-- Global Feature Importance -->
-              <div class="card">
-                <div class="card-header">
-                  <h3>Which Factors Matter Most?</h3>
-                  <span class="chart-legend-note">Bigger bar = bigger influence on the AI's prediction</span>
-                </div>
-                <div class="chart-container" style="height: 180px;">
-                  <canvas #shapImportanceChart></canvas>
+                <div class="card model-chart-card">
+                  <div class="card-header"><h3>Customer Segments Distribution</h3></div>
+                  <div class="chart-container" style="height: 220px;">
+                    <canvas #rfmBarChart></canvas>
+                  </div>
                 </div>
               </div>
 
-              <!-- Per-Customer Waterfall -->
               <div class="card">
-                <div class="card-header">
-                  <h3>Individual Customer Breakdown</h3>
-                  <span class="chart-legend-note">
-                    <span style="color: #ef4444">■</span> pushes towards churn &nbsp;
-                    <span style="color: #22c55e">■</span> pushes towards staying
-                  </span>
-                </div>
-
-                <div class="xai-customer-selector">
-                  <label>Select customer:</label>
-                  <select (change)="selectCustomerForXAI(+$any($event.target).value)">
-                    @for (p of (churnData.predictions | slice:0:20); track $index) {
-                      <option [value]="$index" [selected]="$index === selectedCustomerIdx">
-                        {{ maskCard($any(p).cardNo) }} — {{ ($any(p).churnProbability * 100).toFixed(1) }}% risk
-                      </option>
+                <div class="card-header"><h3>Cluster Detail</h3></div>
+                <table class="model-table">
+                  <thead>
+                    <tr>
+                      <th>Segment</th><th>Customers</th><th>Avg Recency (days)</th><th>Avg Frequency</th><th>Avg Monetary (MYR)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (seg of rfmData.clusterSummary; track seg.cluster) {
+                      <tr>
+                        <td><span class="cluster-dot" [style.background]="getClusterColor(seg.label)"></span>{{ seg.label }}</td>
+                        <td>{{ seg.count }}</td>
+                        <td>{{ seg.avgRecency | number:'1.1-1' }}</td>
+                        <td>{{ seg.avgFrequency | number:'1.1-1' }}</td>
+                        <td>{{ seg.avgMonetary | number:'1.2-2' }}</td>
+                      </tr>
                     }
-                  </select>
+                  </tbody>
+                </table>
+              </div>
+
+              @if (rfmTips.length > 0) {
+                <div class="model-tips">
+                  <h4 class="tips-heading">💡 What You Can Do</h4>
+                  <div class="boost-grid">
+                    @for (tip of rfmTips; track $index) {
+                      <div class="boost-card" [ngClass]="{'boost-success': tip.severity === 'success','boost-warning': tip.severity === 'warning','boost-danger': tip.severity === 'danger','boost-info': tip.severity === 'info'}">
+                        <div class="boost-icon">{{ tip.icon }}</div>
+                        <div class="boost-content"><h4>{{ tip.title }}</h4><p>{{ tip.message }}</p></div>
+                      </div>
+                    }
+                  </div>
                 </div>
+              }
+            }
+          </div>
+        }
+      </div>
 
-                @if (selectedCustomer) {
-                  <div class="xai-customer-summary">
-                    <span class="xai-chip">Recency: {{ selectedCustomer.recency }} days</span>
-                    <span class="xai-chip">Frequency: {{ selectedCustomer.frequency }} txns</span>
-                    <span class="xai-chip">Monetary: MYR {{ selectedCustomer.monetary | number:'1.2-2' }}</span>
-                    <span class="xai-chip xai-chip-result" [style.background]="getChurnRiskColor(selectedCustomer.churnProbability)">
-                      Churn: {{ (selectedCustomer.churnProbability * 100) | number:'1.1-1' }}%
-                    </span>
+      <!-- ═══════════════════════════════════ -->
+      <!-- CARD 2 · Customer Churn Prediction -->
+      <!-- ═══════════════════════════════════ -->
+      <div class="accordion-card" [class.accordion-open]="isModelExpanded('churn')">
+        <button class="accordion-card-header" (click)="toggleModel('churn')" type="button">
+          <div class="acc-title">
+            <span class="acc-icon">⚡</span>
+            <div>
+              <span class="acc-name">Customer Churn Prediction</span>
+              <span class="model-badge model-badge-blue">Logistic Regression / XGBoost</span>
+            </div>
+          </div>
+          <div class="acc-meta">
+            @if (churnData && !churnData.error) {
+              <span class="acc-stat acc-stat-danger">{{ churnData.highRiskCount }} high-risk · {{ churnData.churnRate }}% churn</span>
+            } @else if (churnLoading) {
+              <span class="acc-stat acc-stat-loading">Loading…</span>
+            }
+            <span class="acc-chevron">{{ isModelExpanded('churn') ? '▲' : '▼' }}</span>
+          </div>
+        </button>
+
+        @if (isModelExpanded('churn')) {
+          <div class="accordion-card-body">
+            <p class="acc-desc">Predicts which customers are likely to <strong>stop buying</strong> based on their recent transaction patterns. Customers with <strong>&gt;70% probability</strong> are flagged as high risk.</p>
+
+            @if (churnLoading) {
+              <div class="loading-state"><div class="spinner"></div><p>Running churn prediction model...</p></div>
+            } @else if (churnData?.error) {
+              <div class="sidecar-error">⚠️ {{ churnData.error }}</div>
+            } @else if (churnData) {
+              @if (churnData.fallbackMode) {
+                <div class="fallback-notice">ℹ️ <strong>Heuristic Mode:</strong> {{ churnData.fallbackReason }}</div>
+              }
+              <div class="models-row">
+                <div class="model-kpi-group">
+                  <div class="model-kpi model-kpi-danger">
+                    <div class="model-kpi-label">High Risk Customers</div>
+                    <div class="model-kpi-value">{{ churnData.highRiskCount }}</div>
+                    <div class="model-kpi-sub">probability &gt; 70%</div>
                   </div>
-
-                  <div class="chart-container" style="height: 180px;">
-                    <canvas #shapWaterfallChart></canvas>
+                  <div class="model-kpi" [class.model-kpi-danger]="churnData.churnRate > 20" [class.model-kpi-warning]="churnData.churnRate > 10 && churnData.churnRate <= 20">
+                    <div class="model-kpi-label">
+                      Churn Rate
+                      <span class="info-tooltip" title="Percentage of customers the AI predicts are likely to leave (probability > 50%). Lower is better — healthy businesses typically have under 10%.">ⓘ</span>
+                    </div>
+                    <div class="model-kpi-value">{{ churnData.churnRate }}%</div>
                   </div>
+                  <div class="model-kpi model-kpi-info has-tooltip">
+                    <div class="model-kpi-label">
+                      Accuracy
+                      <span class="info-tooltip" title="How often the AI model correctly predicts whether a customer will churn or stay. Higher is better — 80%+ is considered good.">ⓘ</span>
+                    </div>
+                    <div class="model-kpi-value">
+                      {{ churnData.modelAccuracy != null ? (churnData.modelAccuracy * 100 | number:'1.1-1') + '%' : 'N/A' }}
+                    </div>
+                  </div>
+                  <div class="model-kpi model-kpi-info has-tooltip">
+                    <div class="model-kpi-label">
+                      Reliability
+                      <span class="info-tooltip" title="ROC-AUC measures how well the model distinguishes between customers who will churn vs. stay. Ranges from 0 to 1: above 0.8 = excellent, 0.7-0.8 = good, 0.5 = no better than random guessing.">ⓘ</span>
+                    </div>
+                    <div class="model-kpi-value">
+                      @if (churnData.rocAuc != null) {
+                        {{ churnData.rocAuc | number:'1.3-3' }}
+                        <span class="kpi-verdict">
+                          {{ churnData.rocAuc > 0.8 ? 'Excellent' : churnData.rocAuc > 0.7 ? 'Good' : churnData.rocAuc > 0.5 ? 'Fair' : 'Poor' }}
+                        </span>
+                      } @else {
+                        N/A
+                      }
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-                  @if (selectedCustomer.shapBreakdown) {
-                    <div class="xai-explanation">
-                      <strong>Explanation:</strong>
-                      @for (entry of getShapSorted(selectedCustomer.shapBreakdown); track entry.key) {
-                        @if (entry.value > 0) {
-                          <span class="xai-factor xai-factor-risk">{{ entry.key === 'Recency' ? 'Long time since last purchase' : entry.key === 'Frequency' ? 'Low number of purchases' : 'Low total spending' }} → increases churn risk</span>
-                        } @else {
-                          <span class="xai-factor xai-factor-safe">{{ entry.key === 'Recency' ? 'Purchased recently' : entry.key === 'Frequency' ? 'Buys frequently' : 'High total spending' }} → decreases churn risk</span>
+              <div class="card">
+                <div class="card-header"><h3>Top 5 At-Risk Customers (by Churn Probability)</h3></div>
+                <table class="model-table">
+                  <thead>
+                    <tr><th>Card</th><th>Recency (days)</th><th>Frequency</th><th>Monetary (MYR)</th><th>Churn Probability</th><th>Risk Level</th></tr>
+                  </thead>
+                  <tbody>
+                    @for (p of (churnData.predictions | slice:0:5); track $index) {
+                      <tr>
+                        <td class="mono">{{ maskCard($any(p).cardNo) }}</td>
+                        <td>{{ $any(p).recency }}</td>
+                        <td>{{ $any(p).frequency }}</td>
+                        <td>{{ $any(p).monetary | number:'1.2-2' }}</td>
+                        <td>
+                          <div class="prob-bar-wrap">
+                            <div class="prob-bar" [style.width.%]="$any(p).churnProbability * 100" [style.background]="getChurnRiskColor($any(p).churnProbability)"></div>
+                            <span>{{ ($any(p).churnProbability * 100) | number:'1.1-1' }}%</span>
+                          </div>
+                        </td>
+                        <td>
+                          <span class="risk-badge" [style.color]="getChurnRiskColor($any(p).churnProbability)">
+                            {{ getChurnRiskLabel($any(p).churnProbability) }}
+                          </span>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+                @if (churnData.predictions?.length > 5) {
+                  <div class="table-note">Showing top 5 of {{ churnData.totalCustomers }} customers</div>
+                }
+              </div>
+
+              @if (churnTips.length > 0) {
+                <div class="model-tips">
+                  <h4 class="tips-heading">💡 What You Can Do</h4>
+                  <div class="boost-grid">
+                    @for (tip of churnTips; track $index) {
+                      <div class="boost-card" [ngClass]="{'boost-success': tip.severity === 'success','boost-warning': tip.severity === 'warning','boost-danger': tip.severity === 'danger','boost-info': tip.severity === 'info'}">
+                        <div class="boost-icon">{{ tip.icon }}</div>
+                        <div class="boost-content"><h4>{{ tip.title }}</h4><p>{{ tip.message }}</p></div>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+
+              @if (churnData.globalFeatureImportance) {
+                <div class="xai-section">
+                  <div class="xai-header">
+                    <h3>🔍 Why Does the AI Think This?</h3>
+                    <p>The charts below show which customer behaviours (recency, frequency, spending) matter most in the AI's decisions — so you know <em>exactly</em> where to focus your retention efforts.</p>
+                  </div>
+                  <div class="xai-grid">
+                    <div class="card">
+                      <div class="card-header">
+                        <h3>Which Factors Matter Most?</h3>
+                        <span class="chart-legend-note">Bigger bar = bigger influence on the AI's prediction</span>
+                      </div>
+                      <div class="chart-container" style="height: 180px;">
+                        <canvas #shapImportanceChart></canvas>
+                      </div>
+                    </div>
+                    <div class="card">
+                      <div class="card-header">
+                        <h3>Individual Customer Breakdown</h3>
+                        <span class="chart-legend-note">
+                          <span style="color: #ef4444">■</span> pushes towards churn &nbsp;
+                          <span style="color: #22c55e">■</span> pushes towards staying
+                        </span>
+                      </div>
+                      <div class="xai-customer-selector">
+                        <label>Select customer:</label>
+                        <select (change)="selectCustomerForXAI(+$any($event.target).value)">
+                          @for (p of (churnData.predictions | slice:0:20); track $index) {
+                            <option [value]="$index" [selected]="$index === selectedCustomerIdx">
+                              {{ maskCard($any(p).cardNo) }} — {{ ($any(p).churnProbability * 100).toFixed(1) }}% risk
+                            </option>
+                          }
+                        </select>
+                      </div>
+                      @if (selectedCustomer) {
+                        <div class="xai-customer-summary">
+                          <span class="xai-chip">Recency: {{ selectedCustomer.recency }} days</span>
+                          <span class="xai-chip">Frequency: {{ selectedCustomer.frequency }} txns</span>
+                          <span class="xai-chip">Monetary: MYR {{ selectedCustomer.monetary | number:'1.2-2' }}</span>
+                          <span class="xai-chip xai-chip-result" [style.background]="getChurnRiskColor(selectedCustomer.churnProbability)">
+                            Churn: {{ (selectedCustomer.churnProbability * 100) | number:'1.1-1' }}%
+                          </span>
+                        </div>
+                        <div class="chart-container" style="height: 180px;">
+                          <canvas #shapWaterfallChart></canvas>
+                        </div>
+                        @if (selectedCustomer.shapBreakdown) {
+                          <div class="xai-explanation">
+                            <strong>Explanation:</strong>
+                            @for (entry of getShapSorted(selectedCustomer.shapBreakdown); track entry.key) {
+                              @if (entry.value > 0) {
+                                <span class="xai-factor xai-factor-risk">{{ entry.key === 'Recency' ? 'Long time since last purchase' : entry.key === 'Frequency' ? 'Low number of purchases' : 'Low total spending' }} → increases churn risk</span>
+                              } @else {
+                                <span class="xai-factor xai-factor-safe">{{ entry.key === 'Recency' ? 'Purchased recently' : entry.key === 'Frequency' ? 'Buys frequently' : 'High total spending' }} → decreases churn risk</span>
+                              }
+                            }
+                          </div>
                         }
                       }
                     </div>
-                  }
-                }
-              </div>
-            </div>
-          </div>
-        }
-      }
-    </div>
-
-    <!-- ── CASH-FLOW FORECAST ── -->
-    <div class="models-section">
-      <div class="models-section-header">
-        <h2>📅 Cash Flow Forecast <span class="model-badge model-badge-green">Prophet</span></h2>
-        <p>Uses historical daily revenue patterns to predict how much revenue you can expect over the next <strong>{{ forecastData?.horizonDays || 30 }} days</strong>, including trends and weekly patterns.</p>
-      </div>
-
-      @if (forecastLoading) {
-        <div class="loading-state"><div class="spinner"></div><p>Running Prophet forecast...</p></div>
-      } @else if (forecastData?.error) {
-        <div class="sidecar-error">⚠️ {{ forecastData.error }}</div>
-      } @else if (forecastData) {
-        @if (forecastData.fallbackMode) {
-          <div class="fallback-notice">ℹ️ <strong>Heuristic Mode:</strong> {{ forecastData.fallbackReason }}</div>
-        }
-        <div class="models-row">
-          <div class="model-kpi-group">
-            <div class="model-kpi model-kpi-info">
-              <div class="model-kpi-label">Predicted Revenue</div>
-              <div class="model-kpi-value">{{ formatCurrency(forecastData.totalPredicted) }}</div>
-              <div class="model-kpi-sub">next {{ forecastData.horizonDays }} days</div>
-            </div>
-            <div class="model-kpi has-tooltip" [class.model-kpi-success]="forecastData.changePercent > 0" [class.model-kpi-danger]="forecastData.changePercent < 0">
-              <div class="model-kpi-label">
-                Growth Trend
-                <span class="info-tooltip" title="Compares the AI's predicted revenue for the next period against the same number of past days. Positive = growing, negative = declining.">ⓘ</span>
-              </div>
-              <div class="model-kpi-value">
-                {{ forecastData.changePercent != null ? formatPercent(forecastData.changePercent) : 'N/A' }}
-              </div>
-            </div>
-            <div class="model-kpi">
-              <div class="model-kpi-label">Latest Data Point</div>
-              <div class="model-kpi-value model-kpi-sm">{{ forecastData.lastActualDate }}</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-header">
-            <h3>Daily Revenue: Actual vs AI Forecast</h3>
-            <span class="chart-legend-note">Shaded area = 80% confidence range (likely range)</span>
-          </div>
-          <div class="chart-container" style="height: 280px;">
-            <canvas #forecastLineChart></canvas>
-          </div>
-        </div>
-
-        <!-- Forecast-specific suggestions -->
-        @if (forecastTips.length > 0) {
-          <div class="model-tips">
-            <h4 class="tips-heading">💡 What You Can Do</h4>
-            <div class="boost-grid">
-              @for (tip of forecastTips; track $index) {
-                <div class="boost-card" [ngClass]="{
-                  'boost-success': tip.severity === 'success',
-                  'boost-warning': tip.severity === 'warning',
-                  'boost-danger': tip.severity === 'danger',
-                  'boost-info': tip.severity === 'info'
-                }">
-                  <div class="boost-icon">{{ tip.icon }}</div>
-                  <div class="boost-content">
-                    <h4>{{ tip.title }}</h4>
-                    <p>{{ tip.message }}</p>
                   </div>
                 </div>
               }
-            </div>
+            }
           </div>
         }
-      }
-    </div>
+      </div>
+
+      <!-- ═══════════════════════════════════ -->
+      <!-- CARD 3 · Cash Flow Forecast        -->
+      <!-- ═══════════════════════════════════ -->
+      <div class="accordion-card" [class.accordion-open]="isModelExpanded('forecast')">
+        <button class="accordion-card-header" (click)="toggleModel('forecast')" type="button">
+          <div class="acc-title">
+            <span class="acc-icon">📅</span>
+            <div>
+              <span class="acc-name">Cash Flow Forecast</span>
+              <span class="model-badge model-badge-green">Prophet</span>
+            </div>
+          </div>
+          <div class="acc-meta">
+            @if (forecastData && !forecastData.error) {
+              <span class="acc-stat acc-stat-success">{{ formatCurrency(forecastData.totalPredicted) }} predicted · {{ forecastData.horizonDays }}d</span>
+            } @else if (forecastLoading) {
+              <span class="acc-stat acc-stat-loading">Loading…</span>
+            }
+            <span class="acc-chevron">{{ isModelExpanded('forecast') ? '▲' : '▼' }}</span>
+          </div>
+        </button>
+
+        @if (isModelExpanded('forecast')) {
+          <div class="accordion-card-body">
+            <p class="acc-desc">Uses historical daily revenue patterns to predict how much revenue you can expect over the next <strong>{{ forecastData?.horizonDays || 30 }} days</strong>, including trends and weekly patterns.</p>
+
+            @if (forecastLoading) {
+              <div class="loading-state"><div class="spinner"></div><p>Running Prophet forecast...</p></div>
+            } @else if (forecastData?.error) {
+              <div class="sidecar-error">⚠️ {{ forecastData.error }}</div>
+            } @else if (forecastData) {
+              @if (forecastData.fallbackMode) {
+                <div class="fallback-notice">ℹ️ <strong>Heuristic Mode:</strong> {{ forecastData.fallbackReason }}</div>
+              }
+              <div class="models-row">
+                <div class="model-kpi-group">
+                  <div class="model-kpi model-kpi-info">
+                    <div class="model-kpi-label">Predicted Revenue</div>
+                    <div class="model-kpi-value">{{ formatCurrency(forecastData.totalPredicted) }}</div>
+                    <div class="model-kpi-sub">next {{ forecastData.horizonDays }} days</div>
+                  </div>
+                  <div class="model-kpi has-tooltip" [class.model-kpi-success]="forecastData.changePercent > 0" [class.model-kpi-danger]="forecastData.changePercent < 0">
+                    <div class="model-kpi-label">
+                      Growth Trend
+                      <span class="info-tooltip" title="Compares the AI's predicted revenue for the next period against the same number of past days. Positive = growing, negative = declining.">ⓘ</span>
+                    </div>
+                    <div class="model-kpi-value">
+                      {{ forecastData.changePercent != null ? formatPercent(forecastData.changePercent) : 'N/A' }}
+                    </div>
+                  </div>
+                  <div class="model-kpi">
+                    <div class="model-kpi-label">Latest Data Point</div>
+                    <div class="model-kpi-value model-kpi-sm">{{ forecastData.lastActualDate }}</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-header">
+                  <h3>Daily Revenue: Actual vs AI Forecast</h3>
+                  <span class="chart-legend-note">Shaded area = 80% confidence range (likely range)</span>
+                </div>
+                <div class="chart-container" style="height: 280px;">
+                  <canvas #forecastLineChart></canvas>
+                </div>
+              </div>
+
+              @if (forecastTips.length > 0) {
+                <div class="model-tips">
+                  <h4 class="tips-heading">💡 What You Can Do</h4>
+                  <div class="boost-grid">
+                    @for (tip of forecastTips; track $index) {
+                      <div class="boost-card" [ngClass]="{'boost-success': tip.severity === 'success','boost-warning': tip.severity === 'warning','boost-danger': tip.severity === 'danger','boost-info': tip.severity === 'info'}">
+                        <div class="boost-icon">{{ tip.icon }}</div>
+                        <div class="boost-content"><h4>{{ tip.title }}</h4><p>{{ tip.message }}</p></div>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+            }
+          </div>
+        }
+      </div>
+
+    </div><!-- /accordion-list -->
 
     <!-- AI Analytics Export Section -->
     <div class="section-header" style="margin-top: 24px;">

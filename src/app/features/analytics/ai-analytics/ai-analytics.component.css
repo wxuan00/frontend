@@ -833,3 +833,104 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ===== Accordion Cards (AI Models tab) ===== */
+.accordion-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.accordion-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+
+.accordion-card.accordion-open {
+  box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+}
+
+.accordion-card-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  gap: 16px;
+  background: #ffffff;
+  transition: background 0.15s;
+}
+
+.accordion-card-header:hover {
+  background: #f9fafb;
+}
+
+.accordion-open .accordion-card-header {
+  border-bottom: 1px solid #e5e7eb;
+  background: #f9fafb;
+}
+
+.acc-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.acc-icon {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.acc-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #111;
+  margin-right: 8px;
+}
+
+.acc-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.acc-stat {
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: #f3f4f6;
+  color: #555;
+  white-space: nowrap;
+}
+
+.acc-stat-loading { color: #9ca3af; }
+.acc-stat-danger  { background: #fef2f2; color: #b91c1c; }
+.acc-stat-success { background: #f0fdf4; color: #15803d; }
+
+.acc-chevron {
+  font-size: 0.7rem;
+  color: #9ca3af;
+  width: 18px;
+  text-align: center;
+}
+
+.accordion-card-body {
+  padding: 22px 22px 24px;
+}
+
+.acc-desc {
+  font-size: 0.85rem;
+  color: #666;
+  margin: 0 0 20px;
+  line-height: 1.5;
+}
