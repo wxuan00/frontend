@@ -47,6 +47,10 @@
   padding: 14px;
   font-size: 1rem;
   margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 
 .btn-link {

@@ -5,7 +5,6 @@ import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth.service';
 import { DashboardService } from '../../../core/services/dashboard.service';
 import { AnalyticsApiService } from '../../../core/services/analytics-api.service';
-import { ReportService } from '../../../core/services/report.service';
 import { Chart, registerables } from 'chart.js';
 
 Chart.register(...registerables);
@@ -23,13 +22,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // Active tab
   activeTab: 'dashboard' | 'ai-analytics' = 'dashboard';
-
-  // Report data
-  report: any = null;
-  reportLoading = false;
-  reportError = '';
-  merchantBreakdown: { label: string; value: number; color: string; percent: number }[] = [];
-  transactionBreakdown: { label: string; value: number; color: string; percent: number }[] = [];
 
   // Dashboard stats
   totalUsers: number = 0;
@@ -86,7 +78,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('dailyVolumeChart') dailyVolumeCanvas!: ElementRef<HTMLCanvasElement>;
   @ViewChild('paymentChannelChart') paymentChannelCanvas!: ElementRef<HTMLCanvasElement>;
   @ViewChild('settlementTypesChart') settlementTypesCanvas!: ElementRef<HTMLCanvasElement>;
-  @ViewChild('amountByCurrencyChart') amountByCurrencyCanvas!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('dailyRevenueChart') dailyRevenueCanvas!: ElementRef<HTMLCanvasElement>;
   @ViewChild('topMerchantsChart') topMerchantsCanvas!: ElementRef<HTMLCanvasElement>;
 
   // AI model charts
@@ -99,7 +91,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     private authService: AuthService,
     private dashboardService: DashboardService,
     private analyticsApi: AnalyticsApiService,
-    private reportService: ReportService,
     private route: ActivatedRoute
   ) {}
 
@@ -108,12 +99,11 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.authService.getProfile().subscribe({
       next: (data) => {
-        this.userName = data.firstName || data.displayName || 'User';
+        this.userName = data.displayName || data.firstName || 'User';
       }
     });
 
     this.loadDashboardStats();
-    this.loadReport();
 
     // Auto-switch to AI Analytics tab if navigated via /ai-analytics route
     const tab = this.route.snapshot.data['tab'];
@@ -150,7 +140,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
     if (tab === 'dashboard') {
       setTimeout(() => this.renderDashboardCharts(), 50);
-      if (!this.report && !this.reportLoading) this.loadReport();
     }
     if (tab === 'ai-analytics') {
       if (!this.rfmData) this.loadRfm();
@@ -175,65 +164,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
           this.recentUsers = stats.recentUsers || [];
         }
       }
-    });
-  }
-
-  loadReport() {
-    this.reportLoading = true;
-    this.reportError = '';
-    this.reportService.getSummaryReport().subscribe({
-      next: (data) => {
-        this.report = data;
-        this.buildReportChartData();
-        this.reportLoading = false;
-      },
-      error: () => {
-        this.reportError = 'Failed to load report data.';
-        this.reportLoading = false;
-      }
-    });
-  }
-
-  private buildReportChartData() {
-    if (!this.report) return;
-    if (this.userRole === 'ADMIN') {
-      const totalM = (this.report.activeMerchants || 0) + (this.report.pendingMerchants || 0) + (this.report.suspendedMerchants || 0);
-      if (totalM > 0) {
-        this.merchantBreakdown = [
-          { label: 'Active', value: this.report.activeMerchants || 0, color: '#22c55e', percent: Math.round(((this.report.activeMerchants || 0) / totalM) * 100) },
-          { label: 'Pending', value: this.report.pendingMerchants || 0, color: '#f59e0b', percent: Math.round(((this.report.pendingMerchants || 0) / totalM) * 100) },
-          { label: 'Suspended', value: this.report.suspendedMerchants || 0, color: '#ef4444', percent: Math.round(((this.report.suspendedMerchants || 0) / totalM) * 100) }
-        ];
-      }
-    }
-    const totalT = (this.report.approvedTransactions || 0) + (this.report.pendingTransactions || 0) + (this.report.declinedTransactions || 0);
-    if (totalT > 0) {
-      this.transactionBreakdown = [
-        { label: 'Approved', value: this.report.approvedTransactions || 0, color: '#22c55e', percent: Math.round(((this.report.approvedTransactions || 0) / totalT) * 100) },
-        { label: 'Pending', value: this.report.pendingTransactions || 0, color: '#f59e0b', percent: Math.round(((this.report.pendingTransactions || 0) / totalT) * 100) },
-        { label: 'Declined', value: this.report.declinedTransactions || 0, color: '#ef4444', percent: Math.round(((this.report.declinedTransactions || 0) / totalT) * 100) }
-      ];
-    }
-  }
-
-  exportSummaryCsv() {
-    this.reportService.exportSummaryReportCsv().subscribe({
-      next: (blob) => this.downloadFile(blob, 'summary-report.csv'),
-      error: () => {}
-    });
-  }
-
-  exportTransactionsCsv() {
-    this.reportService.exportTransactionsCsv().subscribe({
-      next: (blob) => this.downloadFile(blob, 'transactions-export.csv'),
-      error: () => {}
-    });
-  }
-
-  exportSettlementsCsv() {
-    this.reportService.exportSettlementsCsv().subscribe({
-      next: (blob) => this.downloadFile(blob, 'settlements-export.csv'),
-      error: () => {}
     });
   }
 
@@ -310,11 +240,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     const csv = rows.join('\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     this.downloadFile(blob, `ai-analytics-report-${new Date().toISOString().slice(0, 10)}.csv`);
-  }
-
-  formatReportDate(dateStr: string): string {
-    if (!dateStr) return '-';
-    return new Date(dateStr).toLocaleDateString('en-MY', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
   }
 
   // ===== Dashboard Chart Rendering =====
@@ -395,18 +320,28 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       }));
     }
 
-    if (this.amountByCurrencyCanvas && this.chartData.amountByCurrency) {
-      const data = this.chartData.amountByCurrency;
-      this.charts.push(new Chart(this.amountByCurrencyCanvas.nativeElement, {
+    if (this.dailyRevenueCanvas && this.chartData.dailyRevenue) {
+      const data = this.chartData.dailyRevenue;
+      this.charts.push(new Chart(this.dailyRevenueCanvas.nativeElement, {
         type: 'bar',
         data: {
           labels: Object.keys(data),
-          datasets: [{ label: 'Total Amount (MYR)', data: Object.values(data) as number[], backgroundColor: ['#111', '#333', '#555', '#777', '#999'], borderRadius: 6, barPercentage: 0.5, categoryPercentage: 0.6 }]
+          datasets: [{
+            label: 'Revenue (MYR)',
+            data: Object.values(data) as number[],
+            backgroundColor: '#111',
+            borderRadius: 6,
+            barPercentage: 0.55,
+            categoryPercentage: 0.65
+          }]
         },
         options: {
           responsive: true, maintainAspectRatio: false,
           plugins: { legend: { display: false } },
-          scales: { y: { beginAtZero: true, grid: { color: '#f0f0f0' }, ticks: { callback: (v) => 'RM ' + Number(v).toLocaleString() } }, x: { grid: { display: false } } }
+          scales: {
+            y: { beginAtZero: true, grid: { color: '#f0f0f0' }, ticks: { callback: (v) => 'RM ' + Number(v).toLocaleString() } },
+            x: { grid: { display: false } }
+          }
         }
       }));
     }

@@ -187,6 +187,10 @@
   position: relative;
 }
 
+.chart-body.chart-body-tall {
+  height: 280px;
+}
+
 .charts-loading {
   display: flex;
   flex-direction: column;

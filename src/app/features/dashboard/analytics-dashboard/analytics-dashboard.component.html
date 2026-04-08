@@ -80,6 +80,7 @@
     }
 
     @if (!chartsLoading && chartData) {
+      <!-- Row 1: Transaction Volume (full-width) + Status -->
       <div class="chart-row">
         <div class="chart-card chart-wide">
           <div class="chart-card-header"><h3>Transaction Volume (Last 7 Days)</h3></div>
@@ -91,27 +92,23 @@
         </div>
       </div>
 
+      <!-- Row 2: Payment Channel + Settlement Types -->
       <div class="chart-row">
-        <div class="chart-card chart-wide">
-          <div class="chart-card-header"><h3>Amount by Currency</h3></div>
-          <div class="chart-body"><canvas #amountByCurrencyChart></canvas></div>
-        </div>
-        <div class="chart-card chart-small">
+        <div class="chart-card">
           <div class="chart-card-header"><h3>Payment Channel Distribution</h3></div>
           <div class="chart-body"><canvas #paymentChannelChart></canvas></div>
         </div>
-      </div>
-
-      <div class="chart-row">
-        @if (userRole === 'ADMIN' && chartData.topMerchants) {
-          <div class="chart-card chart-wide">
-            <div class="chart-card-header"><h3>Top 5 Merchants by Volume</h3></div>
-            <div class="chart-body"><canvas #topMerchantsChart></canvas></div>
-          </div>
-        }
-        <div class="chart-card" [ngClass]="userRole === 'ADMIN' && chartData.topMerchants ? 'chart-small' : 'chart-full'">
+        <div class="chart-card">
           <div class="chart-card-header"><h3>Settlement Types</h3></div>
           <div class="chart-body"><canvas #settlementTypesChart></canvas></div>
+        </div>
+      </div>
+
+      <!-- Row 3: Daily Revenue (full-width) -->
+      <div class="chart-row">
+        <div class="chart-card chart-full">
+          <div class="chart-card-header"><h3>Daily Revenue — Last 7 Days (MYR)</h3></div>
+          <div class="chart-body chart-body-tall"><canvas #dailyRevenueChart></canvas></div>
         </div>
       </div>
     }
@@ -130,8 +127,8 @@
           <tbody>
             <tr *ngFor="let user of recentUsers">
               <td>
-                <strong>{{ user.firstName }} {{ user.lastName }}</strong>
-                <span *ngIf="!user.firstName">{{ user.displayName }}</span>
+                <strong>{{ user.displayName }}</strong>
+                <strong *ngIf="!user.displayName">{{ user.firstName }} {{ user.lastName }}</strong>
               </td>
               <td>{{ user.email }}</td>
               <td><span class="badge badge-primary">{{ user.role }}</span></td>
@@ -147,56 +144,6 @@
         </table>
       </div>
     }
-
-    <!-- Export / Report Section -->
-    <div class="section-header">
-      <h2>📋 Reports & Export</h2>
-    </div>
-    <div class="report-toolbar">
-      <div class="report-toolbar-left">
-        <button class="btn btn-secondary btn-sm" (click)="loadReport()" [disabled]="reportLoading">🔄 Refresh Report</button>
-      </div>
-      <div class="report-toolbar-right">
-        <button class="btn btn-secondary btn-sm" (click)="exportSummaryCsv()">📥 Summary CSV</button>
-        <button class="btn btn-secondary btn-sm" (click)="exportTransactionsCsv()">📥 Transactions</button>
-        <button class="btn btn-secondary btn-sm" (click)="exportSettlementsCsv()">📥 Settlements</button>
-        <button class="btn btn-primary btn-sm" (click)="printReport()">🖨️ Print</button>
-      </div>
-    </div>
-
-    @if (report) {
-      <div class="report-meta">
-        <span>📅 Generated: <strong>{{ formatReportDate(report.generatedAt) }}</strong></span>
-        <span>👤 By: <strong>{{ report.generatedBy }}</strong></span>
-      </div>
-
-      <div class="charts-row">
-        <div *ngIf="userRole === 'ADMIN' && merchantBreakdown.length > 0" class="card chart-card">
-          <div class="card-header"><h3>🏢 Merchant Status Breakdown</h3></div>
-          <div class="chart-content">
-            <div class="bar-chart">
-              <div *ngFor="let item of merchantBreakdown" class="bar-row">
-                <div class="bar-label"><span class="bar-dot" [style.background]="item.color"></span>{{ item.label }}</div>
-                <div class="bar-track"><div class="bar-fill" [style.width.%]="item.percent" [style.background]="item.color"></div></div>
-                <div class="bar-value">{{ item.value }} <span class="bar-pct">({{ item.percent }}%)</span></div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div *ngIf="transactionBreakdown.length > 0" class="card chart-card">
-          <div class="card-header"><h3>💳 Transaction Status Breakdown</h3></div>
-          <div class="chart-content">
-            <div class="bar-chart">
-              <div *ngFor="let item of transactionBreakdown" class="bar-row">
-                <div class="bar-label"><span class="bar-dot" [style.background]="item.color"></span>{{ item.label }}</div>
-                <div class="bar-track"><div class="bar-fill" [style.width.%]="item.percent" [style.background]="item.color"></div></div>
-                <div class="bar-value">{{ item.value }} <span class="bar-pct">({{ item.percent }}%)</span></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    }
   }
 
   <!-- ==================== TAB: AI ANALYTICS ==================== -->
@@ -207,6 +154,18 @@
       <div>
         <h2>AI-Powered Analytics</h2>
         <p>Three machine learning models analyse your transaction data and provide actionable recommendations to help you retain customers and grow revenue.</p>
+      </div>
+    </div>
+
+    
+    <!-- AI Analytics Export Section -->
+    <div class="section-header" style="margin-top: 24px;">
+      <h2>📥 Export AI Analytics Report</h2>
+    </div>
+    <div class="report-toolbar">
+      <div class="report-toolbar-right">
+        <button class="btn btn-secondary btn-sm" (click)="exportAiAnalyticsCsv()">📥 Export AI Report CSV</button>
+        <button class="btn btn-primary btn-sm" (click)="printReport()">🖨️ Print AI Report</button>
       </div>
     </div>
 
@@ -604,15 +563,5 @@
 
     </div><!-- /accordion-list -->
 
-    <!-- AI Analytics Export Section -->
-    <div class="section-header" style="margin-top: 24px;">
-      <h2>📥 Export AI Analytics Report</h2>
-    </div>
-    <div class="report-toolbar">
-      <div class="report-toolbar-right">
-        <button class="btn btn-secondary btn-sm" (click)="exportAiAnalyticsCsv()">📥 Export AI Report CSV</button>
-        <button class="btn btn-primary btn-sm" (click)="printReport()">🖨️ Print AI Report</button>
-      </div>
-    </div>
   }
 </div>
