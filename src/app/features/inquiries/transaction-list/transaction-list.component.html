@@ -40,6 +40,7 @@
           <option value="APPROVED">Approved</option>
           <option value="PENDING">Pending</option>
           <option value="DECLINED">Declined</option>
+          <option value="REFUND_REQUESTED">Refund Requested</option>
         </select>
       </div>
     </div>
@@ -108,8 +109,9 @@
                 <span class="badge" [ngClass]="{
                   'badge-success': t.status === 'APPROVED',
                   'badge-warning': t.status === 'PENDING',
-                  'badge-danger': t.status === 'DECLINED'
-                }">{{ t.status }}</span>
+                  'badge-danger': t.status === 'DECLINED',
+                  'badge-refund': t.status === 'REFUND_REQUESTED'
+                }">{{ t.status === 'REFUND_REQUESTED' ? 'Refund Requested' : t.status }}</span>
               </td>
               <td class="date-cell">{{ formatDate(t.txnDate!) }}</td>
               <td>

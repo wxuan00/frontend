@@ -160,23 +160,6 @@ export interface DashboardStats {
   recentUsers?: any[];
 }
 
-export interface DashboardInsight {
-  title: string;
-  message: string;
-  severity: 'success' | 'warning' | 'danger' | 'info';
-  category?: string;
-}
-
-export interface ChartData {
-  transactionStatus: Record<string, number>;
-  dailyTransactionVolume: Record<string, number>;
-  paymentChannelDistribution: Record<string, number>;
-  settlementTypes: Record<string, number>;
-  amountByCurrency: Record<string, number>;
-  topMerchants?: Record<string, number>;
-  merchantStatus?: Record<string, number>;
-}
-
 // --- Pagination ---
 export interface PaginationState {
   currentPage: number;
@@ -185,21 +168,4 @@ export interface PaginationState {
   totalPages: number;
 }
 
-// --- Report ---
-export interface SummaryReport {
-  type: string;
-  generatedBy: string;
-  generatedAt: string;
-  totalUsers?: number;
-  totalMerchants?: number;
-  activeMerchants?: number;
-  pendingMerchants?: number;
-  suspendedMerchants?: number;
-  totalTransactions?: number;
-  approvedTransactions?: number;
-  pendingTransactions?: number;
-  declinedTransactions?: number;
-  totalSettlements?: number;
-  merchantName?: string;
-  merchantStatus?: string;
-}
+
