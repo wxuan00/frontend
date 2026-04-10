@@ -294,7 +294,11 @@
             <span class="acc-icon">⚡</span>
             <div>
               <span class="acc-name">Customer Churn Prediction</span>
-              <span class="model-badge model-badge-blue">Logistic Regression / XGBoost</span>
+              @if (churnData?.modelUsed) {
+                <span class="model-badge" [class.model-badge-blue]="churnData.modelUsed !== 'XGBoost'" [class.model-badge-purple]="churnData.modelUsed === 'XGBoost'">{{ churnData.modelUsed }}</span>
+              } @else {
+                <span class="model-badge model-badge-blue">Logistic Regression / XGBoost</span>
+              }
             </div>
           </div>
           <div class="acc-meta">
@@ -309,7 +313,7 @@
 
         @if (isModelExpanded('churn')) {
           <div class="accordion-card-body">
-            <p class="acc-desc">Predicts which customers are likely to <strong>stop buying</strong> based on their recent transaction patterns. Customers with <strong>&gt;70% probability</strong> are flagged as high risk.</p>
+            <p class="acc-desc">Predicts which customers are likely to <strong>stop buying</strong> using 3 RFM features (Recency, Frequency, Monetary). Customers with <strong>&gt;70% probability</strong> are flagged as high risk. Data split: <strong>80:10:10</strong> (train/validation/test).</p>
 
             @if (churnLoading) {
               <div class="loading-state"><div class="spinner"></div><p>Running churn prediction model...</p></div>
@@ -319,6 +323,15 @@
               @if (churnData.fallbackMode) {
                 <div class="fallback-notice">ℹ️ <strong>Heuristic Mode:</strong> {{ churnData.fallbackReason }}</div>
               }
+
+              <!-- Model detail line -->
+              @if (churnData.modelUsed && churnData.modelUsed !== 'Heuristic') {
+                <div class="model-detail">
+                  <span>📊 <strong>{{ churnData.modelUsed }}</strong> trained on <strong>{{ churnData.dataSize }}</strong> customers
+                  (threshold for XGBoost: ≥{{ churnData.modelThreshold }})</span>
+                </div>
+              }
+
               <div class="models-row">
                 <div class="model-kpi-group">
                   <div class="model-kpi model-kpi-danger">
@@ -365,19 +378,21 @@
                 <div class="card-header"><h3>Top 5 At-Risk Customers (by Churn Probability)</h3></div>
                 <table class="model-table">
                   <thead>
-                    <tr><th>Card</th><th>Recency (days)</th><th>Frequency</th><th>Monetary (MYR)</th><th>Churn Probability</th><th>Risk Level</th></tr>
+                    <tr><th>Card</th><th>Recency</th><th>Freq</th><th>Monetary</th><th>Churn Prob</th><th>Risk</th></tr>
                   </thead>
                   <tbody>
                     @for (p of (churnData.predictions | slice:0:5); track $index) {
                       <tr>
                         <td class="mono">{{ maskCard($any(p).cardNo) }}</td>
-                        <td>{{ $any(p).recency }}</td>
+                        <td>{{ $any(p).recency }}d</td>
                         <td>{{ $any(p).frequency }}</td>
                         <td>{{ $any(p).monetary | number:'1.2-2' }}</td>
                         <td>
                           <div class="prob-bar-wrap">
-                            <div class="prob-bar" [style.width.%]="$any(p).churnProbability * 100" [style.background]="getChurnRiskColor($any(p).churnProbability)"></div>
-                            <span>{{ ($any(p).churnProbability * 100) | number:'1.1-1' }}%</span>
+                            <div class="prob-bar-track">
+                              <div class="prob-bar" [style.width.%]="$any(p).churnProbability * 100" [style.background]="getChurnRiskColor($any(p).churnProbability)"></div>
+                            </div>
+                            <span class="prob-bar-label">{{ ($any(p).churnProbability * 100) | number:'1.1-1' }}%</span>
                           </div>
                         </td>
                         <td>
@@ -393,6 +408,81 @@
                   <div class="table-note">Showing top 5 of {{ churnData.totalCustomers }} customers</div>
                 }
               </div>
+
+              <!-- Confusion Matrix & Classification Report -->
+              @if (churnData.confusionMatrix || churnData.classificationReport) {
+                <div class="model-eval-grid">
+                  @if (churnData.confusionMatrix) {
+                    <div class="card">
+                      <div class="card-header"><h3>Confusion Matrix</h3></div>
+                      <div class="card-body" style="padding: 16px;">
+                        <table class="confusion-table">
+                          <thead>
+                            <tr><th></th><th>Predicted Stay</th><th>Predicted Churn</th></tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <th>Actual Stay</th>
+                              <td class="cm-tn">{{ churnData.confusionMatrix.tn }}</td>
+                              <td class="cm-fp">{{ churnData.confusionMatrix.fp }}</td>
+                            </tr>
+                            <tr>
+                              <th>Actual Churn</th>
+                              <td class="cm-fn">{{ churnData.confusionMatrix.fn }}</td>
+                              <td class="cm-tp">{{ churnData.confusionMatrix.tp }}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                        <div class="cm-legend">
+                          <span><span class="cm-dot cm-dot-tn"></span> True Negative</span>
+                          <span><span class="cm-dot cm-dot-tp"></span> True Positive</span>
+                          <span><span class="cm-dot cm-dot-fp"></span> False Positive</span>
+                          <span><span class="cm-dot cm-dot-fn"></span> False Negative</span>
+                        </div>
+                      </div>
+                    </div>
+                  }
+                  @if (churnData.classificationReport) {
+                    <div class="card">
+                      <div class="card-header"><h3>Classification Report</h3></div>
+                      <table class="model-table">
+                        <thead>
+                          <tr><th>Class</th><th>Precision</th><th>Recall</th><th>F1-Score</th><th>Support</th></tr>
+                        </thead>
+                        <tbody>
+                          @if (churnData.classificationReport['0']) {
+                            <tr>
+                              <td>Stay (0)</td>
+                              <td>{{ churnData.classificationReport['0'].precision | number:'1.2-2' }}</td>
+                              <td>{{ churnData.classificationReport['0'].recall | number:'1.2-2' }}</td>
+                              <td>{{ churnData.classificationReport['0']['f1-score'] | number:'1.2-2' }}</td>
+                              <td>{{ churnData.classificationReport['0'].support }}</td>
+                            </tr>
+                          }
+                          @if (churnData.classificationReport['1']) {
+                            <tr>
+                              <td>Churn (1)</td>
+                              <td>{{ churnData.classificationReport['1'].precision | number:'1.2-2' }}</td>
+                              <td>{{ churnData.classificationReport['1'].recall | number:'1.2-2' }}</td>
+                              <td>{{ churnData.classificationReport['1']['f1-score'] | number:'1.2-2' }}</td>
+                              <td>{{ churnData.classificationReport['1'].support }}</td>
+                            </tr>
+                          }
+                          @if (churnData.classificationReport['weighted avg']) {
+                            <tr class="report-avg-row">
+                              <td><strong>Weighted Avg</strong></td>
+                              <td>{{ churnData.classificationReport['weighted avg'].precision | number:'1.2-2' }}</td>
+                              <td>{{ churnData.classificationReport['weighted avg'].recall | number:'1.2-2' }}</td>
+                              <td>{{ churnData.classificationReport['weighted avg']['f1-score'] | number:'1.2-2' }}</td>
+                              <td>{{ churnData.classificationReport['weighted avg'].support }}</td>
+                            </tr>
+                          }
+                        </tbody>
+                      </table>
+                    </div>
+                  }
+                </div>
+              }
 
               @if (churnTips.length > 0) {
                 <div class="model-tips">
@@ -412,63 +502,70 @@
                 <div class="xai-section">
                   <div class="xai-header">
                     <h3>🔍 Why Does the AI Think This?</h3>
-                    <p>The charts below show which customer behaviours (recency, frequency, spending) matter most in the AI's decisions — so you know <em>exactly</em> where to focus your retention efforts.</p>
+                    <p>The charts below show which customer behaviours matter most in the AI's decisions — so you know <em>exactly</em> where to focus your retention efforts.</p>
                   </div>
+
+                  <!-- Global Feature Importance + Per-customer breakdown side by side -->
                   <div class="xai-grid">
-                    <div class="card">
-                      <div class="card-header">
-                        <h3>Which Factors Matter Most?</h3>
-                        <span class="chart-legend-note">Bigger bar = bigger influence on the AI's prediction</span>
-                      </div>
-                      <div class="chart-container" style="height: 180px;">
-                        <canvas #shapImportanceChart></canvas>
-                      </div>
+
+                  <!-- Global Feature Importance (Chart.js canvas) -->
+                  <div class="card" style="margin-bottom: 20px;">
+                    <div class="card-header">
+                      <h3>Which Factors Matter Most?</h3>
+                      <span class="chart-legend-note">Bigger bar = bigger influence on prediction</span>
                     </div>
-                    <div class="card">
-                      <div class="card-header">
-                        <h3>Individual Customer Breakdown</h3>
-                        <span class="chart-legend-note">
-                          <span style="color: #ef4444">■</span> pushes towards churn &nbsp;
-                          <span style="color: #22c55e">■</span> pushes towards staying
+                    <div class="chart-container" style="height: 220px;">
+                      <canvas #shapImportanceChart></canvas>
+                    </div>
+                  </div>
+
+                  <!-- Per-customer XAI breakdown -->
+                  <div class="card">
+                    <div class="card-header">
+                      <h3>Individual Customer Breakdown</h3>
+                      <span class="chart-legend-note">
+                        <span style="color: #ef4444">■</span> pushes towards churn &nbsp;
+                        <span style="color: #22c55e">■</span> pushes towards staying
+                      </span>
+                    </div>
+                    <div class="xai-customer-selector">
+                      <label>Select customer:</label>
+                      <select (change)="selectCustomerForXAI(+$any($event.target).value)">
+                        @for (p of (churnData.predictions | slice:0:20); track $index) {
+                          <option [value]="$index" [selected]="$index === selectedCustomerIdx">
+                            {{ maskCard($any(p).cardNo) }} — {{ ($any(p).churnProbability * 100).toFixed(1) }}% risk
+                          </option>
+                        }
+                      </select>
+                    </div>
+                    @if (selectedCustomer) {
+                      <div class="xai-customer-summary">
+                        <span class="xai-chip">Recency: {{ selectedCustomer.recency }}d</span>
+                        <span class="xai-chip">Frequency: {{ selectedCustomer.frequency }} txns</span>
+                        <span class="xai-chip">Monetary: MYR {{ selectedCustomer.monetary | number:'1.2-2' }}</span>
+                        <span class="xai-chip xai-chip-result" [style.background]="getChurnRiskColor(selectedCustomer.churnProbability)">
+                          Churn: {{ (selectedCustomer.churnProbability * 100) | number:'1.1-1' }}%
                         </span>
                       </div>
-                      <div class="xai-customer-selector">
-                        <label>Select customer:</label>
-                        <select (change)="selectCustomerForXAI(+$any($event.target).value)">
-                          @for (p of (churnData.predictions | slice:0:20); track $index) {
-                            <option [value]="$index" [selected]="$index === selectedCustomerIdx">
-                              {{ maskCard($any(p).cardNo) }} — {{ ($any(p).churnProbability * 100).toFixed(1) }}% risk
-                            </option>
-                          }
-                        </select>
-                      </div>
-                      @if (selectedCustomer) {
-                        <div class="xai-customer-summary">
-                          <span class="xai-chip">Recency: {{ selectedCustomer.recency }} days</span>
-                          <span class="xai-chip">Frequency: {{ selectedCustomer.frequency }} txns</span>
-                          <span class="xai-chip">Monetary: MYR {{ selectedCustomer.monetary | number:'1.2-2' }}</span>
-                          <span class="xai-chip xai-chip-result" [style.background]="getChurnRiskColor(selectedCustomer.churnProbability)">
-                            Churn: {{ (selectedCustomer.churnProbability * 100) | number:'1.1-1' }}%
-                          </span>
-                        </div>
-                        <div class="chart-container" style="height: 180px;">
+                      @if (selectedCustomer.shapBreakdown) {
+                        <div class="chart-container" style="height: 220px;">
                           <canvas #shapWaterfallChart></canvas>
                         </div>
-                        @if (selectedCustomer.shapBreakdown) {
-                          <div class="xai-explanation">
-                            <strong>Explanation:</strong>
-                            @for (entry of getShapSorted(selectedCustomer.shapBreakdown); track entry.key) {
-                              @if (entry.value > 0) {
-                                <span class="xai-factor xai-factor-risk">{{ entry.key === 'Recency' ? 'Long time since last purchase' : entry.key === 'Frequency' ? 'Low number of purchases' : 'Low total spending' }} → increases churn risk</span>
-                              } @else {
-                                <span class="xai-factor xai-factor-safe">{{ entry.key === 'Recency' ? 'Purchased recently' : entry.key === 'Frequency' ? 'Buys frequently' : 'High total spending' }} → decreases churn risk</span>
-                              }
+                        <div class="xai-explanation">
+                          <strong>Explanation:</strong>
+                          @for (entry of getShapSorted(selectedCustomer.shapBreakdown); track entry.key) {
+                            @if (entry.value > 0) {
+                              <span class="xai-factor xai-factor-risk">{{ getFeatureExplanation(entry.key, entry.value) }} → increases churn risk</span>
+                            } @else {
+                              <span class="xai-factor xai-factor-safe">{{ getFeatureExplanation(entry.key, entry.value) }} → decreases churn risk</span>
                             }
-                          </div>
-                        }
+                          }
+                        </div>
                       }
-                    </div>
+                    }
                   </div>
+
+                  </div><!-- /xai-grid -->
                 </div>
               }
             }

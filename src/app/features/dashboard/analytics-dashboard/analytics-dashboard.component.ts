@@ -53,10 +53,13 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     const wasOpen = this.expandedModels[model];
     this.expandedModels[model] = !wasOpen;
     if (!wasOpen) {
-      this.destroyCharts();
+      // Opening: render this model's charts after DOM is ready
       if (model === 'rfm' && this.rfmData) setTimeout(() => this.renderRfmChart(), 200);
       else if (model === 'churn' && this.churnData) setTimeout(() => this.renderShapCharts(), 200);
       else if (model === 'forecast' && this.forecastData) setTimeout(() => this.renderForecastChart(), 200);
+    } else {
+      // Closing: destroy only this model's charts
+      this.destroyModelCharts(model);
     }
   }
 
@@ -72,6 +75,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private charts: Chart[] = [];
+  private modelCharts: Map<string, Chart[]> = new Map();
 
   // Dashboard charts
   @ViewChild('txnStatusChart') txnStatusCanvas!: ElementRef<HTMLCanvasElement>;
@@ -363,9 +367,17 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  private destroyModelCharts(model: string) {
+    const owned = this.modelCharts.get(model) || [];
+    owned.forEach(c => c.destroy());
+    this.modelCharts.set(model, []);
+  }
+
   private destroyCharts() {
     this.charts.forEach(c => c.destroy());
     this.charts = [];
+    this.modelCharts.forEach(charts => charts.forEach(c => c.destroy()));
+    this.modelCharts.clear();
   }
 
   // ===== AI Model Loading =====
@@ -392,8 +404,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         if (data?.predictions?.length > 0 && data.predictions[0].shapBreakdown) {
           this.selectedCustomerIdx = 0;
         }
-        setTimeout(() => this.renderShapCharts(), 300);
         this.generateChurnTips();
+        setTimeout(() => this.renderShapCharts(), 300);
       },
       error: () => { this.churnLoading = false; }
     });
@@ -427,7 +439,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     const counts = summary.map((c: any) => c.count || 0);
     const colors = ['#111111', '#3b82f6', '#f59e0b', '#ef4444', '#22c55e'];
 
-    this.charts.push(new Chart(this.rfmBarCanvas.nativeElement, {
+    const rfmChart = new Chart(this.rfmBarCanvas.nativeElement, {
       type: 'bar',
       data: {
         labels,
@@ -462,7 +474,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
           x: { grid: { display: false } }
         }
       }
-    }));
+    });
+    this.modelCharts.set('rfm', [...(this.modelCharts.get('rfm') || []), rfmChart]);
   }
 
   private renderForecastChart(retries = 3) {
@@ -485,7 +498,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     const upperBound = [...actual.map(() => null), ...forecast.map((d: any) => d.yhat_upper)];
     const lowerBound = [...actual.map(() => null), ...forecast.map((d: any) => d.yhat_lower)];
 
-    this.charts.push(new Chart(this.forecastLineCanvas.nativeElement, {
+    const forecastChart = new Chart(this.forecastLineCanvas.nativeElement, {
       type: 'line',
       data: {
         labels: allLabels,
@@ -523,7 +536,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
           x: { grid: { display: false }, ticks: { maxRotation: 45, font: { size: 10 }, maxTicksLimit: 20 } }
         }
       }
-    }));
+    });
+    this.modelCharts.set('forecast', [...(this.modelCharts.get('forecast') || []), forecastChart]);
   }
 
   // ===== SHAP / XAI =====
@@ -533,6 +547,44 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     setTimeout(() => this.renderWaterfallChart(), 50);
   }
 
+  getSortedImportance(importance: Record<string, number>): { key: string; value: number }[] {
+    return Object.entries(importance)
+      .map(([key, value]) => ({ key, value }))
+      .sort((a, b) => Math.abs(b.value) - Math.abs(a.value));
+  }
+
+  getFeatureColor(key: string): string {
+    const colors: Record<string, string> = {
+      Recency: '#111111',
+      Frequency: '#3b82f6',
+      Monetary: '#f59e0b',
+    };
+    return colors[key] ?? '#888';
+  }
+
+  getShapBarWidth(value: number): number {
+    const imp = this.churnData?.globalFeatureImportance;
+    if (!imp) return 0;
+    const max = Math.max(...Object.values(imp).map((v: any) => Math.abs(v)), 0.0001);
+    return Math.min((Math.abs(value) / max) * 100, 100);
+  }
+
+  getFeatureExplanation(key: string, value: number): string {
+    const positive = value > 0;
+    switch (key) {
+      case 'Recency':
+        return positive ? 'Long time since last purchase' : 'Purchased recently';
+      case 'Frequency':
+        return positive ? 'Low number of purchases' : 'Buys frequently';
+      case 'Monetary':
+        return positive ? 'Low total spending' : 'High total spending';
+      default:
+        return key;
+    }
+  }
+
+  // ===== SHAP Chart Rendering (Chart.js) =====
+
   private renderShapCharts(retries = 3) {
     if (!this.churnData?.globalFeatureImportance) return;
     if (!this.shapImportanceCanvas) {
@@ -540,7 +592,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
     this.renderGlobalImportanceChart();
-    this.renderWaterfallChart();
+    if (this.selectedCustomer?.shapBreakdown) {
+      this.renderWaterfallChart();
+    }
   }
 
   private renderGlobalImportanceChart() {
@@ -549,51 +603,69 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     const entries = Object.entries(imp).sort((a: any, b: any) => b[1] - a[1]);
     const labels = entries.map(e => e[0]);
     const values = entries.map(e => e[1] as number);
-
-    this.charts.push(new Chart(this.shapImportanceCanvas.nativeElement, {
+    const colors = labels.map(l => this.getFeatureColor(l));
+    const shapChart = new Chart(this.shapImportanceCanvas.nativeElement, {
       type: 'bar',
       data: {
         labels,
         datasets: [{
           label: 'Mean |SHAP|',
           data: values,
-          backgroundColor: ['#111', '#3b82f6', '#f59e0b'],
-          borderRadius: 6, barPercentage: 0.5, categoryPercentage: 0.6
+          backgroundColor: colors,
+          borderRadius: 6,
+          barPercentage: 0.5,
+          categoryPercentage: 0.6
         }]
       },
       options: {
-        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
         plugins: { legend: { display: false } },
         scales: {
           x: { beginAtZero: true, grid: { color: '#f0f0f0' }, title: { display: true, text: 'Mean |SHAP value| (impact on model output)', font: { size: 11 } } },
           y: { grid: { display: false } }
         }
       }
-    }));
+    });
+    this.modelCharts.set('churn', [...(this.modelCharts.get('churn') || []), shapChart]);
   }
 
   private renderWaterfallChart() {
     if (!this.selectedCustomer?.shapBreakdown || !this.shapWaterfallCanvas) return;
-    const existing = this.charts.findIndex(c => (c as any).__shapWaterfall);
-    if (existing >= 0) { this.charts[existing].destroy(); this.charts.splice(existing, 1); }
-
+    // Destroy the previous waterfall chart only
+    const churnCharts = this.modelCharts.get('churn') || [];
+    const existingIdx = churnCharts.findIndex(c => (c as any).__shapWaterfall);
+    if (existingIdx >= 0) { churnCharts[existingIdx].destroy(); churnCharts.splice(existingIdx, 1); }
     const breakdown = this.selectedCustomer.shapBreakdown;
     const entries = Object.entries(breakdown).sort((a: any, b: any) => Math.abs(b[1]) - Math.abs(a[1]));
     const labels = entries.map(e => e[0]);
     const values = entries.map(e => e[1] as number);
     const colors = values.map(v => v > 0 ? '#ef4444' : '#22c55e');
-
     const chart = new Chart(this.shapWaterfallCanvas.nativeElement, {
       type: 'bar',
       data: {
         labels,
-        datasets: [{ label: 'SHAP Value', data: values, backgroundColor: colors, borderRadius: 6, barPercentage: 0.5, categoryPercentage: 0.6 }]
+        datasets: [{
+          label: 'SHAP Value',
+          data: values,
+          backgroundColor: colors,
+          borderRadius: 6,
+          barPercentage: 0.5,
+          categoryPercentage: 0.6
+        }]
       },
       options: {
-        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
         plugins: {
           legend: { display: false },
-          tooltip: { callbacks: { afterLabel: (ctx) => (ctx.raw as number) > 0 ? '↑ Increases churn risk' : '↓ Decreases churn risk' } }
+          tooltip: {
+            callbacks: {
+              afterLabel: (ctx) => (ctx.raw as number) > 0 ? '↑ Increases churn risk' : '↓ Decreases churn risk'
+            }
+          }
         },
         scales: {
           x: { grid: { color: '#f0f0f0' }, title: { display: true, text: 'SHAP value (contribution to prediction)', font: { size: 11 } } },
@@ -602,7 +674,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     });
     (chart as any).__shapWaterfall = true;
-    this.charts.push(chart);
+    const churnCharts2 = this.modelCharts.get('churn') || [];
+    churnCharts2.push(chart);
+    this.modelCharts.set('churn', churnCharts2);
   }
 
   // ===== Per-Model Sales Boost Recommendation Engines =====
@@ -711,25 +785,26 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       const imp = this.churnData.globalFeatureImportance;
       const sorted = Object.entries(imp).sort((a: any, b: any) => b[1] - a[1]);
       const topFeature = sorted[0]?.[0];
-      const secondFeature = sorted[1]?.[0];
 
-      if (topFeature === 'Recency') {
-        tips.push({
-          icon: '🔍', severity: 'info',
+      const featureTips: Record<string, { title: string; message: string }> = {
+        Recency: {
           title: 'AI Insight: "Recency" Is the #1 Churn Driver',
-          message: `The model found that how recently a customer transacted is the strongest predictor of churn. Customers who haven't transacted in a while are most at risk. Action: set up automated re-engagement at 14, 21, and 30 days of inactivity with escalating incentives (e.g., 5% → 10% → 15% off).`,
-        });
-      } else if (topFeature === 'Frequency') {
-        tips.push({
-          icon: '🔍', severity: 'info',
+          message: 'Customers who haven\'t transacted recently are most at risk. Set up automated re-engagement at 14, 21, and 30 days of inactivity with escalating incentives (5% → 10% → 15% off).',
+        },
+        Frequency: {
           title: 'AI Insight: "Frequency" Is the #1 Churn Driver',
-          message: `Customers with fewer transactions are most likely to churn, regardless of how recently they bought. Action: implement transaction-based rewards ("Every 5th purchase gets 15% off") and subscription models to boost repeat purchases.`,
-        });
-      } else if (topFeature === 'Monetary') {
+          message: 'Customers with fewer transactions are most likely to churn. Implement transaction-based rewards ("Every 5th purchase gets 15% off") and subscription models to boost repeat purchases.',
+        },
+        Monetary: {
+          title: 'AI Insight: "Spending Level" Is the #1 Churn Driver',
+          message: 'Lower spenders are more likely to leave. Create a VIP tier for top spenders with dedicated support and upsell low-spend customers with bundles and cross-sells.',
+        },
+      };
+
+      if (topFeature && featureTips[topFeature]) {
         tips.push({
           icon: '🔍', severity: 'info',
-          title: 'AI Insight: "Spending Level" Is the #1 Churn Driver',
-          message: `Total spending amount is the strongest churn predictor — lower spenders are more likely to leave. Action: create a VIP tier for top spenders with dedicated support and exclusive offers, and upsell low-spend customers with bundles and cross-sells.`,
+          ...featureTips[topFeature],
         });
       }
     }

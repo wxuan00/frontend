@@ -856,6 +856,136 @@
 
 .model-badge-blue { background: #3b82f6; }
 .model-badge-green { background: #22c55e; }
+.model-badge-purple { background: #8b5cf6; }
+
+.model-detail {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: #555;
+  margin-bottom: 16px;
+  padding: 10px 14px;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.model-detail strong {
+  color: #111;
+}
+
+/* ===== Model Evaluation Grid (side-by-side) ===== */
+.model-eval-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+  align-items: start;
+}
+
+/* ===== Confusion Matrix ===== */
+.confusion-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.85rem;
+}
+
+.confusion-table thead th {
+  background: #f9fafb;
+  color: #555;
+  font-weight: 600;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 10px 16px;
+  text-align: center;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.confusion-table thead th:first-child {
+  text-align: left;
+  background: transparent;
+}
+
+.confusion-table tbody th {
+  font-weight: 600;
+  font-size: 0.82rem;
+  color: #333;
+  text-align: left;
+  padding: 14px 16px;
+  background: #f9fafb;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.confusion-table tbody td {
+  padding: 14px 16px;
+  text-align: center;
+  font-size: 1.3rem;
+  font-weight: 700;
+  border-bottom: 1px solid #f0f0f0;
+  transition: transform 0.15s;
+}
+
+.confusion-table tbody td:hover {
+  transform: scale(1.08);
+}
+
+.cm-tn {
+  background: #f0fdf4;
+  color: #15803d;
+}
+
+.cm-tp {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.cm-fp {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.cm-fn {
+  background: #fffbeb;
+  color: #b45309;
+}
+
+.cm-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
+  font-size: 0.75rem;
+  color: #666;
+}
+
+.cm-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.cm-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+
+.cm-dot-tn { background: #22c55e; }
+.cm-dot-tp { background: #3b82f6; }
+.cm-dot-fp { background: #ef4444; }
+.cm-dot-fn { background: #f59e0b; }
+
+/* ===== Classification Report ===== */
+.report-avg-row {
+  background: #f9fafb;
+  border-top: 2px solid #e5e7eb;
+}
 
 .models-row {
   display: flex;
@@ -958,15 +1088,31 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  min-width: 100px;
+}
+
+.prob-bar-track {
+  width: 80px;
+  flex-shrink: 0;
+  height: 8px;
+  background: #f0f0f0;
+  border-radius: 4px;
+  overflow: hidden;
 }
 
 .prob-bar {
-  height: 8px;
+  height: 100%;
   border-radius: 4px;
-  flex-shrink: 0;
-  transition: width 0.3s;
-  max-width: 100px;
-  min-width: 4px;
+  transition: width 0.4s ease;
+}
+
+.prob-bar-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #333;
+  white-space: nowrap;
+  min-width: 38px;
+  text-align: right;
 }
 
 .risk-badge {
@@ -1215,7 +1361,8 @@
 /* ===== Responsive — AI Analytics ===== */
 @media (max-width: 768px) {
   .boost-grid,
-  .xai-grid {
+  .xai-grid,
+  .model-eval-grid {
     grid-template-columns: 1fr;
   }
 
