@@ -1,6 +1,7 @@
 .filter-bar {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: auto auto;
   gap: 10px 12px;
   align-items: end;
   margin-bottom: 20px;
@@ -10,6 +11,11 @@
   padding: 14px 16px;
 }
 
+.filter-item.filter-type      { grid-column: 1; grid-row: 2; }
+.filter-item.filter-date-from { grid-column: 2; grid-row: 2; }
+.filter-item.filter-date-to   { grid-column: 3; grid-row: 2; }
+.filter-item.filter-action    { grid-column: 4; grid-row: 2; justify-self: start; }
+
 .filter-item {
   display: flex;
   flex-direction: column;
@@ -17,7 +23,6 @@
   min-width: 0;
 }
 
-.filter-item.filter-search { grid-column: span 2; }
 .filter-item.filter-action { justify-self: start; }
 
 .filter-label {

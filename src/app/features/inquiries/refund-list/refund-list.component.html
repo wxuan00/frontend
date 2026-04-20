@@ -10,18 +10,25 @@
 
   <!-- Filters -->
   <div class="filter-bar">
-    <div class="filter-item filter-search">
+    <div class="filter-item">
       <label class="filter-label">Merchant Name</label>
       <div class="search-input-wrap">
         <span class="search-prefix">🔍</span>
         <input type="text" placeholder="Enter merchant name" [(ngModel)]="filterMerchant" (input)="onFilterChange()">
       </div>
     </div>
-    <div class="filter-item filter-search">
+    <div class="filter-item">
       <label class="filter-label">Refund Reference Number</label>
       <div class="search-input-wrap">
         <span class="search-prefix">🔍</span>
         <input type="text" placeholder="Enter refund reference number" [(ngModel)]="filterRefundRef" (input)="onFilterChange()">
+      </div>
+    </div>
+    <div class="filter-item">
+      <label class="filter-label">Transaction ID</label>
+      <div class="search-input-wrap">
+        <span class="search-prefix">🔍</span>
+        <input type="text" placeholder="Enter transaction ID" [(ngModel)]="filterTransactionId" (input)="onFilterChange()">
       </div>
     </div>
     <div class="filter-item">
@@ -36,7 +43,7 @@
         </select>
       </div>
     </div>
-    <div class="filter-item">
+    <div class="filter-item filter-type">
       <label class="filter-label">Type</label>
       <div class="select-wrap">
         <select [(ngModel)]="filterType" (change)="onFilterChange()">
@@ -46,11 +53,11 @@
         </select>
       </div>
     </div>
-    <div class="filter-item">
+    <div class="filter-item filter-date-from">
       <label class="filter-label">Date From</label>
       <input type="date" class="form-control" [(ngModel)]="dateFrom" (change)="onFilterChange()">
     </div>
-    <div class="filter-item">
+    <div class="filter-item filter-date-to">
       <label class="filter-label">Date To</label>
       <input type="date" class="form-control" [(ngModel)]="dateTo" (change)="onFilterChange()">
     </div>
@@ -76,6 +83,7 @@
         <thead>
           <tr>
             <th class="sortable" (click)="sortBy('refundId')">Refund ID {{ getSortIcon('refundId') }}</th>
+            <th class="sortable" (click)="sortBy('transactionId')">Transaction ID {{ getSortIcon('transactionId') }}</th>
             <th class="sortable" (click)="sortBy('merchantName')">Merchant Name {{ getSortIcon('merchantName') }}</th>
             <th class="sortable" (click)="sortBy('refundAmount')">Refund Amount {{ getSortIcon('refundAmount') }}</th>
             <th>Card Number</th>
@@ -90,6 +98,7 @@
           @for (r of refunds; track r.refundId) {
             <tr>
               <td class="id-cell">#{{ r.refundId }}</td>
+              <td class="id-cell">{{ r.transactionId ? '#' + r.transactionId : '-' }}</td>
               <td><strong>{{ r.merchantName }}</strong></td>
               <td class="amount-cell refund-amount">{{ r.currency }} {{ r.refundAmount | number:'1.2-2' }}</td>
               <td>{{ r.cardNo | maskCard }}</td>

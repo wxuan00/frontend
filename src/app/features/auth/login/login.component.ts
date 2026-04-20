@@ -1,9 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -57,6 +57,10 @@ import { Router } from '@angular/router';
               <a routerLink="/forgot-password">Forgot password?</a>
             </div>
           </form>
+
+          <div *ngIf="sessionExpired" class="inactivity-alert">
+            🔒 You were logged out due to 10 minutes of inactivity.
+          </div>
 
           <div *ngIf="errorMessage" class="error-alert">
             ⚠️ {{ errorMessage }}
@@ -214,19 +218,41 @@ import { Router } from '@angular/router';
       font-weight: 500;
     }
 
+    .inactivity-alert {
+      margin-top: 16px;
+      padding: 12px 16px;
+      background: #fffbea;
+      color: #b45309;
+      border: 1px solid #fde68a;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+
     @media (max-width: 900px) {
       .login-left { display: none; }
       .login-right { padding: 20px; }
     }
   `]
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   identifier = '';
   password = '';
   errorMessage = '';
+  sessionExpired = false;
   loading = false;
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private route: ActivatedRoute
+  ) {}
+
+  ngOnInit(): void {
+    this.route.queryParams.subscribe(params => {
+      this.sessionExpired = params['reason'] === 'inactivity';
+    });
+  }
 
   onLogin() {
     this.loading = true;

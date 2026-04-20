@@ -157,17 +157,41 @@
       </div>
     </div>
 
-    
-    <!-- AI Analytics Export Section -->
-    <div class="section-header" style="margin-top: 24px;">
-      <h2>📥 Export AI Analytics Report</h2>
-    </div>
-    <div class="report-toolbar">
-      <div class="report-toolbar-right">
-        <button class="btn btn-secondary btn-sm" (click)="exportAiAnalyticsCsv()">📥 Export AI Report CSV</button>
-        <button class="btn btn-primary btn-sm" (click)="printReport()">🖨️ Print AI Report</button>
+    <!-- ── AI Date-Range Filter Bar ─────────────────────────── -->
+    <div class="filter-bar ai-filter-bar">
+      <div class="filter-item filter-search">
+        <label class="filter-label">From Date</label>
+        <input type="date" [(ngModel)]="filterFrom" (change)="onAnalyticsFilterChange()" />
+      </div>
+      <div class="filter-item filter-search">
+        <label class="filter-label">To Date</label>
+        <input type="date" [(ngModel)]="filterTo" (change)="onAnalyticsFilterChange()" />
+      </div>
+      <div class="filter-item filter-action">
+        <label class="filter-label">&nbsp;</label>
+        <button class="btn btn-sm btn-ghost" (click)="clearDateFilter()">✕ Clear</button>
+      </div>
+      <div class="filter-item ai-filter-export">
+        <label class="filter-label">&nbsp;</label>
+        <div class="ai-export-btns">
+          <button class="btn btn-secondary btn-sm" (click)="exportAiAnalyticsCsv()">📥 Export CSV</button>
+          <button class="btn btn-primary btn-sm" (click)="printReport()">🖨️ Print PDF</button>
+        </div>
       </div>
     </div>
+
+    @if (filterApplied) {
+      <div class="active-filter-banner">
+        📅 Analytics filtered: <strong>{{ filterFrom }}</strong> → <strong>{{ filterTo }}</strong>
+        <button class="clear-filter-link" (click)="clearDateFilter()">Clear filter</button>
+      </div>
+    }
+
+    <!-- Print-only header -->
+    <div class="print-date-banner">
+      📅 Report Period: <strong>{{ filterFrom || 'All time' }}</strong> → <strong>{{ filterTo || 'Today' }}</strong>
+    </div>
+    <!-- ───────────────────────────────────────────────────────── -->
 
     <div class="accordion-list">
 
@@ -320,12 +344,8 @@
             } @else if (churnData?.error) {
               <div class="sidecar-error">⚠️ {{ churnData.error }}</div>
             } @else if (churnData) {
-              @if (churnData.fallbackMode) {
-                <div class="fallback-notice">ℹ️ <strong>Heuristic Mode:</strong> {{ churnData.fallbackReason }}</div>
-              }
-
               <!-- Model detail line -->
-              @if (churnData.modelUsed && churnData.modelUsed !== 'Heuristic') {
+              @if (churnData.modelUsed) {
                 <div class="model-detail">
                   <span>📊 <strong>{{ churnData.modelUsed }}</strong> trained on <strong>{{ churnData.dataSize }}</strong> customers
                   (threshold for XGBoost: ≥{{ churnData.modelThreshold }})</span>
@@ -604,9 +624,6 @@
             } @else if (forecastData?.error) {
               <div class="sidecar-error">⚠️ {{ forecastData.error }}</div>
             } @else if (forecastData) {
-              @if (forecastData.fallbackMode) {
-                <div class="fallback-notice">ℹ️ <strong>Heuristic Mode:</strong> {{ forecastData.fallbackReason }}</div>
-              }
               <div class="models-row">
                 <div class="model-kpi-group">
                   <div class="model-kpi model-kpi-info">

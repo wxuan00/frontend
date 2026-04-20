@@ -20,6 +20,7 @@ export class RefundListComponent implements OnInit {
 
   filterMerchant = '';
   filterRefundRef = '';
+  filterTransactionId = '';
   filterStatus = '';
   filterType = '';
   dateFrom = '';
@@ -53,6 +54,7 @@ export class RefundListComponent implements OnInit {
       sortDir: this.sortDirection,
       merchantName: this.filterMerchant || undefined,
       refundRefNo: this.filterRefundRef || undefined,
+      transactionId: this.filterTransactionId || undefined,
       status: this.filterStatus || undefined,
       refundType: this.filterType || undefined,
       dateFrom: this.dateFrom || undefined,
@@ -98,6 +100,7 @@ export class RefundListComponent implements OnInit {
   clearFilters() {
     this.filterMerchant = '';
     this.filterRefundRef = '';
+    this.filterTransactionId = '';
     this.filterStatus = '';
     this.filterType = '';
     this.dateFrom = '';

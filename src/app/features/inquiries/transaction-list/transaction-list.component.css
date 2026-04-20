@@ -1,7 +1,8 @@
 /* ── Filter Bar ─────────────────────────────────────────── */
 .filter-bar {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: auto auto;
   gap: 10px 12px;
   align-items: end;
   margin-bottom: 20px;
@@ -11,15 +12,16 @@
   padding: 14px 16px;
 }
 
+/* Row 2: date inputs then clear button */
+.filter-item.filter-date-from { grid-column: 1; grid-row: 2; }
+.filter-item.filter-date-to   { grid-column: 2; grid-row: 2; }
+.filter-item.filter-action    { grid-column: 3; grid-row: 2; justify-self: start; }
+
 .filter-item {
   display: flex;
   flex-direction: column;
   gap: 4px;
   min-width: 0;
-}
-
-.filter-item.filter-search {
-  grid-column: span 2;
 }
 
 .filter-item.filter-action {

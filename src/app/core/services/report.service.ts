@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -10,24 +10,39 @@ export class ReportService {
 
   constructor(private http: HttpClient) {}
 
-  getSummaryReport(): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/summary`);
+  getSummaryReport(startDate?: string, endDate?: string): Observable<any> {
+    let params = new HttpParams();
+    if (startDate) params = params.set('startDate', startDate);
+    if (endDate) params = params.set('endDate', endDate);
+    return this.http.get<any>(`${this.apiUrl}/summary`, { params });
   }
 
-  exportSummaryReportCsv(): Observable<Blob> {
+  exportSummaryReportCsv(startDate?: string, endDate?: string): Observable<Blob> {
+    let params = new HttpParams();
+    if (startDate) params = params.set('startDate', startDate);
+    if (endDate) params = params.set('endDate', endDate);
     return this.http.get(`${this.apiUrl}/summary/export`, {
+      params,
       responseType: 'blob'
     });
   }
 
-  exportTransactionsCsv(): Observable<Blob> {
+  exportTransactionsCsv(startDate?: string, endDate?: string): Observable<Blob> {
+    let params = new HttpParams();
+    if (startDate) params = params.set('startDate', startDate);
+    if (endDate) params = params.set('endDate', endDate);
     return this.http.get(`${this.apiUrl}/transactions/export`, {
+      params,
       responseType: 'blob'
     });
   }
 
-  exportSettlementsCsv(): Observable<Blob> {
+  exportSettlementsCsv(startDate?: string, endDate?: string): Observable<Blob> {
+    let params = new HttpParams();
+    if (startDate) params = params.set('startDate', startDate);
+    if (endDate) params = params.set('endDate', endDate);
     return this.http.get(`${this.apiUrl}/settlements/export`, {
+      params,
       responseType: 'blob'
     });
   }

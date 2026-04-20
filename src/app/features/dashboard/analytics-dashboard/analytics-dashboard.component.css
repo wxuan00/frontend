@@ -717,6 +717,77 @@
   }
 }
 
+/* ── AI Analytics Filter Bar ─────────────────────────────── */
+.ai-filter-bar {
+  display: grid;
+  grid-template-columns: 220px 220px auto 1fr;
+  gap: 10px 12px;
+  align-items: end;
+  margin: 16px 0 8px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+
+.ai-filter-bar .filter-item input[type="date"] {
+  height: 36px;
+  padding: 0 10px;
+  font-size: 0.84rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #fff;
+  color: #111;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+
+.ai-filter-bar .filter-item input[type="date"]:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 2px rgba(99,102,241,0.12);
+}
+
+.ai-filter-bar .filter-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.ai-filter-export { justify-self: end; }
+.ai-export-btns { display: flex; gap: 8px; }
+
+.active-filter-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 13px;
+  color: #1d4ed8;
+  margin-bottom: 16px;
+}
+.clear-filter-link {
+  background: none; border: none; color: #6b7280;
+  font-size: 12px; cursor: pointer; text-decoration: underline;
+  padding: 0; margin-left: auto;
+}
+.clear-filter-link:hover { color: #ef4444; }
+
+.print-date-banner { display: none; }
+
+@media (max-width: 768px) {
+  .ai-filter-bar { grid-template-columns: 1fr 1fr; }
+  .ai-filter-export { grid-column: span 2; }
+}
+
 /* ── Report Tab ──────────────────────────────────────────── */
 .report-toolbar {
   display: flex;
@@ -1478,4 +1549,217 @@
   color: #666;
   margin: 0 0 20px;
   line-height: 1.5;
+}
+
+/* ── Report Modal ───────────────────────────────────────────── */
+.report-toolbar-hint {
+  font-size: 0.85rem;
+  color: #6b7280;
+  align-self: center;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: fadeInOverlay 0.15s ease;
+}
+
+@keyframes fadeInOverlay {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.modal-box {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+  width: 100%;
+  max-width: 520px;
+  overflow: hidden;
+  animation: slideUpModal 0.2s ease;
+}
+
+@keyframes slideUpModal {
+  from { transform: translateY(24px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px 14px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.modal-header h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0;
+  color: #1e293b;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  color: #9ca3af;
+  line-height: 1;
+  padding: 4px 6px;
+  border-radius: 6px;
+  transition: background 0.15s, color 0.15s;
+}
+.modal-close:hover { background: #f3f4f6; color: #374151; }
+
+.modal-body {
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.date-range-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.date-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 130px;
+}
+
+.date-field label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.date-input {
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 0.9rem;
+  color: #1e293b;
+  background: #f9fafb;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  width: 100%;
+  box-sizing: border-box;
+}
+.date-input:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+  background: #fff;
+}
+
+.date-sep {
+  font-size: 1.1rem;
+  color: #9ca3af;
+  padding-bottom: 8px;
+  flex-shrink: 0;
+}
+
+.modal-error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  color: #dc2626;
+  font-size: 0.83rem;
+  padding: 8px 12px;
+}
+
+.report-type-section { display: flex; flex-direction: column; gap: 8px; }
+
+.report-type-label {
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: #374151;
+  margin: 0;
+}
+
+.report-type-checks {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.check-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.88rem;
+  color: #374151;
+  cursor: pointer;
+  padding: 6px 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #f9fafb;
+  transition: border-color 0.15s, background 0.15s;
+  user-select: none;
+}
+.check-item:hover { border-color: #6366f1; background: #eef2ff; }
+.check-item input[type="checkbox"] {
+  width: 15px; height: 15px;
+  accent-color: #6366f1;
+  cursor: pointer;
+}
+
+.modal-preview {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.preview-badge {
+  background: #eef2ff;
+  color: #4f46e5;
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border: 1px solid #c7d2fe;
+}
+
+.modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 14px 22px;
+  border-top: 1px solid #f0f0f0;
+  background: #f9fafb;
+}
+
+/* ── Print-only date-range banner ───────────────────────────── */
+.print-date-banner {
+  display: none;  /* hidden on screen */
+  background: #eef2ff;
+  border: 1px solid #c7d2fe;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  color: #3730a3;
+  margin-bottom: 16px;
+}
+
+@media print {
+  .print-date-banner  { display: block !important; }
+  .ai-filter-bar      { display: none !important; }
+  .active-filter-banner { display: none !important; }
+  .modal-overlay      { display: none !important; }
+  .report-toolbar     { display: none !important; }
 }

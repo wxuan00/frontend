@@ -16,7 +16,7 @@ export class RefundService {
 
   getRefundsPage(params: {
     page: number; size: number; sortBy?: string; sortDir?: string;
-    merchantName?: string; refundRefNo?: string; cardNo?: string;
+    merchantName?: string; refundRefNo?: string; transactionId?: string; cardNo?: string;
     status?: string; refundType?: string; dateFrom?: string; dateTo?: string;
   }): Observable<any> {
     let httpParams = new HttpParams()
@@ -26,6 +26,7 @@ export class RefundService {
       .set('sortDir', params.sortDir || 'desc');
     if (params.merchantName) httpParams = httpParams.set('merchantName', params.merchantName);
     if (params.refundRefNo) httpParams = httpParams.set('refundRefNo', params.refundRefNo);
+    if (params.transactionId) httpParams = httpParams.set('transactionId', params.transactionId);
     if (params.cardNo) httpParams = httpParams.set('cardNo', params.cardNo);
     if (params.status) httpParams = httpParams.set('status', params.status);
     if (params.refundType) httpParams = httpParams.set('refundType', params.refundType);

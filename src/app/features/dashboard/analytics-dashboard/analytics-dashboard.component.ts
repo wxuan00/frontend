@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth.service';
 import { DashboardService } from '../../../core/services/dashboard.service';
 import { AnalyticsApiService } from '../../../core/services/analytics-api.service';
+import { ReportService } from '../../../core/services/report.service';
 import { Chart, registerables } from 'chart.js';
 
 Chart.register(...registerables);
@@ -95,6 +96,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     private authService: AuthService,
     private dashboardService: DashboardService,
     private analyticsApi: AnalyticsApiService,
+    private reportService: ReportService,
     private route: ActivatedRoute
   ) {}
 
@@ -170,6 +172,35 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     });
   }
+
+  // ── Analytics Date Filter ─────────────────────────────────────
+  filterFrom: string = '';
+  filterTo:   string = '';
+  filterApplied = false;
+
+  onAnalyticsFilterChange() {
+    if (this.filterFrom && this.filterTo && this.filterFrom > this.filterTo) return;
+    this.applyDateFilter();
+  }
+
+  applyDateFilter() {
+    if (this.filterFrom && this.filterTo && this.filterFrom > this.filterTo) {
+      alert('⚠️ "From" date must be before "To" date.');
+      return;
+    }
+    this.filterApplied = !!(this.filterFrom || this.filterTo);
+    this.rfmData = null; this.churnData = null; this.forecastData = null;
+    this.destroyCharts();
+    this.loadRfm(); this.loadChurn(); this.loadForecast();
+  }
+
+  clearDateFilter() {
+    this.filterFrom = ''; this.filterTo = ''; this.filterApplied = false;
+    this.rfmData = null; this.churnData = null; this.forecastData = null;
+    this.destroyCharts();
+    this.loadRfm(); this.loadChurn(); this.loadForecast();
+  }
+  // ──────────────────────────────────────────────────────────────
 
   private downloadFile(blob: Blob, filename: string) {
     const url = window.URL.createObjectURL(blob);
@@ -384,7 +415,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private loadRfm() {
     this.rfmLoading = true;
-    this.analyticsApi.getRfmSegments().subscribe({
+    this.analyticsApi.getRfmSegments(this.filterFrom || undefined, this.filterTo || undefined).subscribe({
       next: (data) => {
         this.rfmData = data;
         this.rfmLoading = false;
@@ -397,7 +428,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private loadChurn() {
     this.churnLoading = true;
-    this.analyticsApi.getChurnRisk().subscribe({
+    this.analyticsApi.getChurnRisk(90, this.filterFrom || undefined, this.filterTo || undefined).subscribe({
       next: (data) => {
         this.churnData = data;
         this.churnLoading = false;
@@ -413,7 +444,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private loadForecast() {
     this.forecastLoading = true;
-    this.analyticsApi.getCashFlowForecast().subscribe({
+    this.analyticsApi.getCashFlowForecast(30, this.filterFrom || undefined, this.filterTo || undefined).subscribe({
       next: (data) => {
         this.forecastData = data;
         this.forecastLoading = false;

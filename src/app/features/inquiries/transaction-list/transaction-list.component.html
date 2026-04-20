@@ -18,7 +18,7 @@
         <input type="text" placeholder="Enter transaction ID" [(ngModel)]="filterTxnId" (input)="onFilterChange()">
       </div>
     </div>
-    <div class="filter-item filter-search">
+    <div class="filter-item">
       <label class="filter-label">Merchant Name</label>
       <div class="search-input-wrap">
         <span class="search-prefix">🔍</span>
@@ -56,11 +56,11 @@
         </select>
       </div>
     </div>
-    <div class="filter-item">
+    <div class="filter-item filter-date-from">
       <label class="filter-label">Date From</label>
       <input type="date" class="form-control" [(ngModel)]="dateFrom" (change)="onFilterChange()">
     </div>
-    <div class="filter-item">
+    <div class="filter-item filter-date-to">
       <label class="filter-label">Date To</label>
       <input type="date" class="form-control" [(ngModel)]="dateTo" (change)="onFilterChange()">
     </div>
