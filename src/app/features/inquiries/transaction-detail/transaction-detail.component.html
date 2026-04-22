@@ -8,83 +8,9 @@
     </div>
     <div class="header-actions">
       <button (click)="printDetail()" class="btn btn-ghost">🖨️ Print</button>
-      @if (transaction && transaction.status === 'APPROVED') {
-        <button (click)="openRefundDialog()" class="btn btn-warning" [disabled]="requestingRefund">
-          {{ requestingRefund ? 'Submitting...' : '↩ Request Refund' }}
-        </button>
-      }
-      @if (transaction && transaction.status === 'REFUND_REQUESTED') {
-        <span class="badge badge-refund" style="padding: 8px 16px; font-size: 0.85rem;">↩ Refund Requested</span>
-      }
       <a routerLink="/transactions" class="btn btn-secondary">← Back to List</a>
     </div>
   </div>
-
-<!-- Refund Request Modal -->
-@if (showRefundDialog) {
-  <div class="modal-backdrop" (click)="cancelRefundDialog()"></div>
-  <div class="modal-panel">
-    <div class="modal-header">
-      <h3>↩ Request Refund</h3>
-      <button class="btn-close" (click)="cancelRefundDialog()">✕</button>
-    </div>
-    <div class="modal-body">
-      <div class="modal-info-row">
-        <span class="modal-label">Transaction</span>
-        <span class="modal-value">#{{ transaction.transactionId }}</span>
-      </div>
-      <div class="modal-info-row">
-        <span class="modal-label">Original Amount</span>
-        <span class="modal-value amount-highlight">{{ transaction.currency }} {{ transaction.amount | number:'1.2-2' }}</span>
-      </div>
-
-      <div class="form-group mt-16">
-        <label class="form-label">Refund Type</label>
-        <div class="radio-group">
-          <label class="radio-option" [class.selected]="refundType === 'FULL'">
-            <input type="radio" [(ngModel)]="refundType" value="FULL" (change)="onRefundTypeChange()">
-            <div class="radio-content">
-              <span class="radio-title">Full Refund</span>
-              <span class="radio-desc">Refund the full amount: {{ transaction.currency }} {{ transaction.amount | number:'1.2-2' }}</span>
-            </div>
-          </label>
-          <label class="radio-option" [class.selected]="refundType === 'PARTIAL'">
-            <input type="radio" [(ngModel)]="refundType" value="PARTIAL" (change)="onRefundTypeChange()">
-            <div class="radio-content">
-              <span class="radio-title">Partial Refund</span>
-              <span class="radio-desc">Refund a portion of the original amount</span>
-            </div>
-          </label>
-        </div>
-      </div>
-
-      @if (refundType === 'PARTIAL') {
-        <div class="form-group mt-12">
-          <label class="form-label">Refund Amount ({{ transaction.currency }})</label>
-          <input
-            type="number"
-            class="form-control"
-            [(ngModel)]="partialAmount"
-            placeholder="0.00"
-            min="0.01"
-            [max]="transaction.amount - 0.01"
-            step="0.01"
-          >
-          @if (partialAmountError) {
-            <div class="field-error">{{ partialAmountError }}</div>
-          }
-          <div class="field-hint">Must be less than {{ transaction.currency }} {{ transaction.amount | number:'1.2-2' }}</div>
-        </div>
-      }
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" (click)="cancelRefundDialog()">Cancel</button>
-      <button class="btn btn-warning" (click)="confirmRequestRefund()" [disabled]="requestingRefund">
-        {{ requestingRefund ? 'Submitting...' : 'Submit Refund' }}
-      </button>
-    </div>
-  </div>
-}
 
   <!-- Loading Skeleton -->
   @if (loading) {
@@ -123,8 +49,13 @@
           'badge-success': transaction.status === 'APPROVED',
           'badge-warning': transaction.status === 'PENDING',
           'badge-danger': transaction.status === 'DECLINED',
-          'badge-refund': transaction.status === 'REFUND_REQUESTED'
-        }">{{ transaction.status === 'REFUND_REQUESTED' ? 'Refund Requested' : transaction.status }}</span>
+          'badge-refund': transaction.status === 'REFUND_REQUESTED',
+          'badge-info': transaction.status === 'REFUNDED'
+        }">{{
+          transaction.status === 'REFUND_REQUESTED' ? 'Requested Refund' :
+          transaction.status === 'REFUNDED' ? 'Refunded' :
+          transaction.status
+        }}</span>
       </div>
       <div class="summary-meta">
         <span class="badge badge-info">{{ transaction.paymentChannel }}</span>

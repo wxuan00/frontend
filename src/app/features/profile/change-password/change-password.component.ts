@@ -47,12 +47,14 @@ export class ChangePasswordComponent implements OnInit {
   }
 
   onSubmit() {
+    this.message = '';
+    this.errorMessage = '';
     if (!this.isPasswordValid) {
-      this.toast.error('Password does not meet requirements');
+      this.errorMessage = 'Password does not meet requirements.';
       return;
     }
     if (this.newPassword !== this.confirmPassword) {
-      this.toast.error('New passwords do not match');
+      this.errorMessage = 'New passwords do not match.';
       return;
     }
 
@@ -61,11 +63,16 @@ export class ChangePasswordComponent implements OnInit {
       newPassword: this.newPassword
     }).subscribe({
       next: (res) => {
-        this.toast.success(res.message || 'Password changed successfully!');
+        this.message = res.message || 'Password changed successfully!';
+        this.toast.success('Password changed successfully!');
         if (this.isForced) {
-          // Clear the forced flag, then go to dashboard
           this.authService.clearMustChangePassword().subscribe({
-            next: () => this.router.navigate(['/dashboard']),
+            next: () => {
+              this.authService.getCurrentUser().subscribe({
+                next: () => this.router.navigate(['/dashboard']),
+                error: () => this.router.navigate(['/dashboard'])
+              });
+            },
             error: () => this.router.navigate(['/dashboard'])
           });
         } else {
@@ -73,14 +80,14 @@ export class ChangePasswordComponent implements OnInit {
         }
       },
       error: (err) => {
-        this.toast.error(err.error?.error || err.error?.message || 'Error changing password');
+        this.errorMessage = err.error?.error || err.error?.message || 'Error changing password';
       }
     });
   }
 
   cancel() {
     if (this.isForced) {
-      this.toast.error('You must change your password before continuing.');
+      this.errorMessage = 'You must change your password before continuing.';
     } else {
       this.router.navigate(['/profile']);
     }

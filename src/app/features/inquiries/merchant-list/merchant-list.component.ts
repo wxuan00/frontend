@@ -56,6 +56,11 @@ export class MerchantListComponent implements OnInit {
     this.merchantService.getAllMerchants().subscribe({
       next: (data) => {
         this.allMerchants = data as Merchant[];
+        // Non-admin with exactly one merchant → go straight to their detail page
+        if (!this.isAdmin && this.allMerchants.length === 1) {
+          this.router.navigate(['/merchants', this.allMerchants[0].merchantId]);
+          return;
+        }
         this.applyFilters();
         this.loading = false;
       },

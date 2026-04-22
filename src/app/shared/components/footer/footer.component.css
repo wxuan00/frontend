@@ -8,17 +8,3 @@
   border-top: 1px solid #e5e5e5;
   background: #fff;
 }
-
-.footer-links {
-  display: flex;
-  gap: 16px;
-}
-
-.footer-links a {
-  color: #999;
-  text-decoration: none;
-}
-
-.footer-links a:hover {
-  color: #111;
-}

@@ -20,25 +20,32 @@
     </div>
 
     <form (ngSubmit)="onSubmit()">
+      <div *ngIf="successMessage" class="form-success-banner">✅ {{ successMessage }}</div>
+      <div *ngIf="formErrorMessage" class="form-error-banner">⚠️ {{ formErrorMessage }}</div>
       <div class="form-grid">
         <div class="form-group">
           <label>First Name *</label>
-          <input type="text" class="form-control" [(ngModel)]="formData.firstName" name="firstName" placeholder="Enter first name" required>
+          <input type="text" class="form-control" [class.input-error]="errors['firstName']" [(ngModel)]="formData.firstName" name="firstName" placeholder="Enter first name">
+          <small class="field-error" *ngIf="errors['firstName']">{{ errors['firstName'] }}</small>
         </div>
 
         <div class="form-group">
           <label>Last Name *</label>
-          <input type="text" class="form-control" [(ngModel)]="formData.lastName" name="lastName" placeholder="Enter last name" required>
+          <input type="text" class="form-control" [class.input-error]="errors['lastName']" [(ngModel)]="formData.lastName" name="lastName" placeholder="Enter last name">
+          <small class="field-error" *ngIf="errors['lastName']">{{ errors['lastName'] }}</small>
         </div>
 
         <div class="form-group">
           <label>Display Name</label>
-          <input type="text" class="form-control" [(ngModel)]="formData.displayName" name="displayName" placeholder="Optional display name">
+          <input type="text" class="form-control" [class.input-error]="errors['displayName']" [(ngModel)]="formData.displayName" name="displayName" placeholder="Optional display name" (blur)="onDisplayNameBlur()">
+          <small class="field-error" *ngIf="errors['displayName']">{{ errors['displayName'] }}</small>
         </div>
 
         <div class="form-group">
           <label>Email Address *</label>
-          <input type="email" class="form-control" [(ngModel)]="formData.email" name="email" placeholder="user@example.com" [readonly]="isEditMode" required>
+          <input type="email" class="form-control" [class.input-error]="errors['email']" [(ngModel)]="formData.email" name="email" placeholder="user@example.com" [readonly]="isEditMode">
+          <small class="field-error" *ngIf="errors['email']">{{ errors['email'] }}</small>
+          <small class="text-muted" *ngIf="isEditMode">Email address cannot be changed after creation.</small>
         </div>
 
         <div class="form-group">
@@ -60,13 +67,60 @@
             <option value="SUSPENDED">Suspended</option>
           </select>
         </div>
+
+        <!-- Merchant mapping — create mode, MERCHANT type only -->
+        @if (!isEditMode && userType === 'MERCHANT') {
+          <div class="form-group form-group-full merchant-search-group">
+            <label>Link to Merchant <span style="color:#dc2626;">*</span></label>
+            <div class="merchant-search-wrap" [class.input-error]="errors['merchant'] && !showMerchantDropdown">
+              @if (selectedMerchant) {
+                <div class="merchant-selected">
+                  <span class="merchant-selected-icon">🏪</span>
+                  <span class="merchant-selected-name">#{{ selectedMerchant.merchantId }} – {{ selectedMerchant.merchantName }}</span>
+                  <button type="button" class="btn-clear-merchant" (click)="clearMerchant()" title="Remove">✕</button>
+                </div>
+              } @else {
+                <div class="search-input-wrap">
+                  <span class="search-prefix">🔍</span>
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Search merchant by name or ID…"
+                    [(ngModel)]="merchantSearchQuery"
+                    name="merchantSearch"
+                    (input)="onMerchantSearch(merchantSearchQuery)"
+                    (focus)="onMerchantFocus()"
+                    (blur)="onMerchantBlur()"
+                    autocomplete="off">
+                </div>
+                @if (showMerchantDropdown && merchantSearchResults.length > 0) {
+                  <ul class="merchant-dropdown">
+                    @for (m of merchantSearchResults; track m.merchantId) {
+                      <li (click)="selectMerchant(m)">
+                        <span class="merchant-avatar">{{ (m.merchantName || 'M').charAt(0) }}</span>
+                        <span class="merchant-info">
+                          <strong>{{ m.merchantName }}</strong>
+                          <small>#{{ m.merchantId }} · {{ m.city || m.country || '' }} · <span [class]="'status-dot-' + (m.status || 'PENDING').toLowerCase()">{{ m.status }}</span></small>
+                        </span>
+                      </li>
+                    }
+                  </ul>
+                }
+                @if (showMerchantDropdown && merchantSearchQuery.length >= 1 && merchantSearchResults.length === 0) {
+                  <div class="search-hint">No merchants found</div>
+                }
+              }
+            </div>
+            <small class="field-error" *ngIf="errors['merchant']">{{ errors['merchant'] }}</small>
+          </div>
+        }
       </div>
 
       <!-- Role Assignment (both create and edit) -->
       @if (allRoles.length > 0) {
         <div class="permissions-section">
           <div class="permissions-header">
-            <h4>&#128274; Assign Roles</h4>
+            <h4>&#128274; Assign Roles <span style="color:#dc2626;">*</span></h4>
             <small class="text-muted">Select one or more roles to assign to this user.</small>
           </div>
           <div class="role-select-group">
@@ -78,6 +132,7 @@
               </label>
             }
           </div>
+          <small class="field-error" *ngIf="errors['roles']">{{ errors['roles'] }}</small>
         </div>
       }
 
@@ -86,9 +141,6 @@
         <button type="submit" class="btn btn-primary">{{ isEditMode ? 'Save Changes' : 'Create User' }}</button>
       </div>
     </form>
-
-    <p *ngIf="message" class="success-msg">✅ {{ message }}</p>
-    <p *ngIf="errorMessage" class="error-msg">⚠️ {{ errorMessage }}</p>
   </div>
 
   <app-confirm-dialog

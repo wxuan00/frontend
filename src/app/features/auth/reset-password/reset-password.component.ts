@@ -69,8 +69,11 @@ import { AuthService } from '../../../core/services/auth.service';
                     {{ showConfirm ? '🙈' : '👁️' }}
                   </button>
                 </div>
+                <div *ngIf="confirmPassword && confirmPassword === newPassword" class="field-success">
+                  &#10003; Passwords match
+                </div>
                 <div *ngIf="confirmPassword && newPassword !== confirmPassword" class="field-error">
-                  Passwords do not match.
+                  &#10007; Passwords do not match.
                 </div>
               </div>
 

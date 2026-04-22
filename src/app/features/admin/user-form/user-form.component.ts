@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+﻿import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -7,6 +7,7 @@ import { MerchantService } from '../../../core/services/merchant.service';
 import { RoleService } from '../../../core/services/role.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
+
 
 @Component({
   selector: 'app-user-form',
@@ -23,9 +24,18 @@ export class UserFormComponent implements OnInit {
   selectedRoleIds = new Set<number>();
   message = '';
   errorMessage = '';
+  errors: Record<string, string> = {};
+  successMessage = '';
+  formErrorMessage = '';
 
   /** Locked user type determined from query param on create ('ADMIN' | 'MERCHANT') */
   userType: 'ADMIN' | 'MERCHANT' = 'MERCHANT';
+
+  // Merchant mapping (create mode, MERCHANT type only)
+  merchantSearchQuery = '';
+  merchantSearchResults: any[] = [];
+  selectedMerchant: any = null;
+  showMerchantDropdown = false;
 
   // Delete dialog
   showDeleteDialog = false;
@@ -85,7 +95,6 @@ export class UserFormComponent implements OnInit {
               status: user.status || 'ACTIVE'
             };
             this.userType = (user.role === 'ADMIN' ? 'ADMIN' : 'MERCHANT');
-            // Pre-select all assigned roles
             if (user.roles && user.roles.length > 0) {
               this.selectedRoleIds = new Set(user.roles.map((r: any) => r.roleId));
             }
@@ -94,6 +103,49 @@ export class UserFormComponent implements OnInit {
         error: () => this.errorMessage = 'Error loading user details'
       });
     }
+  }
+
+  onMerchantSearch(q: string) {
+    if (this.errors['merchant']) delete this.errors['merchant'];
+    this.filterMerchants(q);
+  }
+
+  onMerchantFocus() {
+    if (this.errors['merchant']) delete this.errors['merchant'];
+    this.filterMerchants(this.merchantSearchQuery);
+    this.showMerchantDropdown = true;
+  }
+
+  onMerchantBlur() {
+    // Delay hiding so click on dropdown item registers first
+    setTimeout(() => { this.showMerchantDropdown = false; }, 200);
+  }
+
+  private filterMerchants(q: string) {
+    const term = q.trim().toLowerCase();
+    if (!term) {
+      this.merchantSearchResults = this.merchants;
+    } else {
+      this.merchantSearchResults = this.merchants.filter(m =>
+        m.merchantName?.toLowerCase().includes(term) ||
+        String(m.merchantId).includes(term)
+      );
+    }
+    this.showMerchantDropdown = true;
+  }
+
+  selectMerchant(m: any) {
+    this.selectedMerchant = m;
+    this.merchantSearchQuery = `#${m.merchantId} - ${m.merchantName}`;
+    this.merchantSearchResults = [];
+    this.showMerchantDropdown = false;
+  }
+
+  clearMerchant() {
+    this.selectedMerchant = null;
+    this.merchantSearchQuery = '';
+    this.merchantSearchResults = [];
+    this.showMerchantDropdown = false;
   }
 
   isRoleSelected(roleId: number): boolean {
@@ -108,58 +160,119 @@ export class UserFormComponent implements OnInit {
     }
   }
 
-  /** Roles filtered to match the user's type (ADMIN→SYSTEM, MERCHANT→BUSINESS/MERCHANT) */
+  onDisplayNameBlur() {
+    const name = this.formData.displayName?.trim();
+    if (!name) {
+      delete this.errors['displayName'];
+      return;
+    }
+    const excludeId = this.isEditMode && this.userId ? String(this.userId) : undefined;
+    this.authService.checkDisplayName(name, excludeId).subscribe({
+      next: (res: any) => {
+        if (res.taken) {
+          this.errors['displayName'] = `Display name "${name}" is already taken.`;
+        } else {
+          delete this.errors['displayName'];
+        }
+      },
+      error: () => {}
+    });
+  }
+
   get filteredRoles(): any[] {
     if (this.formData.role === 'ADMIN') {
+      // Admin users: show SYSTEM roles (includes ADMIN base role and SYSTEM custom roles)
       return this.allRoles.filter(r => {
         const t = (r.roleType || '').toUpperCase();
         return t === 'SYSTEM' || t === '';
       });
     } else {
+      // Merchant users: show MERCHANT system role + BUSINESS custom roles — all must be explicitly chosen
       return this.allRoles.filter(r => {
+        const n = (r.roleName || '').toUpperCase();
         const t = (r.roleType || '').toUpperCase();
-        return t === 'BUSINESS' || t === 'MERCHANT';
+        return n === 'MERCHANT' || t === 'BUSINESS' || t === 'MERCHANT';
       });
     }
   }
 
+  validate(): boolean {
+    // Preserve async errors (e.g. displayName taken) — only re-check sync fields
+    const asyncErrors: Record<string, string> = {};
+    if (this.errors['displayName']) asyncErrors['displayName'] = this.errors['displayName'];
+
+    this.errors = { ...asyncErrors };
+    if (!this.formData.firstName?.trim()) this.errors['firstName'] = 'First name is required.';
+    if (!this.formData.lastName?.trim()) this.errors['lastName'] = 'Last name is required.';
+    if (!this.formData.email?.trim()) {
+      this.errors['email'] = 'Email address is required.';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.formData.email)) {
+      this.errors['email'] = 'Please enter a valid email address.';
+    }
+    if (this.selectedRoleIds.size === 0) {
+      this.errors['roles'] = 'At least one role must be assigned.';
+    }
+    if (!this.isEditMode && this.userType === 'MERCHANT' && !this.selectedMerchant) {
+      this.errors['merchant'] = 'A merchant must be selected for Merchant users.';
+    }
+    return Object.keys(this.errors).length === 0;
+  }
+
   onSubmit() {
+    this.successMessage = '';
+    this.formErrorMessage = '';
+    if (!this.validate()) return;
+
     if (this.isEditMode && this.userId) {
       const { ...payload } = this.formData;
-
       this.authService.updateUser(this.userId, payload).subscribe({
         next: () => {
           const roleIds = Array.from(this.selectedRoleIds);
           this.roleService.syncUserRoles(this.userId!, roleIds).subscribe({
             next: () => {
-              this.toast.success('User updated successfully');
-              setTimeout(() => this.router.navigate(['/users']), 1000);
+              this.successMessage = 'User updated successfully';
+              setTimeout(() => this.router.navigate(['/users', this.userId, 'view']), 1000);
             },
             error: (err) => {
-              this.toast.error('User saved but role sync failed: ' + (err.error?.message || err.message || 'unknown error'));
-              setTimeout(() => this.router.navigate(['/users']), 2000);
+              this.formErrorMessage = 'User saved but role sync failed: ' + (err.error?.message || err.message || 'unknown error');
+              setTimeout(() => this.router.navigate(['/users', this.userId, 'view']), 2000);
             }
           });
         },
-        error: (err) => this.toast.error(err.error?.message || 'Error updating user')
+        error: (err) => this.formErrorMessage = err.error?.message || 'Error updating user'
       });
     } else {
       this.authService.createUser(this.formData).subscribe({
         next: (created) => {
+          // Always include the base system role (ADMIN/MERCHANT) so userType classification
+          // in getAllUsers remains correct after syncRoles wipes and re-inserts all roles.
+          const baseRoleName = (this.formData.role || '').toUpperCase(); // 'ADMIN' or 'MERCHANT'
+          const baseRole = this.allRoles.find(
+            r => (r.roleName || '').toUpperCase() === baseRoleName
+          );
           const roleIds = Array.from(this.selectedRoleIds);
+          if (baseRole && !roleIds.includes(baseRole.roleId)) {
+            roleIds.push(baseRole.roleId);
+          }
           if (roleIds.length > 0 && created?.userId) {
             this.roleService.syncUserRoles(created.userId, roleIds).subscribe();
           }
-          this.toast.success('User created successfully');
+          if (this.selectedMerchant && created?.userId && this.userType === 'MERCHANT') {
+            this.merchantService.assignUserToMerchant(this.selectedMerchant.merchantId, created.userId).subscribe({
+              error: () => this.formErrorMessage = 'User created but merchant mapping failed'
+            });
+          }
+          this.successMessage = 'User created successfully';
           setTimeout(() => this.router.navigate(['/users']), 1000);
         },
-        error: (err) => this.toast.error(err.error?.message || 'Error creating user')
+        error: (err) => this.formErrorMessage = err.error?.message || 'Error creating user'
       });
     }
   }
 
   confirmDelete() {
-    this.deleteLabel = (this.formData.firstName + ' ' + this.formData.lastName).trim() || this.formData.email;
+    const fullName = (this.formData.firstName + ' ' + this.formData.lastName).trim();
+    this.deleteLabel = this.formData.displayName?.trim() || fullName || this.formData.email;
     this.showDeleteDialog = true;
   }
 
@@ -167,10 +280,10 @@ export class UserFormComponent implements OnInit {
     if (this.userId) {
       this.authService.deleteUser(this.userId).subscribe({
         next: () => {
-          this.toast.success('User deleted successfully');
+          this.successMessage = 'User deleted successfully';
           this.router.navigate(['/users']);
         },
-        error: () => this.toast.error('Failed to delete user')
+        error: () => this.formErrorMessage = 'Failed to delete user'
       });
     }
     this.showDeleteDialog = false;

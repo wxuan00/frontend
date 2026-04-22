@@ -12,69 +12,98 @@
 
   <!-- Navigation -->
   <nav class="nav-links">
-    <div class="nav-section-label" *ngIf="!collapsed || mobileOpen">MAIN MENU</div>
+    @if (authService.hasPermission('VIEW_DASHBOARD')) {
+      <div class="nav-section-label" *ngIf="!collapsed || mobileOpen">MAIN MENU</div>
 
-    <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item" (click)="closeMobileMenu()" [title]="collapsed ? 'Dashboard' : ''">
-      <span class="nav-icon">📊</span>
-      <span class="nav-label" *ngIf="!collapsed || mobileOpen">Dashboard</span>
-    </a>
+      <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item" (click)="closeMobileMenu()" [title]="collapsed ? 'Dashboard' : ''">
+        <span class="nav-icon">📊</span>
+        <span class="nav-label" *ngIf="!collapsed || mobileOpen">Dashboard</span>
+      </a>
+    }
 
     @if (userRole === 'ADMIN') {
-      <div class="nav-section-label" *ngIf="!collapsed || mobileOpen">ADMINISTRATION</div>
+      @if (authService.hasPermission('MANAGE_USERS') || authService.hasPermission('MANAGE_ROLES')) {
+        <div class="nav-section-label" *ngIf="!collapsed || mobileOpen">ADMINISTRATION</div>
+      }
 
-      <a routerLink="/users" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()" [title]="collapsed ? 'User Management' : ''">
-        <span class="nav-icon">👥</span>
-        <span class="nav-label" *ngIf="!collapsed || mobileOpen">User Management</span>
-      </a>
+      @if (authService.hasPermission('MANAGE_USERS')) {
+        <a routerLink="/users" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()" [title]="collapsed ? 'User Management' : ''">
+          <span class="nav-icon">👥</span>
+          <span class="nav-label" *ngIf="!collapsed || mobileOpen">User Management</span>
+        </a>
+      }
 
-      <a routerLink="/roles" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()" [title]="collapsed ? 'Role Management' : ''">
-        <span class="nav-icon">🔑</span>
-        <span class="nav-label" *ngIf="!collapsed || mobileOpen">Role Management</span>
-      </a>
+      @if (authService.hasPermission('MANAGE_ROLES')) {
+        <a routerLink="/roles" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()" [title]="collapsed ? 'Role Management' : ''">
+          <span class="nav-icon">🔑</span>
+          <span class="nav-label" *ngIf="!collapsed || mobileOpen">Role Management</span>
+        </a>
+      }
 
-      <div class="nav-section-label" *ngIf="!collapsed || mobileOpen">INQUIRIES</div>
+      @if (authService.hasPermission('VIEW_OWN_DATA') || authService.hasPermission('VIEW_TRANSACTIONS') || authService.hasPermission('VIEW_REFUNDS') || authService.hasPermission('VIEW_CREDIT_ADVICES')) {
+        <div class="nav-section-label" *ngIf="!collapsed || mobileOpen">INQUIRIES</div>
+      }
 
-      <a routerLink="/merchants" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()" [title]="collapsed ? 'Merchant Inquiry' : ''">
-        <span class="nav-icon">🏢</span>
-        <span class="nav-label" *ngIf="!collapsed || mobileOpen">Merchant Inquiry</span>
-      </a>
+      @if (authService.hasPermission('VIEW_OWN_DATA')) {
+        <a routerLink="/merchants" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()" [title]="collapsed ? 'Merchant Inquiry' : ''">
+          <span class="nav-icon">🏢</span>
+          <span class="nav-label" *ngIf="!collapsed || mobileOpen">Merchant Inquiry</span>
+        </a>
+      }
 
-      <a routerLink="/transactions" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()" [title]="collapsed ? 'Transaction Inquiry' : ''">
-        <span class="nav-icon">💳</span>
-        <span class="nav-label" *ngIf="!collapsed || mobileOpen">Transaction Inquiry</span>
-      </a>
+      @if (authService.hasPermission('VIEW_TRANSACTIONS')) {
+        <a routerLink="/transactions" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()" [title]="collapsed ? 'Transaction Inquiry' : ''">
+          <span class="nav-icon">💳</span>
+          <span class="nav-label" *ngIf="!collapsed || mobileOpen">Transaction Inquiry</span>
+        </a>
+      }
 
-      <a routerLink="/refunds" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()" [title]="collapsed ? 'Refund Transaction Inquiry' : ''">
-        <span class="nav-icon">&#128260;</span>
-        <span class="nav-label" *ngIf="!collapsed || mobileOpen">Refund Transaction Inquiry</span>
-      </a>
+      @if (authService.hasPermission('VIEW_REFUNDS')) {
+        <a routerLink="/refunds" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()" [title]="collapsed ? 'Refund Transaction Inquiry' : ''">
+          <span class="nav-icon">&#128260;</span>
+          <span class="nav-label" *ngIf="!collapsed || mobileOpen">Refund Transaction Inquiry</span>
+        </a>
+      }
 
-      <a routerLink="/credit-advices" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()" [title]="collapsed ? 'Credit Advice Inquiry' : ''">
-        <span class="nav-icon">&#128196;</span>
-        <span class="nav-label" *ngIf="!collapsed || mobileOpen">Credit Advice Inquiry</span>
-      </a>
+      @if (authService.hasPermission('VIEW_CREDIT_ADVICES')) {
+        <a routerLink="/credit-advices" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()" [title]="collapsed ? 'Credit Advice Inquiry' : ''">
+          <span class="nav-icon">&#128196;</span>
+          <span class="nav-label" *ngIf="!collapsed || mobileOpen">Credit Advice Inquiry</span>
+        </a>
+      }
     } @else {
-      <div class="nav-section-label" *ngIf="!collapsed || mobileOpen">MY BUSINESS</div>
+      @if (authService.hasPermission('VIEW_OWN_DATA') || authService.hasPermission('VIEW_TRANSACTIONS') || authService.hasPermission('VIEW_REFUNDS') || authService.hasPermission('VIEW_CREDIT_ADVICES')) {
+        <div class="nav-section-label" *ngIf="!collapsed || mobileOpen">MY BUSINESS</div>
+      }
 
-      <a routerLink="/merchants" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()" [title]="collapsed ? 'My Merchant' : ''">
-        <span class="nav-icon">🏢</span>
-        <span class="nav-label" *ngIf="!collapsed || mobileOpen">My Merchant</span>
-      </a>
+      @if (authService.hasPermission('VIEW_OWN_DATA')) {
+        <a routerLink="/merchants" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()" [title]="collapsed ? 'My Merchant' : ''">
+          <span class="nav-icon">🏢</span>
+          <span class="nav-label" *ngIf="!collapsed || mobileOpen">My Merchant</span>
+        </a>
+      }
 
-      <a routerLink="/transactions" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()" [title]="collapsed ? 'My Transactions' : ''">
-        <span class="nav-icon">💳</span>
-        <span class="nav-label" *ngIf="!collapsed || mobileOpen">My Transactions</span>
-      </a>
+      @if (authService.hasPermission('VIEW_TRANSACTIONS')) {
+        <a routerLink="/transactions" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()" [title]="collapsed ? 'My Transactions' : ''">
+          <span class="nav-icon">💳</span>
+          <span class="nav-label" *ngIf="!collapsed || mobileOpen">My Transactions</span>
+        </a>
+      }
 
-      <a routerLink="/refunds" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()" [title]="collapsed ? 'My Refunds' : ''">
-        <span class="nav-icon">&#128260;</span>
-        <span class="nav-label" *ngIf="!collapsed || mobileOpen">My Refunds</span>
-      </a>
+      @if (authService.hasPermission('VIEW_REFUNDS')) {
+        <a routerLink="/refunds" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()" [title]="collapsed ? 'My Refunds' : ''">
+          <span class="nav-icon">&#128260;</span>
+          <span class="nav-label" *ngIf="!collapsed || mobileOpen">My Refunds</span>
+        </a>
+      }
 
-      <a routerLink="/credit-advices" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()" [title]="collapsed ? 'My Credit Advice' : ''">
-        <span class="nav-icon">&#128196;</span>
-        <span class="nav-label" *ngIf="!collapsed || mobileOpen">My Credit Advice</span>
-      </a>
+      @if (authService.hasPermission('VIEW_CREDIT_ADVICES')) {
+        <a routerLink="/credit-advices" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()" [title]="collapsed ? 'My Credit Advice' : ''">
+          <span class="nav-icon">&#128196;</span>
+          <span class="nav-label" *ngIf="!collapsed || mobileOpen">My Credit Advice</span>
+        </a>
+      }
+
     }
 
     <div class="nav-section-label" *ngIf="!collapsed || mobileOpen">ACCOUNT</div>

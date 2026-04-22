@@ -101,7 +101,7 @@
               <div class="action-btns">
                 <a [routerLink]="['/users', user.userId, 'view']" class="btn btn-sm btn-outline">View</a>
                 <a [routerLink]="['/users', user.userId, 'edit']" class="btn btn-sm btn-outline">Edit</a>
-                <button (click)="deleteUser(user.userId, user.firstName + ' ' + user.lastName)" class="btn btn-sm btn-danger">Delete</button>
+                <button (click)="deleteUser(user.userId, $any(user).displayName?.trim() || (user.firstName + ' ' + user.lastName).trim() || user.email)" class="btn btn-sm btn-danger">Delete</button>
               </div>
             </td>
           </tr>

@@ -128,6 +128,10 @@ export class RoleFormComponent implements OnInit {
   onSubmit() {
     this.message = '';
     this.errorMessage = '';
+    if (!this.formData.roleName?.trim()) {
+      this.errorMessage = 'Role name is required.';
+      return;
+    }
     const permIds = Array.from(this.selectedPermissionIds);
 
     if (this.isEditMode && this.roleId) {
@@ -167,10 +171,10 @@ export class RoleFormComponent implements OnInit {
     if (this.roleId) {
       this.roleService.deleteRole(this.roleId).subscribe({
         next: () => {
-          this.toast.success('Role deleted successfully');
+          this.message = 'Role deleted successfully';
           this.router.navigate(['/roles']);
         },
-        error: (err) => this.toast.error(err.error?.message || 'Failed to delete role')
+        error: (err) => this.errorMessage = err.error?.message || 'Failed to delete role'
       });
     }
     this.showDeleteDialog = false;

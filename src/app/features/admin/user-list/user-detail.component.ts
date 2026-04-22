@@ -65,7 +65,8 @@ export class UserDetailComponent implements OnInit {
 
   // Delete user
   confirmDeleteUser() {
-    this.deleteLabel = (this.user.firstName + ' ' + this.user.lastName).trim() || this.user.email;
+    const fullName = (this.user.firstName + ' ' + this.user.lastName).trim();
+    this.deleteLabel = this.user.displayName?.trim() || fullName || this.user.email;
     this.showDeleteDialog = true;
   }
 

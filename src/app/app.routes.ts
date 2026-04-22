@@ -15,17 +15,16 @@ import { MerchantDetailComponent } from './features/inquiries/merchant-detail/me
 import { MerchantFormComponent } from './features/inquiries/merchant-form/merchant-form.component';
 import { TransactionListComponent } from './features/inquiries/transaction-list/transaction-list.component';
 import { TransactionDetailComponent } from './features/inquiries/transaction-detail/transaction-detail.component';
-import { SettlementListComponent } from './features/inquiries/settlement-list/settlement-list.component';
-import { SettlementDetailComponent } from './features/inquiries/settlement-detail/settlement-detail.component';
 import { CreditAdviceListComponent } from './features/inquiries/credit-advice-list/credit-advice-list.component';
 import { CreditAdviceDetailComponent } from './features/inquiries/credit-advice-detail/credit-advice-detail.component';
 import { RefundListComponent } from './features/inquiries/refund-list/refund-list.component';
 import { RefundDetailComponent } from './features/inquiries/refund-detail/refund-detail.component';
+import { SettlementDetailComponent } from './features/inquiries/settlement-detail/settlement-detail.component';
 import { ViewProfileComponent } from './features/profile/view-profile/view-profile.component';
 import { EditProfileComponent } from './features/profile/edit-profile/edit-profile.component';
 import { ChangePasswordComponent } from './features/profile/change-password/change-password.component';
 import { authGuard } from './core/guards/auth-guard';
-import { adminGuard } from './core/guards/admin-guard';
+import { permissionGuard } from './core/guards/permission-guard';
 import { LayoutComponent } from './shared/components/layout/layout.component';
 
 export const routes: Routes = [
@@ -41,42 +40,39 @@ export const routes: Routes = [
     canActivate: [authGuard],
     runGuardsAndResolvers: 'always',
     children: [
-      { path: 'dashboard', component: DashboardComponent, runGuardsAndResolvers: 'always' },
-      { path: 'ai-analytics', component: DashboardComponent, data: { tab: 'ai-analytics' }, runGuardsAndResolvers: 'always' },
+      { path: 'dashboard', component: DashboardComponent, canActivate: [permissionGuard], data: { permission: 'VIEW_DASHBOARD' }, runGuardsAndResolvers: 'always' },
+      { path: 'ai-analytics', component: DashboardComponent, canActivate: [permissionGuard], data: { permission: 'VIEW_DASHBOARD', tab: 'ai-analytics' }, runGuardsAndResolvers: 'always' },
 
-      // Admin-only routes: User management
-      { path: 'users', component: UserListComponent, canActivate: [adminGuard], runGuardsAndResolvers: 'always' },
-      { path: 'users/new', component: UserFormComponent, canActivate: [adminGuard], runGuardsAndResolvers: 'always' },
-      { path: 'users/:id/edit', component: UserFormComponent, canActivate: [adminGuard], runGuardsAndResolvers: 'always' },
-      { path: 'users/:id/view', component: UserDetailComponent, canActivate: [adminGuard], runGuardsAndResolvers: 'always' },
+      // User management - permission guarded
+      { path: 'users', component: UserListComponent, canActivate: [permissionGuard], data: { permission: 'MANAGE_USERS' }, runGuardsAndResolvers: 'always' },
+      { path: 'users/new', component: UserFormComponent, canActivate: [permissionGuard], data: { permission: 'MANAGE_USERS' }, runGuardsAndResolvers: 'always' },
+      { path: 'users/:id/edit', component: UserFormComponent, canActivate: [permissionGuard], data: { permission: 'MANAGE_USERS' }, runGuardsAndResolvers: 'always' },
+      { path: 'users/:id/view', component: UserDetailComponent, canActivate: [permissionGuard], data: { permission: 'MANAGE_USERS' }, runGuardsAndResolvers: 'always' },
       
-      // Admin-only routes: Role management
-      { path: 'roles', component: RoleListComponent, canActivate: [adminGuard], runGuardsAndResolvers: 'always' },
-      { path: 'roles/new', component: RoleFormComponent, canActivate: [adminGuard], runGuardsAndResolvers: 'always' },
-      { path: 'roles/:id/edit', component: RoleFormComponent, canActivate: [adminGuard], runGuardsAndResolvers: 'always' },
-      { path: 'roles/:id/view', component: RoleDetailComponent, canActivate: [adminGuard], runGuardsAndResolvers: 'always' },
+      // Role management - permission guarded
+      { path: 'roles', component: RoleListComponent, canActivate: [permissionGuard], data: { permission: 'MANAGE_ROLES' }, runGuardsAndResolvers: 'always' },
+      { path: 'roles/new', component: RoleFormComponent, canActivate: [permissionGuard], data: { permission: 'MANAGE_ROLES' }, runGuardsAndResolvers: 'always' },
+      { path: 'roles/:id/edit', component: RoleFormComponent, canActivate: [permissionGuard], data: { permission: 'MANAGE_ROLES' }, runGuardsAndResolvers: 'always' },
+      { path: 'roles/:id/view', component: RoleDetailComponent, canActivate: [permissionGuard], data: { permission: 'MANAGE_ROLES' }, runGuardsAndResolvers: 'always' },
 
-      // Merchant inquiry - accessible by all (filtered by role in backend)
-      { path: 'merchants', component: MerchantListComponent, runGuardsAndResolvers: 'always' },
-      { path: 'merchants/new', component: MerchantFormComponent, canActivate: [adminGuard], runGuardsAndResolvers: 'always' },
-      { path: 'merchants/:id/edit', component: MerchantFormComponent, canActivate: [adminGuard], runGuardsAndResolvers: 'always' },
-      { path: 'merchants/:id', component: MerchantDetailComponent, runGuardsAndResolvers: 'always' },
+      // Merchant inquiry - permission guarded
+      { path: 'merchants', component: MerchantListComponent, canActivate: [permissionGuard], data: { permission: 'VIEW_OWN_DATA' }, runGuardsAndResolvers: 'always' },
+      { path: 'merchants/:id', component: MerchantDetailComponent, canActivate: [permissionGuard], data: { permission: 'VIEW_OWN_DATA' }, runGuardsAndResolvers: 'always' },
 
-      // Transaction inquiry - accessible by all (filtered by role in backend)
-      { path: 'transactions', component: TransactionListComponent, runGuardsAndResolvers: 'always' },
-      { path: 'transactions/:id', component: TransactionDetailComponent, runGuardsAndResolvers: 'always' },
+      // Transaction inquiry - permission guarded
+      { path: 'transactions', component: TransactionListComponent, canActivate: [permissionGuard], data: { permission: 'VIEW_TRANSACTIONS' }, runGuardsAndResolvers: 'always' },
+      { path: 'transactions/:id', component: TransactionDetailComponent, canActivate: [permissionGuard], data: { permission: 'VIEW_TRANSACTIONS' }, runGuardsAndResolvers: 'always' },
 
-      // Settlement inquiry - accessible by all (filtered by role in backend)
-      { path: 'settlements', component: SettlementListComponent, runGuardsAndResolvers: 'always' },
-      { path: 'settlements/:id', component: SettlementDetailComponent, runGuardsAndResolvers: 'always' },
+      // Credit Advice inquiry - permission guarded
+      { path: 'credit-advices', component: CreditAdviceListComponent, canActivate: [permissionGuard], data: { permission: 'VIEW_CREDIT_ADVICES' }, runGuardsAndResolvers: 'always' },
+      { path: 'credit-advices/:id', component: CreditAdviceDetailComponent, canActivate: [permissionGuard], data: { permission: 'VIEW_CREDIT_ADVICES' }, runGuardsAndResolvers: 'always' },
 
-      // Credit Advice inquiry - accessible by all (filtered by role in backend)
-      { path: 'credit-advices', component: CreditAdviceListComponent, runGuardsAndResolvers: 'always' },
-      { path: 'credit-advices/:id', component: CreditAdviceDetailComponent, runGuardsAndResolvers: 'always' },
+      // Refund inquiry - permission guarded
+      { path: 'refunds', component: RefundListComponent, canActivate: [permissionGuard], data: { permission: 'VIEW_REFUNDS' }, runGuardsAndResolvers: 'always' },
+      { path: 'refunds/:id', component: RefundDetailComponent, canActivate: [permissionGuard], data: { permission: 'VIEW_REFUNDS' }, runGuardsAndResolvers: 'always' },
 
-      // Refund inquiry - accessible by all (filtered transactions of type REFUND)
-      { path: 'refunds', component: RefundListComponent, runGuardsAndResolvers: 'always' },
-      { path: 'refunds/:id', component: RefundDetailComponent, runGuardsAndResolvers: 'always' },
+      // Settlement detail - accessible from credit advice detail (no sidebar link)
+      { path: 'settlements/:id', component: SettlementDetailComponent, canActivate: [permissionGuard], data: { permission: 'VIEW_CREDIT_ADVICES' }, runGuardsAndResolvers: 'always' },
 
       // Profile management - accessible by all authenticated users
       { path: 'profile', component: ViewProfileComponent, runGuardsAndResolvers: 'always' },

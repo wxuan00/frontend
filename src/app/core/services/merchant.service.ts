@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -7,6 +7,7 @@ import { Observable } from 'rxjs';
 })
 export class MerchantService {
   private apiUrl = 'http://localhost:8001/api/merchants';
+  private usersUrl = 'http://localhost:8001/api/users';
 
   constructor(private http: HttpClient) {}
 
@@ -38,5 +39,23 @@ export class MerchantService {
   // Delete merchant
   deleteMerchant(id: number): Observable<any> {
     return this.http.delete<any>(`${this.apiUrl}/${id}`);
+  }
+
+  // ─ Merchant ↔ User Mappings ─
+  getMerchantUsers(merchantId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/${merchantId}/users`);
+  }
+
+  assignUserToMerchant(merchantId: number, userId: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/${merchantId}/users/${userId}`, {});
+  }
+
+  removeUserFromMerchant(merchantId: number, userId: string): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/${merchantId}/users/${userId}`);
+  }
+
+  // Search users by name/email
+  searchUsers(q: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.usersUrl}/search`, { params: new HttpParams().set('q', q) });
   }
 }

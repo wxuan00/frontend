@@ -11,6 +11,8 @@
       <h3>Update Your Information</h3>
     </div>
     <form (ngSubmit)="onSave()">
+      <div *ngIf="message" class="form-success-banner">✅ {{ message }}</div>
+      <div *ngIf="errorMessage" class="form-error-banner">⚠️ {{ errorMessage }}</div>
       <div class="form-grid">
         <div class="form-group">
           <label>First Name</label>
@@ -38,8 +40,5 @@
         <button type="submit" class="btn btn-primary">Save Changes</button>
       </div>
     </form>
-
-    <p *ngIf="message" class="success-msg">✅ {{ message }}</p>
-    <p *ngIf="errorMessage" class="error-msg">⚠️ {{ errorMessage }}</p>
   </div>
 </div>

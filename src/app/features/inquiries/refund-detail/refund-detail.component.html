@@ -61,10 +61,13 @@
       <div class="summary-header">
         <div class="summary-amount">{{ refund.currency }} {{ refund.refundAmount | number:'1.2-2' }}</div>
         <span class="badge" [ngClass]="{
-          'badge-success': refund.status === 'APPROVED',
+          'badge-info': refund.status === 'APPROVED',
           'badge-warning': refund.status === 'PENDING',
-          'badge-danger': refund.status === 'DECLINED' || refund.status === 'CANCELLED'
-        }">{{ refund.status }}</span>
+          'badge-danger': refund.status === 'CANCELLED'
+        }">{{
+          refund.status === 'APPROVED' ? 'Refunded' :
+          refund.status
+        }}</span>
       </div>
       <div class="summary-meta">
         <span class="badge badge-warning">{{ refund.refundType || 'REFUND' }}</span>

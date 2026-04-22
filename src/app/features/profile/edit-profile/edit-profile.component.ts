@@ -38,13 +38,15 @@ export class EditProfileComponent implements OnInit {
   }
 
   onSave() {
+    this.message = '';
+    this.errorMessage = '';
     this.authService.updateProfile(this.profile).subscribe({
       next: () => {
-        this.toast.success('Profile updated successfully!');
+        this.message = 'Profile updated successfully!';
         setTimeout(() => this.router.navigate(['/profile']), 1500);
       },
       error: (err) => {
-        this.toast.error('Error updating profile');
+        this.errorMessage = 'Error updating profile';
       }
     });
   }

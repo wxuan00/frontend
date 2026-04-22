@@ -36,14 +36,13 @@
       <div class="select-wrap">
         <select [(ngModel)]="filterStatus" (change)="onFilterChange()">
           <option value="">All Statuses</option>
-          <option value="APPROVED">Approved</option>
+          <option value="APPROVED">Refunded</option>
           <option value="PENDING">Pending</option>
-          <option value="DECLINED">Declined</option>
           <option value="CANCELLED">Cancelled</option>
         </select>
       </div>
     </div>
-    <div class="filter-item filter-type">
+    <div class="filter-item">
       <label class="filter-label">Type</label>
       <div class="select-wrap">
         <select [(ngModel)]="filterType" (change)="onFilterChange()">
@@ -106,10 +105,13 @@
               <td>{{ r.refundType || '-' }}</td>
               <td>
                 <span class="badge" [ngClass]="{
-                  'badge-success': r.status === 'APPROVED',
+                  'badge-info': r.status === 'APPROVED',
                   'badge-warning': r.status === 'PENDING',
-                  'badge-danger': r.status === 'DECLINED' || r.status === 'CANCELLED'
-                }">{{ r.status }}</span>
+                  'badge-danger': r.status === 'CANCELLED'
+                }">{{
+                  r.status === 'APPROVED' ? 'Refunded' :
+                  r.status
+                }}</span>
               </td>
               <td class="date-cell">{{ formatDate(r.submissionDate!) }}</td>
               <td>

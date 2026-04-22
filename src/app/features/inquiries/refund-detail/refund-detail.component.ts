@@ -67,8 +67,9 @@ export class RefundDetailComponent implements OnInit {
     this.showCancelDialog = false;
     this.cancelling = true;
     this.refundService.cancelRefund(this.refundId).subscribe({
-      next: (data) => {
-        this.refund = data;
+      next: () => {
+        // Reload full refund with all join fields (merchantName etc.)
+        this.loadRefund();
         this.cancelling = false;
         this.toastService.success('Refund request cancelled successfully.');
       },

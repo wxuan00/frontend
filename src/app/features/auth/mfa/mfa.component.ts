@@ -46,7 +46,11 @@ export class MfaComponent implements OnInit {
         this.loading = false;
         if (res.success) {
           this.authService.clearMfaPending();
-          this.router.navigate(['/dashboard']);
+          // Load permissions then navigate
+          this.authService.getCurrentUser().subscribe({
+            next: () => this.router.navigate(['/dashboard']),
+            error: () => this.router.navigate(['/dashboard'])
+          });
         } else {
           this.errorMessage = res.message || 'Verification failed. Please try again.';
         }

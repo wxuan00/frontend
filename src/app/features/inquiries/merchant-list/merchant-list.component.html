@@ -76,10 +76,6 @@
             <td>
               <div class="action-btns">
                 <button (click)="viewDetails(m.merchantId)" class="btn btn-sm btn-outline">View</button>
-                @if (isAdmin) {
-                  <button (click)="editMerchant(m.merchantId)" class="btn btn-sm btn-outline">Edit</button>
-                  <button (click)="deleteMerchant(m.merchantId, m.merchantName)" class="btn btn-sm btn-danger">Delete</button>
-                }
               </div>
             </td>
           </tr>

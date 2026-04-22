@@ -104,11 +104,11 @@ export class UserListComponent implements OnInit, OnDestroy {
   applyFilters() {
     let filtered = [...this.allUsers];
 
-    // Filter by tab (role)
+    // Filter by tab: use userType (set by backend based on ADMIN base-role presence)
     if (this.activeTab === 'bank') {
-      filtered = filtered.filter(u => u.role === 'ADMIN');
+      filtered = filtered.filter((u: any) => u.userType === 'ADMIN');
     } else {
-      filtered = filtered.filter(u => u.role === 'MERCHANT');
+      filtered = filtered.filter((u: any) => u.userType === 'MERCHANT');
     }
 
     if (this.searchTerm.trim()) {
@@ -256,10 +256,10 @@ export class UserListComponent implements OnInit, OnDestroy {
   }
 
   get bankUserCount(): number {
-    return this.allUsers.filter(u => u.role === 'ADMIN').length;
+    return this.allUsers.filter((u: any) => u.userType === 'ADMIN').length;
   }
 
   get merchantUserCount(): number {
-    return this.allUsers.filter(u => u.role === 'MERCHANT').length;
+    return this.allUsers.filter((u: any) => u.userType === 'MERCHANT').length;
   }
 }

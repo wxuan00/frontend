@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -49,9 +50,15 @@ export class AuthService {
     return localStorage.getItem('token');
   }
 
-  // Get current user info from backend
+  // Get current user info from backend — also caches permissions in localStorage
   getCurrentUser(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/me`);
+    return this.http.get(`${this.apiUrl}/me`).pipe(
+      tap((user: any) => {
+        if (user?.permissions) {
+          this.storePermissions(user.permissions);
+        }
+      })
+    );
   }
 
   getAllUsers(): Observable<any> {
@@ -81,6 +88,12 @@ export class AuthService {
   // Get User with role + permissions details
   getUserDetails(id: number): Observable<any> {
     return this.http.get(`http://localhost:8001/api/users/${id}/details`);
+  }
+
+  checkDisplayName(name: string, excludeId?: string): Observable<any> {
+    const params: any = { name };
+    if (excludeId) params.excludeId = excludeId;
+    return this.http.get('http://localhost:8001/api/users/check-display-name', { params });
   }
 
   // Admin: reset a user's password
@@ -150,10 +163,30 @@ export class AuthService {
     return this.getUserRole() === 'ADMIN';
   }
 
+  // Store permissions in localStorage
+  storePermissions(permissions: string[]): void {
+    localStorage.setItem('permissions', JSON.stringify(permissions));
+  }
+
+  // Get permissions from localStorage
+  getPermissions(): string[] {
+    try {
+      return JSON.parse(localStorage.getItem('permissions') || '[]');
+    } catch {
+      return [];
+    }
+  }
+
+  // Check if user has a specific permission (checks actual permissions from backend)
+  hasPermission(permission: string): boolean {
+    return this.getPermissions().includes(permission);
+  }
+
   // Logout - clear all stored data
   logout(): void {
     localStorage.removeItem('token');
     localStorage.removeItem('role');
+    localStorage.removeItem('permissions');
     sessionStorage.removeItem('mfa_pending');
   }
 }
