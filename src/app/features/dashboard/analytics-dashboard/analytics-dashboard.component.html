@@ -159,6 +159,17 @@
 
     <!-- ── AI Date-Range Filter Bar ─────────────────────────── -->
     <div class="filter-bar ai-filter-bar">
+      @if (userRole === 'ADMIN') {
+        <div class="filter-item filter-search">
+          <label class="filter-label">🏢 Merchant</label>
+          <select [(ngModel)]="selectedMerchantId" (change)="onMerchantFilterChange()" class="filter-select">
+            <option [ngValue]="null">All Merchants</option>
+            @for (m of merchants; track m.merchantId) {
+              <option [ngValue]="m.merchantId">{{ m.merchantName }}</option>
+            }
+          </select>
+        </div>
+      }
       <div class="filter-item filter-search">
         <label class="filter-label">From Date</label>
         <input type="date" [(ngModel)]="filterFrom" (change)="onAnalyticsFilterChange()" />
@@ -184,6 +195,13 @@
       <div class="active-filter-banner">
         📅 Analytics filtered: <strong>{{ filterFrom }}</strong> → <strong>{{ filterTo }}</strong>
         <button class="clear-filter-link" (click)="clearDateFilter()">Clear filter</button>
+      </div>
+    }
+
+    @if (userRole === 'ADMIN' && selectedMerchantId != null) {
+      <div class="active-filter-banner merchant-filter-banner">
+        🏢 Showing analytics for: <strong>{{ getSelectedMerchantName() }}</strong>
+        <button class="clear-filter-link" (click)="selectedMerchantId = null; onMerchantFilterChange()">View all merchants</button>
       </div>
     }
 

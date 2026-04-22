@@ -6,6 +6,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { DashboardService } from '../../../core/services/dashboard.service';
 import { AnalyticsApiService } from '../../../core/services/analytics-api.service';
 import { ReportService } from '../../../core/services/report.service';
+import { MerchantService } from '../../../core/services/merchant.service';
 import { Chart, registerables } from 'chart.js';
 
 Chart.register(...registerables);
@@ -24,7 +25,10 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   // Active tab
   activeTab: 'dashboard' | 'ai-analytics' = 'dashboard';
 
-  // Dashboard stats
+  // Admin merchant selector
+  merchants: any[] = [];
+  selectedMerchantId: number | null = null;
+
   totalUsers: number = 0;
   totalMerchants: number = 0;
   activeMerchants: number = 0;
@@ -97,6 +101,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     private dashboardService: DashboardService,
     private analyticsApi: AnalyticsApiService,
     private reportService: ReportService,
+    private merchantService: MerchantService,
     private route: ActivatedRoute
   ) {}
 
@@ -110,6 +115,12 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     });
 
     this.loadDashboardStats();
+
+    if (this.userRole === 'ADMIN') {
+      this.merchantService.getAllMerchants().subscribe({
+        next: (data) => { this.merchants = data; }
+      });
+    }
 
     // Auto-switch to AI Analytics tab if navigated via /ai-analytics route
     const tab = this.route.snapshot.data['tab'];
@@ -199,6 +210,17 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     this.rfmData = null; this.churnData = null; this.forecastData = null;
     this.destroyCharts();
     this.loadRfm(); this.loadChurn(); this.loadForecast();
+  }
+
+  onMerchantFilterChange() {
+    this.rfmData = null; this.churnData = null; this.forecastData = null;
+    this.destroyCharts();
+    this.loadRfm(); this.loadChurn(); this.loadForecast();
+  }
+
+  getSelectedMerchantName(): string {
+    if (this.selectedMerchantId == null) return '';
+    return this.merchants.find(m => m.merchantId === this.selectedMerchantId)?.merchantName || '';
   }
   // ──────────────────────────────────────────────────────────────
 
@@ -415,7 +437,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private loadRfm() {
     this.rfmLoading = true;
-    this.analyticsApi.getRfmSegments(this.filterFrom || undefined, this.filterTo || undefined).subscribe({
+    this.analyticsApi.getRfmSegments(this.filterFrom || undefined, this.filterTo || undefined, this.selectedMerchantId ?? undefined).subscribe({
       next: (data) => {
         this.rfmData = data;
         this.rfmLoading = false;
@@ -428,7 +450,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private loadChurn() {
     this.churnLoading = true;
-    this.analyticsApi.getChurnRisk(90, this.filterFrom || undefined, this.filterTo || undefined).subscribe({
+    this.analyticsApi.getChurnRisk(90, this.filterFrom || undefined, this.filterTo || undefined, this.selectedMerchantId ?? undefined).subscribe({
       next: (data) => {
         this.churnData = data;
         this.churnLoading = false;
@@ -444,7 +466,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private loadForecast() {
     this.forecastLoading = true;
-    this.analyticsApi.getCashFlowForecast(30, this.filterFrom || undefined, this.filterTo || undefined).subscribe({
+    this.analyticsApi.getCashFlowForecast(30, this.filterFrom || undefined, this.filterTo || undefined, this.selectedMerchantId ?? undefined).subscribe({
       next: (data) => {
         this.forecastData = data;
         this.forecastLoading = false;

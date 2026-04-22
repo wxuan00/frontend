@@ -49,9 +49,6 @@ import { AuthService } from '../../../core/services/auth.service';
                     name="newPassword"
                     placeholder="Enter new password"
                     required>
-                  <button type="button" class="toggle-pw" (click)="showNew = !showNew">
-                    {{ showNew ? '🙈' : '👁️' }}
-                  </button>
                 </div>
               </div>
 
@@ -65,9 +62,6 @@ import { AuthService } from '../../../core/services/auth.service';
                     name="confirmPassword"
                     placeholder="Confirm new password"
                     required>
-                  <button type="button" class="toggle-pw" (click)="showConfirm = !showConfirm">
-                    {{ showConfirm ? '🙈' : '👁️' }}
-                  </button>
                 </div>
                 <div *ngIf="confirmPassword && confirmPassword === newPassword" class="field-success">
                   &#10003; Passwords match

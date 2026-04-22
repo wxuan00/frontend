@@ -44,24 +44,27 @@ export class AnalyticsApiService {
 
   // ===== AI Model Endpoints =====
 
-  getRfmSegments(startDate?: string, endDate?: string): Observable<any> {
+  getRfmSegments(startDate?: string, endDate?: string, merchantId?: number): Observable<any> {
     let params = new HttpParams();
     if (startDate) params = params.set('startDate', startDate);
     if (endDate)   params = params.set('endDate', endDate);
+    if (merchantId != null) params = params.set('merchantId', merchantId.toString());
     return this.http.get<any>(`${this.apiUrl}/rfm`, { params });
   }
 
-  getChurnRisk(churnDays = 90, startDate?: string, endDate?: string): Observable<any> {
+  getChurnRisk(churnDays = 90, startDate?: string, endDate?: string, merchantId?: number): Observable<any> {
     let params = new HttpParams().set('churnDays', churnDays.toString());
     if (startDate) params = params.set('startDate', startDate);
     if (endDate)   params = params.set('endDate', endDate);
+    if (merchantId != null) params = params.set('merchantId', merchantId.toString());
     return this.http.get<any>(`${this.apiUrl}/churn`, { params });
   }
 
-  getCashFlowForecast(horizonDays = 30, startDate?: string, endDate?: string): Observable<any> {
+  getCashFlowForecast(horizonDays = 30, startDate?: string, endDate?: string, merchantId?: number): Observable<any> {
     let params = new HttpParams().set('horizonDays', horizonDays.toString());
     if (startDate) params = params.set('startDate', startDate);
     if (endDate)   params = params.set('endDate', endDate);
+    if (merchantId != null) params = params.set('merchantId', merchantId.toString());
     return this.http.get<any>(`${this.apiUrl}/forecast`, { params });
   }
 }

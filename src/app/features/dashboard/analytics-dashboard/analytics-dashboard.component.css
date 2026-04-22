@@ -743,6 +743,32 @@
   transition: border-color 0.15s;
 }
 
+.ai-filter-bar .filter-item select.filter-select {
+  height: 36px;
+  padding: 0 10px;
+  font-size: 0.84rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #fff;
+  color: #111;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+  cursor: pointer;
+}
+
+.ai-filter-bar .filter-item select.filter-select:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 2px rgba(99,102,241,0.12);
+}
+
+.merchant-filter-banner {
+  background: #f0fdf4;
+  border-color: #86efac;
+  color: #15803d;
+}
+
 .ai-filter-bar .filter-item input[type="date"]:focus {
   outline: none;
   border-color: #6366f1;
