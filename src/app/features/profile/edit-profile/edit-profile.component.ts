@@ -20,7 +20,7 @@ export class EditProfileComponent implements OnInit {
     displayName: '',
     contactNumber: ''
   };
-  message = '';
+
   errorMessage = '';
 
   constructor(private authService: AuthService, private router: Router, private toast: ToastService) { }
@@ -38,12 +38,12 @@ export class EditProfileComponent implements OnInit {
   }
 
   onSave() {
-    this.message = '';
+
     this.errorMessage = '';
     this.authService.updateProfile(this.profile).subscribe({
       next: () => {
-        this.message = 'Profile updated successfully!';
-        setTimeout(() => this.router.navigate(['/profile']), 1500);
+        this.toast.success('Profile updated successfully!');
+        this.router.navigate(['/profile']);
       },
       error: (err) => {
         this.errorMessage = 'Error updating profile';

@@ -296,7 +296,7 @@
                     </tr>
                   </thead>
                   <tbody>
-                    @for (seg of rfmData.clusterSummary; track seg.cluster) {
+                    @for (seg of sortedClusterSummary; track seg.cluster) {
                       <tr>
                         <td><span class="cluster-dot" [style.background]="getClusterColor(seg.label)"></span>{{ seg.label }}</td>
                         <td>{{ seg.count }}</td>

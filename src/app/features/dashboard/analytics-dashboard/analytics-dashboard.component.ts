@@ -485,12 +485,20 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       if (retries > 0) setTimeout(() => this.renderRfmChart(retries - 1), 200);
       return;
     }
-    const summary: any[] = this.rfmData.clusterSummary || [];
-    if (summary.length === 0) return;
+    const rawSummary: any[] = this.rfmData.clusterSummary || [];
+    if (rawSummary.length === 0) return;
+
+    // Always display segments in a fixed order with consistent colors
+    const SEGMENT_ORDER = ['Champions', 'Loyal Customers', 'At Risk', 'Lost Customers'];
+    const summary = SEGMENT_ORDER
+      .map(name => rawSummary.find((c: any) => c.label === name))
+      .filter(Boolean);
+    // Append any unexpected labels at the end
+    rawSummary.forEach(c => { if (!SEGMENT_ORDER.includes(c.label)) summary.push(c); });
 
     const labels = summary.map((c: any) => c.label || `Cluster ${c.cluster}`);
     const counts = summary.map((c: any) => c.count || 0);
-    const colors = ['#111111', '#3b82f6', '#f59e0b', '#ef4444', '#22c55e'];
+    const colors = labels.map((l: string) => this.getClusterColor(l));
 
     const rfmChart = new Chart(this.rfmBarCanvas.nativeElement, {
       type: 'bar',
@@ -935,6 +943,19 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     if (prob >= 0.7) return 'High Risk';
     if (prob >= 0.4) return 'Medium Risk';
     return 'Low Risk';
+  }
+
+  private readonly SEGMENT_ORDER = ['Champions', 'Loyal Customers', 'At Risk', 'Lost Customers'];
+
+  get sortedClusterSummary(): any[] {
+    if (!this.rfmData?.clusterSummary) return [];
+    const sorted = this.SEGMENT_ORDER
+      .map(name => this.rfmData.clusterSummary.find((c: any) => c.label === name))
+      .filter(Boolean);
+    this.rfmData.clusterSummary.forEach((c: any) => {
+      if (!this.SEGMENT_ORDER.includes(c.label)) sorted.push(c);
+    });
+    return sorted;
   }
 
   getClusterColor(label: string): string {

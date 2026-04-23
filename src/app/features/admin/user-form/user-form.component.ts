@@ -25,7 +25,7 @@ export class UserFormComponent implements OnInit {
   message = '';
   errorMessage = '';
   errors: Record<string, string> = {};
-  successMessage = '';
+
   formErrorMessage = '';
 
   /** Locked user type determined from query param on create ('ADMIN' | 'MERCHANT') */
@@ -219,7 +219,7 @@ export class UserFormComponent implements OnInit {
   }
 
   onSubmit() {
-    this.successMessage = '';
+
     this.formErrorMessage = '';
     if (!this.validate()) return;
 
@@ -230,7 +230,7 @@ export class UserFormComponent implements OnInit {
           const roleIds = Array.from(this.selectedRoleIds);
           this.roleService.syncUserRoles(this.userId!, roleIds).subscribe({
             next: () => {
-              this.successMessage = 'User updated successfully';
+              this.toast.success('User updated successfully');
               setTimeout(() => this.router.navigate(['/users', this.userId, 'view']), 1000);
             },
             error: (err) => {
@@ -262,7 +262,7 @@ export class UserFormComponent implements OnInit {
               error: () => this.formErrorMessage = 'User created but merchant mapping failed'
             });
           }
-          this.successMessage = 'User created successfully';
+          this.toast.success('User created successfully');
           setTimeout(() => this.router.navigate(['/users']), 1000);
         },
         error: (err) => this.formErrorMessage = err.error?.message || 'Error creating user'
@@ -280,7 +280,7 @@ export class UserFormComponent implements OnInit {
     if (this.userId) {
       this.authService.deleteUser(this.userId).subscribe({
         next: () => {
-          this.successMessage = 'User deleted successfully';
+          this.toast.success('User deleted successfully');
           this.router.navigate(['/users']);
         },
         error: () => this.formErrorMessage = 'Failed to delete user'

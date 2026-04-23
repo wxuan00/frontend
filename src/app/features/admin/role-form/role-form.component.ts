@@ -17,7 +17,7 @@ import { forkJoin } from 'rxjs';
 export class RoleFormComponent implements OnInit {
   isEditMode = false;
   roleId: number | null = null;
-  message = '';
+
   errorMessage = '';
 
   // Delete dialog
@@ -126,7 +126,7 @@ export class RoleFormComponent implements OnInit {
   }
 
   onSubmit() {
-    this.message = '';
+    this.errorMessage = '';
     this.errorMessage = '';
     if (!this.formData.roleName?.trim()) {
       this.errorMessage = 'Role name is required.';
@@ -139,7 +139,7 @@ export class RoleFormComponent implements OnInit {
         next: (updatedRole) => {
           this.roleService.updateRolePermissions(updatedRole.roleId, permIds).subscribe({
             next: () => {
-              this.message = 'Role updated successfully';
+              this.toast.success('Role updated successfully');
               setTimeout(() => this.router.navigate(['/roles']), 1000);
             },
             error: () => this.errorMessage = 'Role saved but permissions update failed'
@@ -152,7 +152,7 @@ export class RoleFormComponent implements OnInit {
         next: (createdRole) => {
           this.roleService.updateRolePermissions(createdRole.roleId, permIds).subscribe({
             next: () => {
-              this.message = 'Role created successfully';
+              this.toast.success('Role created successfully');
               setTimeout(() => this.router.navigate(['/roles']), 1000);
             },
             error: () => this.errorMessage = 'Role created but permissions assignment failed'
@@ -171,7 +171,7 @@ export class RoleFormComponent implements OnInit {
     if (this.roleId) {
       this.roleService.deleteRole(this.roleId).subscribe({
         next: () => {
-          this.message = 'Role deleted successfully';
+          this.toast.success('Role deleted successfully');
           this.router.navigate(['/roles']);
         },
         error: (err) => this.errorMessage = err.error?.message || 'Failed to delete role'

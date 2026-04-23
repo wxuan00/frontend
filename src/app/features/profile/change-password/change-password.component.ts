@@ -17,7 +17,7 @@ export class ChangePasswordComponent implements OnInit {
   currentPassword = '';
   newPassword = '';
   confirmPassword = '';
-  message = '';
+
   errorMessage = '';
   isForced = false; // true when mustChangePassword flag is set
 
@@ -47,7 +47,7 @@ export class ChangePasswordComponent implements OnInit {
   }
 
   onSubmit() {
-    this.message = '';
+
     this.errorMessage = '';
     if (!this.isPasswordValid) {
       this.errorMessage = 'Password does not meet requirements.';
@@ -63,7 +63,7 @@ export class ChangePasswordComponent implements OnInit {
       newPassword: this.newPassword
     }).subscribe({
       next: (res) => {
-        this.message = res.message || 'Password changed successfully!';
+
         this.toast.success('Password changed successfully!');
         if (this.isForced) {
           this.authService.clearMustChangePassword().subscribe({

@@ -20,7 +20,7 @@
     </div>
 
     <form (ngSubmit)="onSubmit()">
-      <div *ngIf="successMessage" class="form-success-banner">✅ {{ successMessage }}</div>
+
       <div *ngIf="formErrorMessage" class="form-error-banner">⚠️ {{ formErrorMessage }}</div>
       <div class="form-grid">
         <div class="form-group">
