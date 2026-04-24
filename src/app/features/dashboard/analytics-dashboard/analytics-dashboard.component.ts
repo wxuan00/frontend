@@ -8,6 +8,8 @@ import { AnalyticsApiService } from '../../../core/services/analytics-api.servic
 import { ReportService } from '../../../core/services/report.service';
 import { MerchantService } from '../../../core/services/merchant.service';
 import { Chart, registerables } from 'chart.js';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 Chart.register(...registerables);
 
@@ -297,6 +299,131 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     const csv = rows.join('\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     this.downloadFile(blob, `ai-analytics-report-${new Date().toISOString().slice(0, 10)}.csv`);
+  }
+
+  exportAiAnalyticsPdf() {
+    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+    const pageW   = doc.internal.pageSize.getWidth();
+    const today   = new Date().toLocaleDateString('en-MY', { year: 'numeric', month: 'long', day: 'numeric' });
+    const blue     = [30, 64, 175] as [number, number, number];
+    const lightBlue = [239, 246, 255] as [number, number, number];
+    let y = 0;
+
+    // ── Header banner ──────────────────────────────────────────────────────
+    doc.setFillColor(...blue);
+    doc.rect(0, 0, pageW, 18, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(14); doc.setFont('helvetica', 'bold');
+    doc.text('MSP AI Analytics Report', 10, 12);
+    doc.setFontSize(9); doc.setFont('helvetica', 'normal');
+    doc.text(today, pageW - 10, 12, { align: 'right' });
+    doc.setTextColor(0, 0, 0);
+    y = 24;
+
+    // ── RFM Segmentation ───────────────────────────────────────────────────
+    if (this.rfmData?.clusterSummary?.length) {
+      doc.setFontSize(11); doc.setFont('helvetica', 'bold');
+      doc.text('Customer Segmentation (K-Means RFM)', 10, y); y += 6;
+
+      autoTable(doc, {
+        startY: y,
+        head: [['Segment', 'Customers', 'Avg Recency (days)', 'Avg Frequency', 'Avg Monetary (MYR)']],
+        body: this.rfmData.clusterSummary.map((s: any) => [
+          s.label,
+          s.count,
+          s.avgRecency?.toFixed(1) ?? '-',
+          s.avgFrequency?.toFixed(1) ?? '-',
+          s.avgMonetary?.toFixed(2) ?? '-',
+        ]),
+        headStyles:   { fillColor: blue, textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8 },
+        alternateRowStyles: { fillColor: lightBlue },
+        bodyStyles:   { fontSize: 8 },
+        margin:       { left: 10, right: 10 },
+        theme:        'grid',
+      });
+      y = (doc as any).lastAutoTable.finalY + 8;
+    }
+
+    // ── Churn Prediction ────────────────────────────────────────────────────
+    if (this.churnData?.predictions?.length) {
+      if (y > 160) { doc.addPage(); y = 14; }
+      doc.setFontSize(11); doc.setFont('helvetica', 'bold');
+      doc.text(`Customer Churn Prediction  ·  Model: ${this.churnData.modelUsed ?? ''}`, 10, y); y += 2;
+
+      autoTable(doc, {
+        startY: y,
+        head: [['Card (masked)', 'Frequency', 'Monetary (MYR)', 'AOV', 'Lifespan (days)', 'Churn Prob.', 'Risk']],
+        body: this.churnData.predictions.slice(0, 50).map((p: any) => [
+          this.maskCard(p.cardNo),
+          p.frequency,
+          p.monetary?.toFixed(2) ?? '-',
+          p.aov?.toFixed(2) ?? '-',
+          p.lifespan,
+          (p.churnProbability * 100).toFixed(1) + '%',
+          this.getChurnRiskLabel(p.churnProbability),
+        ]),
+        headStyles:   { fillColor: blue, textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8 },
+        alternateRowStyles: { fillColor: lightBlue },
+        bodyStyles:   { fontSize: 7.5 },
+        margin:       { left: 10, right: 10 },
+        theme:        'grid',
+        didParseCell: (data: any) => {
+          if (data.section === 'body' && data.column.index === 6) {
+            const v = data.cell.raw as string;
+            if (v === 'High Risk')   data.cell.styles.textColor = [185, 28, 28];
+            if (v === 'Medium Risk') data.cell.styles.textColor = [146, 64, 14];
+            if (v === 'Low Risk')    data.cell.styles.textColor = [21, 128, 61];
+          }
+        },
+      });
+      y = (doc as any).lastAutoTable.finalY + 8;
+    }
+
+    // ── Cash Flow Forecast ──────────────────────────────────────────────────
+    if (this.forecastData?.forecast?.length) {
+      if (y > 160) { doc.addPage(); y = 14; }
+      doc.setFontSize(11); doc.setFont('helvetica', 'bold');
+      doc.text(`Cash Flow Forecast (Prophet)  ·  Next ${this.forecastData.horizonDays} days`, 10, y); y += 2;
+
+      autoTable(doc, {
+        startY: y,
+        head: [['Date', 'Forecast (MYR)', 'Lower Bound', 'Upper Bound']],
+        body: this.forecastData.forecast.map((f: any) => [
+          f.ds,
+          f.yhat?.toFixed(2) ?? '-',
+          f.yhat_lower?.toFixed(2) ?? '-',
+          f.yhat_upper?.toFixed(2) ?? '-',
+        ]),
+        headStyles:   { fillColor: blue, textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8 },
+        alternateRowStyles: { fillColor: lightBlue },
+        bodyStyles:   { fontSize: 8 },
+        margin:       { left: 10, right: 10 },
+        theme:        'grid',
+      });
+      y = (doc as any).lastAutoTable.finalY + 8;
+    }
+
+    // ── AI Recommendations ─────────────────────────────────────────────────
+    const allTips = [...(this.rfmTips ?? []), ...(this.churnTips ?? []), ...(this.forecastTips ?? [])];
+    if (allTips.length) {
+      if (y > 160) { doc.addPage(); y = 14; }
+      doc.setFontSize(11); doc.setFont('helvetica', 'bold');
+      doc.text('AI Recommendations', 10, y); y += 2;
+
+      autoTable(doc, {
+        startY: y,
+        head: [['Priority', 'Title', 'Recommendation']],
+        body: allTips.map((t: any) => [t.severity ?? '', t.title ?? '', t.message ?? '']),
+        headStyles:   { fillColor: blue, textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8 },
+        alternateRowStyles: { fillColor: lightBlue },
+        bodyStyles:   { fontSize: 8 },
+        columnStyles: { 2: { cellWidth: 'auto' } },
+        margin:       { left: 10, right: 10 },
+        theme:        'grid',
+      });
+    }
+
+    doc.save(`ai-analytics-report-${new Date().toISOString().slice(0, 10)}.pdf`);
   }
 
   // ===== Dashboard Chart Rendering =====
@@ -616,9 +743,11 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   getFeatureColor(key: string): string {
     const colors: Record<string, string> = {
-      Recency: '#111111',
-      Frequency: '#3b82f6',
-      Monetary: '#f59e0b',
+      Frequency:        '#3b82f6',
+      Monetary:         '#f59e0b',
+      CancellationRate: '#ef4444',
+      AOV:              '#8b5cf6',
+      Lifespan:         '#10b981',
     };
     return colors[key] ?? '#888';
   }
@@ -633,12 +762,16 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   getFeatureExplanation(key: string, value: number): string {
     const positive = value > 0;
     switch (key) {
-      case 'Recency':
-        return positive ? 'Long time since last purchase' : 'Purchased recently';
       case 'Frequency':
         return positive ? 'Low number of purchases' : 'Buys frequently';
       case 'Monetary':
         return positive ? 'Low total spending' : 'High total spending';
+      case 'CancellationRate':
+        return positive ? 'High cancellation/refund rate' : 'Low cancellation rate';
+      case 'AOV':
+        return positive ? 'Low average order value' : 'High average order value';
+      case 'Lifespan':
+        return positive ? 'Short customer lifespan' : 'Long-standing customer';
       default:
         return key;
     }

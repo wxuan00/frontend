@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { CreditAdviceService } from '../../../core/services/credit-advice.service';
+import { ReportService } from '../../../core/services/report.service';
 import { SettlementService } from '../../../core/services/settlement.service';
 
 @Component({
@@ -21,6 +22,7 @@ export class CreditAdviceDetailComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private creditAdviceService: CreditAdviceService,
+    private reportService: ReportService,
     private settlementService: SettlementService
   ) {}
 
@@ -57,7 +59,7 @@ export class CreditAdviceDetailComponent implements OnInit {
     return Number(val).toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
-  printDetail(): void {
-    window.print();
+  exportDetailPdf(): void {
+    if (this.creditAdvice) this.reportService.generateCreditAdviceDetailPdf(this.creditAdvice, this.settlements);
   }
 }

@@ -7,7 +7,7 @@
       </div>
     </div>
     <div class="header-actions">
-      <button (click)="printDetail()" class="btn btn-ghost">&#128424; Print</button>
+      <button (click)="exportDetailPdf()" class="btn btn-primary">📄 Export PDF</button>
       @if (refund && refund.status === 'PENDING') {
         <button (click)="openCancelDialog()" class="btn btn-danger" [disabled]="cancelling">
           {{ cancelling ? 'Cancelling...' : '✕ Cancel Request' }}

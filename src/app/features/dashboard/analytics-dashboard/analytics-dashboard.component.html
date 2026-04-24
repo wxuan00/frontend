@@ -186,7 +186,7 @@
         <label class="filter-label">&nbsp;</label>
         <div class="ai-export-btns">
           <button class="btn btn-secondary btn-sm" (click)="exportAiAnalyticsCsv()">📥 Export CSV</button>
-          <button class="btn btn-primary btn-sm" (click)="printReport()">🖨️ Print PDF</button>
+          <button class="btn btn-primary btn-sm" (click)="exportAiAnalyticsPdf()">📄 Export PDF</button>
         </div>
       </div>
     </div>
@@ -337,9 +337,14 @@
             <div>
               <span class="acc-name">Customer Churn Prediction</span>
               @if (churnData?.modelUsed) {
-                <span class="model-badge" [class.model-badge-blue]="churnData.modelUsed !== 'XGBoost'" [class.model-badge-purple]="churnData.modelUsed === 'XGBoost'">{{ churnData.modelUsed }}</span>
+                <span class="model-badge"
+                  [class.model-badge-purple]="churnData.modelUsed.startsWith('XGBoost')"
+                  [class.model-badge-blue]="!churnData.modelUsed.startsWith('XGBoost')"
+                  [title]="churnData.modelSelectedReason || churnData.modelUsed">
+                  {{ churnData.modelUsed }}
+                </span>
               } @else {
-                <span class="model-badge model-badge-blue">Logistic Regression / XGBoost</span>
+                <span class="model-badge model-badge-purple">XGBoost (Pre-Trained)</span>
               }
             </div>
           </div>
@@ -355,7 +360,7 @@
 
         @if (isModelExpanded('churn')) {
           <div class="accordion-card-body">
-            <p class="acc-desc">Predicts which customers are likely to <strong>stop buying</strong> using 3 RFM features (Recency, Frequency, Monetary). Customers with <strong>&gt;70% probability</strong> are flagged as high risk. Data split: <strong>80:10:10</strong> (train/validation/test).</p>
+            <p class="acc-desc">Predicts which customers are likely to <strong>stop buying</strong> using 5 behavioural features: <strong>Frequency</strong>, <strong>Monetary</strong>, <strong>Cancellation Rate</strong>, <strong>Average Order Value</strong>, and <strong>Customer Lifespan</strong>. Customers with <strong>&gt;70% probability</strong> are flagged as high risk. Uses a <strong>pre-trained XGBoost</strong> model (Kaggle Online Retail II UCI benchmark).</p>
 
             @if (churnLoading) {
               <div class="loading-state"><div class="spinner"></div><p>Running churn prediction model...</p></div>
@@ -365,8 +370,7 @@
               <!-- Model detail line -->
               @if (churnData.modelUsed) {
                 <div class="model-detail">
-                  <span>📊 <strong>{{ churnData.modelUsed }}</strong> trained on <strong>{{ churnData.dataSize }}</strong> customers
-                  (threshold for XGBoost: ≥{{ churnData.modelThreshold }})</span>
+                  <span>📊 <strong>{{ churnData.modelUsed }}</strong> · 5 features: Frequency, Monetary, CancellationRate, AOV, Lifespan</span>
                 </div>
               }
 
@@ -384,31 +388,6 @@
                     </div>
                     <div class="model-kpi-value">{{ churnData.churnRate }}%</div>
                   </div>
-                  <div class="model-kpi model-kpi-info has-tooltip">
-                    <div class="model-kpi-label">
-                      Accuracy
-                      <span class="info-tooltip" title="How often the AI model correctly predicts whether a customer will churn or stay. Higher is better — 80%+ is considered good.">ⓘ</span>
-                    </div>
-                    <div class="model-kpi-value">
-                      {{ churnData.modelAccuracy != null ? (churnData.modelAccuracy * 100 | number:'1.1-1') + '%' : 'N/A' }}
-                    </div>
-                  </div>
-                  <div class="model-kpi model-kpi-info has-tooltip">
-                    <div class="model-kpi-label">
-                      Reliability
-                      <span class="info-tooltip" title="ROC-AUC measures how well the model distinguishes between customers who will churn vs. stay. Ranges from 0 to 1: above 0.8 = excellent, 0.7-0.8 = good, 0.5 = no better than random guessing.">ⓘ</span>
-                    </div>
-                    <div class="model-kpi-value">
-                      @if (churnData.rocAuc != null) {
-                        {{ churnData.rocAuc | number:'1.3-3' }}
-                        <span class="kpi-verdict">
-                          {{ churnData.rocAuc > 0.8 ? 'Excellent' : churnData.rocAuc > 0.7 ? 'Good' : churnData.rocAuc > 0.5 ? 'Fair' : 'Poor' }}
-                        </span>
-                      } @else {
-                        N/A
-                      }
-                    </div>
-                  </div>
                 </div>
               </div>
 
@@ -416,15 +395,16 @@
                 <div class="card-header"><h3>Top 5 At-Risk Customers (by Churn Probability)</h3></div>
                 <table class="model-table">
                   <thead>
-                    <tr><th>Card</th><th>Recency</th><th>Freq</th><th>Monetary</th><th>Churn Prob</th><th>Risk</th></tr>
+                    <tr><th>Card</th><th>Freq</th><th>Monetary</th><th>AOV</th><th>Lifespan</th><th>Churn Prob</th><th>Risk</th></tr>
                   </thead>
                   <tbody>
                     @for (p of (churnData.predictions | slice:0:5); track $index) {
                       <tr>
                         <td class="mono">{{ maskCard($any(p).cardNo) }}</td>
-                        <td>{{ $any(p).recency }}d</td>
                         <td>{{ $any(p).frequency }}</td>
                         <td>{{ $any(p).monetary | number:'1.2-2' }}</td>
+                        <td>{{ $any(p).aov | number:'1.2-2' }}</td>
+                        <td>{{ $any(p).lifespan }}d</td>
                         <td>
                           <div class="prob-bar-wrap">
                             <div class="prob-bar-track">
@@ -578,9 +558,10 @@
                     </div>
                     @if (selectedCustomer) {
                       <div class="xai-customer-summary">
-                        <span class="xai-chip">Recency: {{ selectedCustomer.recency }}d</span>
                         <span class="xai-chip">Frequency: {{ selectedCustomer.frequency }} txns</span>
                         <span class="xai-chip">Monetary: MYR {{ selectedCustomer.monetary | number:'1.2-2' }}</span>
+                        <span class="xai-chip">AOV: MYR {{ selectedCustomer.aov | number:'1.2-2' }}</span>
+                        <span class="xai-chip">Lifespan: {{ selectedCustomer.lifespan }}d</span>
                         <span class="xai-chip xai-chip-result" [style.background]="getChurnRiskColor(selectedCustomer.churnProbability)">
                           Churn: {{ (selectedCustomer.churnProbability * 100) | number:'1.1-1' }}%
                         </span>

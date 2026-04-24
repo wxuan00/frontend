@@ -34,7 +34,7 @@ export class SettlementListComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private settlementService: SettlementService
+    private settlementService: SettlementService,
   ) {}
 
   ngOnInit(): void {

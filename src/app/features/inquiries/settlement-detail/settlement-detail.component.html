@@ -9,7 +9,7 @@
       </div>
     </div>
     <div class="header-actions">
-      <button (click)="printDetail()" class="btn btn-ghost">&#128424; Print</button>
+      <button (click)="exportDetailPdf()" class="btn btn-primary">📄 Export PDF</button>
       <a *ngIf="settlement?.creditAdviceId" [routerLink]="['/credit-advices', settlement.creditAdviceId]" class="btn btn-secondary">&larr; Back to Credit Advice</a>
       <a *ngIf="!settlement?.creditAdviceId" routerLink="/credit-advices" class="btn btn-secondary">&larr; Back</a>
     </div>

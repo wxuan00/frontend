@@ -37,7 +37,7 @@ export class RefundListComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private refundService: RefundService
+    private refundService: RefundService,
   ) {}
 
   ngOnInit(): void {

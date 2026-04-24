@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { SettlementService } from '../../../core/services/settlement.service';
+import { ReportService } from '../../../core/services/report.service';
 import { TransactionService } from '../../../core/services/transaction.service';
 import { MaskCardPipe } from '../../../shared/pipes/mask-card.pipe';
 
@@ -22,6 +23,7 @@ export class SettlementDetailComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private settlementService: SettlementService,
+    private reportService: ReportService,
     private transactionService: TransactionService
   ) {}
 
@@ -58,7 +60,7 @@ export class SettlementDetailComponent implements OnInit {
     return Number(val).toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
-  printDetail(): void {
-    window.print();
+  exportDetailPdf(): void {
+    if (this.settlement) this.reportService.generateSettlementDetailPdf(this.settlement, this.transactions);
   }
 }

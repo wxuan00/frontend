@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { RefundService } from '../../../core/services/refund.service';
+import { ReportService } from '../../../core/services/report.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { MaskCardPipe } from '../../../shared/pipes/mask-card.pipe';
@@ -23,6 +24,7 @@ export class RefundDetailComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private refundService: RefundService,
+    private reportService: ReportService,
     private toastService: ToastService
   ) {}
 
@@ -51,8 +53,8 @@ export class RefundDetailComponent implements OnInit {
     });
   }
 
-  printDetail(): void {
-    window.print();
+  exportDetailPdf(): void {
+    if (this.refund) this.reportService.generateRefundDetailPdf(this.refund);
   }
 
   openCancelDialog(): void {

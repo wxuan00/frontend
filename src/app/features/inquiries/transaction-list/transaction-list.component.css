@@ -112,7 +112,18 @@
   gap: 8px;
 }
 
-.btn-ghost {
+.btn-export-pdf {
+  background: #1e40af;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-export-pdf:hover { background: #1e3a8a; }
   background: none;
   border: 1px solid #ddd;
   color: #888;

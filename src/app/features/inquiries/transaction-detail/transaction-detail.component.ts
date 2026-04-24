@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TransactionService } from '../../../core/services/transaction.service';
+import { ReportService } from '../../../core/services/report.service';
 import { MaskCardPipe } from '../../../shared/pipes/mask-card.pipe';
 
 @Component({
@@ -19,7 +20,8 @@ export class TransactionDetailComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private transactionService: TransactionService
+    private transactionService: TransactionService,
+    private reportService: ReportService,
   ) {}
 
   ngOnInit(): void {
@@ -43,7 +45,7 @@ export class TransactionDetailComponent implements OnInit {
     });
   }
 
-  printDetail(): void {
-    window.print();
+  exportDetailPdf(): void {
+    if (this.transaction) this.reportService.generateTransactionDetailPdf(this.transaction);
   }
 }

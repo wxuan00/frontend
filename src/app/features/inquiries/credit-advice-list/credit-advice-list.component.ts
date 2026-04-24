@@ -34,7 +34,7 @@ export class CreditAdviceListComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private creditAdviceService: CreditAdviceService
+    private creditAdviceService: CreditAdviceService,
   ) {}
 
   ngOnInit(): void {
