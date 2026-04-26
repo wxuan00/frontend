@@ -10,30 +10,66 @@
   </div>
 
   <div class="tabs">
+    @if (isAdmin) {
     <button class="tab-btn" [class.active]="activeTab === 'bank'" (click)="switchTab('bank')">
       &#127970; Bank Users <span class="tab-count">{{ bankUserCount }}</span>
     </button>
+    }
     <button class="tab-btn" [class.active]="activeTab === 'merchant'" (click)="switchTab('merchant')">
       &#127978; Merchant Users <span class="tab-count">{{ merchantUserCount }}</span>
     </button>
   </div>
 
-  <div class="filter-row">
-    <div class="search-bar" style="flex:1; margin-bottom:0;">
-      <input
-        type="text"
-        [placeholder]="activeTab === 'bank' ? 'Search bank users...' : 'Search merchant users...'"
-        [(ngModel)]="searchTerm"
-        (input)="applyFilters()"
-      >
-      <span class="search-icon">&#128269;</span>
+  <div class="filter-bar">
+    <div class="filter-item filter-search">
+      <label class="filter-label">USER</label>
+      <div class="search-input-wrap">
+        <span class="search-prefix">&#128269;</span>
+        <input
+          type="text"
+          [placeholder]="activeTab === 'bank' ? 'Enter bank user display name' : 'Enter merchant user display name'"
+          [(ngModel)]="searchTerm"
+          (input)="applyFilters()"
+        >
+      </div>
     </div>
-    <select class="form-control filter-select" [(ngModel)]="filterStatus" (change)="applyFilters()">
-      <option value="">All Statuses</option>
-      <option value="ACTIVE">Active</option>
-      <option value="INACTIVE">Inactive</option>
-      <option value="SUSPENDED">Suspended</option>
-    </select>
+    @if (activeTab === 'merchant') {
+      <div class="filter-item filter-search merchant-search-filter" style="position:relative;">
+        <label class="filter-label">MERCHANT NAME</label>
+        <div class="search-input-wrap">
+          <span class="search-prefix">&#127970;</span>
+          <input
+            type="text"
+            placeholder="Enter merchant name"
+            [(ngModel)]="merchantSearchQuery"
+            (input)="onMerchantSearchInput()"
+            (focus)="showMerchantDropdown = true"
+            (blur)="hideMerchantDropdownDelayed()"
+            autocomplete="off"
+          >
+          
+        </div>
+        <ul *ngIf="showMerchantDropdown && filteredMerchantNames.length > 0" class="merchant-filter-dropdown">
+          <li (mousedown)="selectMerchantFilter('')">All Merchants</li>
+          <li *ngFor="let name of filteredMerchantNames" (mousedown)="selectMerchantFilter(name)" [class.selected]="merchantFilter === name">{{ name }}</li>
+        </ul>
+      </div>
+    }
+    <div class="filter-item">
+      <label class="filter-label">Status</label>
+      <div class="select-wrap">
+        <select [(ngModel)]="filterStatus" (change)="applyFilters()">
+          <option value="">All Statuses</option>
+          <option value="ACTIVE">Active</option>
+          <option value="PENDING">Pending</option>
+          <option value="SUSPENDED">Suspended</option>
+        </select>
+      </div>
+    </div>
+    <div class="filter-item filter-action">
+      <label class="filter-label">&nbsp;</label>
+      <button class="btn btn-sm btn-ghost" (click)="clearFilters()">✕ Clear</button>
+    </div>
   </div>
 
   <div class="card">
@@ -100,8 +136,10 @@
             <td>
               <div class="action-btns">
                 <a [routerLink]="['/users', user.userId, 'view']" class="btn btn-sm btn-outline">View</a>
-                <a [routerLink]="['/users', user.userId, 'edit']" class="btn btn-sm btn-outline">Edit</a>
-                <button (click)="deleteUser(user.userId, $any(user).displayName?.trim() || (user.firstName + ' ' + user.lastName).trim() || user.email)" class="btn btn-sm btn-danger">Delete</button>
+                @if ($any(user).canManage) {
+                  <a [routerLink]="['/users', user.userId, 'edit']" class="btn btn-sm btn-outline">Edit</a>
+                  <button (click)="deleteUser(user.userId, $any(user).displayName?.trim() || (user.firstName + ' ' + user.lastName).trim() || user.email)" class="btn btn-sm btn-danger">Delete</button>
+                }
               </div>
             </td>
           </tr>

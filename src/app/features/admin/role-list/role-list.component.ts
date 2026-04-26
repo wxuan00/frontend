@@ -17,6 +17,7 @@ export class RoleListComponent implements OnInit {
   allRoles: any[] = [];
   roles: any[] = [];
   activeTab: 'bank' | 'merchant' = 'bank';
+  searchTerm = '';
   loading = true;
   loadError = false;
 
@@ -44,21 +45,35 @@ export class RoleListComponent implements OnInit {
   }
 
   applyFilter() {
+    const term = this.searchTerm.trim().toLowerCase();
+    let filtered = this.allRoles;
     if (this.activeTab === 'bank') {
-      this.roles = this.allRoles.filter(r => {
+      filtered = filtered.filter(r => {
         const type = (r.roleType || '').toUpperCase();
         return type === 'SYSTEM' || type === '';
       });
     } else {
-      this.roles = this.allRoles.filter(r => {
+      filtered = filtered.filter(r => {
         const type = (r.roleType || '').toUpperCase();
         return type === 'BUSINESS' || type === 'MERCHANT';
       });
     }
+    if (term) {
+      filtered = filtered.filter(r =>
+        (r.roleName || '').toLowerCase().includes(term)
+      );
+    }
+    this.roles = filtered;
+  }
+
+  clearFilters() {
+    this.searchTerm = '';
+    this.applyFilter();
   }
 
   switchTab(tab: 'bank' | 'merchant') {
     this.activeTab = tab;
+    this.searchTerm = '';
     this.applyFilter();
   }
 

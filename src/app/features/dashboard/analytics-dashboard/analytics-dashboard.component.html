@@ -72,6 +72,51 @@
       <h2>📊 Analytics</h2>
     </div>
 
+    <!-- Dashboard Merchant Filter -->
+    @if (merchants.length > 1 || isAdmin) {
+      <div class="dashboard-merchant-filter">
+        <div class="filter-item filter-search">
+          <label class="filter-label">🏢 Merchant</label>
+          <div class="select-wrap">
+            <select [(ngModel)]="dashboardMerchantId" (change)="onDashboardMerchantChange()" class="filter-select">
+              <option [ngValue]="null">All Merchants</option>
+              @for (m of merchants; track m.merchantId) {
+                <option [ngValue]="m.merchantId">{{ m.merchantName }}</option>
+              }
+            </select>
+          </div>
+        </div>
+        <div class="filter-item">
+          <label class="filter-label">📅 From Date</label>
+          <input type="date" class="filter-input" [(ngModel)]="dashboardFilterFrom" (change)="onDashboardDateChange()" />
+        </div>
+        <div class="filter-item">
+          <label class="filter-label">📅 To Date</label>
+          <input type="date" class="filter-input" [(ngModel)]="dashboardFilterTo" (change)="onDashboardDateChange()" />
+        </div>
+        <div class="filter-item" style="align-self: flex-end;">
+            <button class="btn btn-sm btn-ghost" (click)="clearDashboardDateFilter()">✕ Clear</button>
+        </div>
+      </div>
+    }
+    @if (merchants.length <= 1 && !isAdmin) {
+      <div class="dashboard-merchant-filter">
+        <div class="filter-item">
+          <label class="filter-label">📅 From Date</label>
+          <input type="date" class="filter-input" [(ngModel)]="dashboardFilterFrom" (change)="onDashboardDateChange()" />
+        </div>
+        <div class="filter-item">
+          <label class="filter-label">📅 To Date</label>
+          <input type="date" class="filter-input" [(ngModel)]="dashboardFilterTo" (change)="onDashboardDateChange()" />
+        </div>
+        @if (dashboardFilterApplied) {
+          <div class="filter-item" style="align-self: flex-end;">
+            <button class="btn btn-sm btn-ghost" (click)="clearDashboardDateFilter()">✕ Clear</button>
+          </div>
+        }
+      </div>
+    }
+
     @if (chartsLoading) {
       <div class="charts-loading">
         <div class="spinner"></div>
@@ -83,7 +128,7 @@
       <!-- Row 1: Transaction Volume (full-width) + Status -->
       <div class="chart-row">
         <div class="chart-card chart-wide">
-          <div class="chart-card-header"><h3>Transaction Volume (Last 7 Days)</h3></div>
+          <div class="chart-card-header"><h3>{{ getVolumeChartTitle() }}</h3></div>
           <div class="chart-body"><canvas #dailyVolumeChart></canvas></div>
         </div>
         <div class="chart-card chart-small">
@@ -107,7 +152,7 @@
       <!-- Row 3: Daily Revenue (full-width) -->
       <div class="chart-row">
         <div class="chart-card chart-full">
-          <div class="chart-card-header"><h3>Daily Revenue — Last 7 Days (MYR)</h3></div>
+          <div class="chart-card-header"><h3>{{ getRevenueChartTitle() }}</h3></div>
           <div class="chart-body chart-body-tall"><canvas #dailyRevenueChart></canvas></div>
         </div>
       </div>
@@ -159,15 +204,17 @@
 
     <!-- ── AI Date-Range Filter Bar ─────────────────────────── -->
     <div class="filter-bar ai-filter-bar">
-      @if (userRole === 'ADMIN') {
+      @if (merchants.length > 1 || isAdmin) {
         <div class="filter-item filter-search">
           <label class="filter-label">🏢 Merchant</label>
-          <select [(ngModel)]="selectedMerchantId" (change)="onMerchantFilterChange()" class="filter-select">
-            <option [ngValue]="null">All Merchants</option>
-            @for (m of merchants; track m.merchantId) {
-              <option [ngValue]="m.merchantId">{{ m.merchantName }}</option>
-            }
-          </select>
+          <div class="select-wrap">
+            <select [(ngModel)]="selectedMerchantId" (change)="onMerchantFilterChange()" class="filter-select">
+              <option [ngValue]="null">All Merchants</option>
+              @for (m of merchants; track m.merchantId) {
+                <option [ngValue]="m.merchantId">{{ m.merchantName }}</option>
+              }
+            </select>
+          </div>
         </div>
       }
       <div class="filter-item filter-search">
@@ -190,20 +237,6 @@
         </div>
       </div>
     </div>
-
-    @if (filterApplied) {
-      <div class="active-filter-banner">
-        📅 Analytics filtered: <strong>{{ filterFrom }}</strong> → <strong>{{ filterTo }}</strong>
-        <button class="clear-filter-link" (click)="clearDateFilter()">Clear filter</button>
-      </div>
-    }
-
-    @if (userRole === 'ADMIN' && selectedMerchantId != null) {
-      <div class="active-filter-banner merchant-filter-banner">
-        🏢 Showing analytics for: <strong>{{ getSelectedMerchantName() }}</strong>
-        <button class="clear-filter-link" (click)="selectedMerchantId = null; onMerchantFilterChange()">View all merchants</button>
-      </div>
-    }
 
     <!-- Print-only header -->
     <div class="print-date-banner">
@@ -254,29 +287,9 @@
                     <div class="model-kpi-label">Clusters</div>
                     <div class="model-kpi-value">{{ rfmData.clusterSummary?.length || 0 }}</div>
                   </div>
-                  <div class="model-kpi has-tooltip">
-                    <div class="model-kpi-label">
-                      Cluster Quality
-                      <span class="info-tooltip" title="Measures how well-separated the customer groups are. Ranges from -1 to 1: above 0.5 = strong grouping, 0.25-0.5 = reasonable, below 0.25 = overlapping groups.">ⓘ</span>
-                    </div>
-                    <div class="model-kpi-value" [ngClass]="{
-                      'kpi-success': rfmData.silhouetteScore > 0.5,
-                      'kpi-warning': rfmData.silhouetteScore >= 0.25 && rfmData.silhouetteScore <= 0.5,
-                      'kpi-danger': rfmData.silhouetteScore < 0.25
-                    }">
-                      @if (rfmData.silhouetteScore != null) {
-                        {{ rfmData.silhouetteScore | number:'1.3-3' }}
-                        <span class="kpi-verdict">
-                          {{ rfmData.silhouetteScore > 0.5 ? 'Strong' : rfmData.silhouetteScore >= 0.25 ? 'Fair' : 'Weak' }}
-                        </span>
-                      } @else {
-                        N/A
-                      }
-                    </div>
-                  </div>
                   <div class="model-kpi">
                     <div class="model-kpi-label">Data As Of</div>
-                    <div class="model-kpi-value model-kpi-sm">{{ rfmData.snapshotDate }}</div>
+                    <div class="model-kpi-value model-kpi-sm">{{ getDataAsOfLabel() }}</div>
                   </div>
                 </div>
                 <div class="card model-chart-card">
@@ -641,7 +654,7 @@
                   </div>
                   <div class="model-kpi">
                     <div class="model-kpi-label">Latest Data Point</div>
-                    <div class="model-kpi-value model-kpi-sm">{{ forecastData.lastActualDate }}</div>
+                    <div class="model-kpi-value model-kpi-sm">{{ getDataAsOfLabel() }}</div>
                   </div>
                 </div>
               </div>

@@ -26,7 +26,13 @@ export class UserListComponent implements OnInit, OnDestroy {
   showForm = false;
   searchTerm = '';
   filterStatus = '';
+  merchantFilter = '';
+  merchantSearchQuery = '';
+  showMerchantDropdown = false;
+  filteredMerchantNames: string[] = [];
+  availableMerchantNames: string[] = [];
   activeTab: 'bank' | 'merchant' = 'bank';
+  isAdmin = false;
 
   private navSub?: Subscription;
 
@@ -64,6 +70,10 @@ export class UserListComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    this.isAdmin = this.authService.isAdmin();
+    if (!this.isAdmin) {
+      this.activeTab = 'merchant';
+    }
     this.fetchUsers();
     this.fetchRolePermissions();
     // Re-fetch whenever navigating back to this page
@@ -94,6 +104,12 @@ export class UserListComponent implements OnInit, OnDestroy {
     this.authService.getAllUsers().subscribe({
       next: (data) => {
         this.allUsers = data as User[];
+        // Build unique merchant name list for dropdown
+        const nameSet = new Set<string>();
+        this.allUsers.forEach((u: any) => {
+          (u.merchantNames || []).forEach((n: string) => nameSet.add(n));
+        });
+        this.availableMerchantNames = Array.from(nameSet).sort();
         this.applyFilters();
         this.loading = false;
       },
@@ -114,14 +130,18 @@ export class UserListComponent implements OnInit, OnDestroy {
     if (this.searchTerm.trim()) {
       const term = this.searchTerm.toLowerCase();
       filtered = filtered.filter(u =>
-        (u.firstName || '').toLowerCase().includes(term) ||
-        (u.lastName || '').toLowerCase().includes(term) ||
-        (u.email || '').toLowerCase().includes(term) ||
         ((u as any).displayName || '').toLowerCase().includes(term)
       );
     }
     if (this.filterStatus) {
       filtered = filtered.filter(u => u.status === this.filterStatus);
+    }
+
+    // Merchant name filter (dropdown)
+    if (this.merchantFilter) {
+      filtered = filtered.filter(u =>
+        ((u as any).merchantNames || []).includes(this.merchantFilter)
+      );
     }
 
     // Sorting
@@ -177,10 +197,22 @@ export class UserListComponent implements OnInit, OnDestroy {
     this.router.navigate(['/users', 'new'], { queryParams: { type } });
   }
 
+  clearFilters() {
+    this.searchTerm = '';
+    this.filterStatus = '';
+    this.merchantFilter = '';
+    this.merchantSearchQuery = '';
+    this.showMerchantDropdown = false;
+    this.applyFilters();
+  }
+
   switchTab(tab: 'bank' | 'merchant') {
     this.activeTab = tab;
     this.searchTerm = '';
     this.filterStatus = '';
+    this.merchantFilter = '';
+    this.merchantSearchQuery = '';
+    this.showMerchantDropdown = false;
     this.sortColumn = '';
     this.sortDirection = 'asc';
     this.showForm = false;
@@ -261,5 +293,33 @@ export class UserListComponent implements OnInit, OnDestroy {
 
   get merchantUserCount(): number {
     return this.allUsers.filter((u: any) => u.userType === 'MERCHANT').length;
+  }
+
+  // ── Merchant type-to-search filter ──
+  onMerchantSearchInput() {
+    const q = this.merchantSearchQuery.toLowerCase().trim();
+    this.filteredMerchantNames = q
+      ? this.availableMerchantNames.filter(n => n.toLowerCase().includes(q))
+      : [...this.availableMerchantNames];
+    this.showMerchantDropdown = true;
+  }
+
+  selectMerchantFilter(name: string) {
+    this.merchantFilter = name;
+    this.merchantSearchQuery = name;
+    this.showMerchantDropdown = false;
+    this.applyFilters();
+  }
+
+  clearMerchantFilter(e: Event) {
+    e.preventDefault();
+    this.merchantFilter = '';
+    this.merchantSearchQuery = '';
+    this.showMerchantDropdown = false;
+    this.applyFilters();
+  }
+
+  hideMerchantDropdownDelayed() {
+    setTimeout(() => this.showMerchantDropdown = false, 200);
   }
 }

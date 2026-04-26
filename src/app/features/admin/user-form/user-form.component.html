@@ -21,29 +21,28 @@
 
     <form (ngSubmit)="onSubmit()">
 
-      <div *ngIf="formErrorMessage" class="form-error-banner">⚠️ {{ formErrorMessage }}</div>
       <div class="form-grid">
         <div class="form-group">
-          <label>First Name *</label>
+          <label>First Name  <span style="color:#dc2626;">*</span></label>
           <input type="text" class="form-control" [class.input-error]="errors['firstName']" [(ngModel)]="formData.firstName" name="firstName" placeholder="Enter first name">
           <small class="field-error" *ngIf="errors['firstName']">{{ errors['firstName'] }}</small>
         </div>
 
         <div class="form-group">
-          <label>Last Name *</label>
+          <label>Last Name  <span style="color:#dc2626;">*</span></label>
           <input type="text" class="form-control" [class.input-error]="errors['lastName']" [(ngModel)]="formData.lastName" name="lastName" placeholder="Enter last name">
           <small class="field-error" *ngIf="errors['lastName']">{{ errors['lastName'] }}</small>
         </div>
 
         <div class="form-group">
-          <label>Display Name</label>
-          <input type="text" class="form-control" [class.input-error]="errors['displayName']" [(ngModel)]="formData.displayName" name="displayName" placeholder="Optional display name" (blur)="onDisplayNameBlur()">
+          <label>Display Name  <span style="color:#dc2626;">*</span></label>
+          <input type="text" class="form-control" [class.input-error]="errors['displayName']" [(ngModel)]="formData.displayName" name="displayName" placeholder="Enter display name" (blur)="onDisplayNameBlur()">
           <small class="field-error" *ngIf="errors['displayName']">{{ errors['displayName'] }}</small>
         </div>
 
         <div class="form-group">
-          <label>Email Address *</label>
-          <input type="email" class="form-control" [class.input-error]="errors['email']" [(ngModel)]="formData.email" name="email" placeholder="user@example.com" [readonly]="isEditMode">
+          <label>Email Address <span style="color:#dc2626;">*</span></label>
+          <input type="email" class="form-control" [class.input-error]="errors['email']" [class.input-disabled]="isEditMode" [(ngModel)]="formData.email" name="email" placeholder="user@example.com" [readonly]="isEditMode">
           <small class="field-error" *ngIf="errors['email']">{{ errors['email'] }}</small>
           <small class="text-muted" *ngIf="isEditMode">Email address cannot be changed after creation.</small>
         </div>
@@ -54,13 +53,13 @@
         </div>
 
         <div class="form-group">
-          <label>User Type *</label>
+          <label>User Type <span style="color:#dc2626;">*</span></label>
           <input type="text" class="form-control" [value]="formData.role === 'ADMIN' ? 'Bank User' : 'Merchant User'" readonly style="background:#f5f5f5; cursor:not-allowed;">
           <small class="text-muted">User type cannot be changed{{ isEditMode ? ' after creation' : '' }}.</small>
         </div>
 
         <div class="form-group">
-          <label>Status *</label>
+          <label>Status <span style="color:#dc2626;">*</span></label>
           <select class="form-control" [(ngModel)]="formData.status" name="status">
             <option value="ACTIVE">Active</option>
             <option value="INACTIVE">Inactive</option>
@@ -68,47 +67,50 @@
           </select>
         </div>
 
-        <!-- Merchant mapping — create mode, MERCHANT type only -->
-        @if (!isEditMode && userType === 'MERCHANT') {
+        <!-- Merchant mapping — MERCHANT type only (create & edit) -->
+        @if (userType === 'MERCHANT') {
           <div class="form-group form-group-full merchant-search-group">
-            <label>Link to Merchant <span style="color:#dc2626;">*</span></label>
+            <label>Link to Merchant(s) <span style="color:#dc2626;">*</span></label>
+            <!-- Selected merchant chips -->
+            @if (selectedMerchants.length > 0) {
+              <div class="merchant-chips">
+                @for (m of selectedMerchants; track m.merchantId) {
+                  <span class="merchant-chip">
+                    🏪 {{ m.merchantId }} – {{ m.merchantName }}
+                    <button type="button" class="chip-remove" (click)="removeMerchant(m)" title="Remove">✕</button>
+                  </span>
+                }
+              </div>
+            }
             <div class="merchant-search-wrap" [class.input-error]="errors['merchant'] && !showMerchantDropdown">
-              @if (selectedMerchant) {
-                <div class="merchant-selected">
-                  <span class="merchant-selected-icon">🏪</span>
-                  <span class="merchant-selected-name">#{{ selectedMerchant.merchantId }} – {{ selectedMerchant.merchantName }}</span>
-                  <button type="button" class="btn-clear-merchant" (click)="clearMerchant()" title="Remove">✕</button>
-                </div>
-              } @else {
-                <div class="search-input-wrap">
-                  <span class="search-prefix">🔍</span>
-                  <input
-                    type="text"
-                    class="form-control"
-                    placeholder="Search merchant by name or ID…"
-                    [(ngModel)]="merchantSearchQuery"
-                    name="merchantSearch"
-                    (input)="onMerchantSearch(merchantSearchQuery)"
-                    (focus)="onMerchantFocus()"
-                    (blur)="onMerchantBlur()"
-                    autocomplete="off">
-                </div>
-                @if (showMerchantDropdown && merchantSearchResults.length > 0) {
-                  <ul class="merchant-dropdown">
-                    @for (m of merchantSearchResults; track m.merchantId) {
-                      <li (click)="selectMerchant(m)">
-                        <span class="merchant-avatar">{{ (m.merchantName || 'M').charAt(0) }}</span>
-                        <span class="merchant-info">
-                          <strong>{{ m.merchantName }}</strong>
-                          <small>#{{ m.merchantId }} · {{ m.city || m.country || '' }} · <span [class]="'status-dot-' + (m.status || 'PENDING').toLowerCase()">{{ m.status }}</span></small>
-                        </span>
-                      </li>
-                    }
-                  </ul>
-                }
-                @if (showMerchantDropdown && merchantSearchQuery.length >= 1 && merchantSearchResults.length === 0) {
-                  <div class="search-hint">No merchants found</div>
-                }
+              <div class="search-input-wrap">
+                <span class="search-prefix">🔍</span>
+                <input
+                  type="text"
+                  class="form-control"
+                  placeholder="Search merchant by name or ID…"
+                  [(ngModel)]="merchantSearchQuery"
+                  name="merchantSearch"
+                  (input)="onMerchantSearch(merchantSearchQuery)"
+                  (focus)="onMerchantFocus()"
+                  (blur)="onMerchantBlur()"
+                  autocomplete="off">
+              </div>
+              @if (showMerchantDropdown && availableMerchantResults.length > 0) {
+                <ul class="merchant-dropdown">
+                  @for (m of availableMerchantResults; track m.merchantId) {
+                    <li (click)="selectMerchant(m)">
+                      <span class="merchant-avatar">{{ (m.merchantName || 'M').charAt(0) }}</span>
+                      <span class="merchant-info">
+                        <strong>{{ m.merchantName }}</strong>
+                        <small>{{ m.merchantId }} · {{ m.city || m.country || '' }} · <span [class]="'status-dot-' + (m.status || 'PENDING').toLowerCase()">{{ m.status }}</span></small>
+                      </span>
+                    </li>
+                  }
+                </ul>
+              }
+              @if (showMerchantDropdown && merchantSearchQuery.length >= 1 && availableMerchantResults.length === 0) {
+                <div class="search-hint">No merchants found</div>
               }
             </div>
             <small class="field-error" *ngIf="errors['merchant']">{{ errors['merchant'] }}</small>

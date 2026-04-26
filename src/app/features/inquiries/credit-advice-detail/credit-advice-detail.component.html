@@ -3,7 +3,7 @@
     <div>
       <h1>Credit Advice Detail</h1>
       <div class="breadcrumb">
-        <a routerLink="/credit-advices">Inquiries › Credit Advice</a> › #{{ creditAdviceId }}
+        <a routerLink="/credit-advices">Inquiries › Credit Advice</a> › {{ creditAdviceId }}
       </div>
     </div>
     <div class="header-actions">
@@ -34,7 +34,7 @@
     <div class="card" style="padding:48px;text-align:center;">
       <div style="font-size:3rem;margin-bottom:12px;">🔍</div>
       <h3 style="color:#888;">Credit Advice Not Found</h3>
-      <p style="color:#aaa;margin:8px 0 20px;">The credit advice #{{ creditAdviceId }} could not be found.</p>
+      <p style="color:#aaa;margin:8px 0 20px;">The credit advice {{ creditAdviceId }} could not be found.</p>
       <a routerLink="/credit-advices" class="btn btn-primary">← Back to Credit Advices</a>
     </div>
   }
@@ -58,7 +58,7 @@
       </div>
       <div class="detail-row">
         <label>Credit Advice ID</label>
-        <span class="id-cell">#{{ creditAdvice.creditAdviceId }}</span>
+        <span class="id-cell">{{ creditAdvice.creditAdviceId }}</span>
       </div>
       <div class="detail-row">
         <label>Merchant</label>
@@ -103,7 +103,7 @@
       </thead>
       <tbody>
         <tr *ngFor="let s of settlements">
-          <td class="id-cell">#{{ s.settlementId }}</td>
+          <td class="id-cell">{{ s.settlementId }}</td>
           <td>{{ s.settlementNo || '-' }}</td>
           <td>{{ s.settlementType || '-' }}</td>
           <td class="amount-cell">{{ s.currency }} {{ formatAmount(s.settlementAmount) }}</td>

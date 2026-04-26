@@ -44,10 +44,10 @@ export const routes: Routes = [
       { path: 'ai-analytics', component: DashboardComponent, canActivate: [permissionGuard], data: { permission: 'VIEW_DASHBOARD', tab: 'ai-analytics' }, runGuardsAndResolvers: 'always' },
 
       // User management - permission guarded
-      { path: 'users', component: UserListComponent, canActivate: [permissionGuard], data: { permission: 'MANAGE_USERS' }, runGuardsAndResolvers: 'always' },
-      { path: 'users/new', component: UserFormComponent, canActivate: [permissionGuard], data: { permission: 'MANAGE_USERS' }, runGuardsAndResolvers: 'always' },
-      { path: 'users/:id/edit', component: UserFormComponent, canActivate: [permissionGuard], data: { permission: 'MANAGE_USERS' }, runGuardsAndResolvers: 'always' },
-      { path: 'users/:id/view', component: UserDetailComponent, canActivate: [permissionGuard], data: { permission: 'MANAGE_USERS' }, runGuardsAndResolvers: 'always' },
+      { path: 'users', component: UserListComponent, canActivate: [permissionGuard], data: { permissions: ['MANAGE_USERS', 'MANAGE_CHILD_USERS'] }, runGuardsAndResolvers: 'always' },
+      { path: 'users/new', component: UserFormComponent, canActivate: [permissionGuard], data: { permissions: ['MANAGE_USERS', 'MANAGE_CHILD_USERS'] }, runGuardsAndResolvers: 'always' },
+      { path: 'users/:id/edit', component: UserFormComponent, canActivate: [permissionGuard], data: { permissions: ['MANAGE_USERS', 'MANAGE_CHILD_USERS'] }, runGuardsAndResolvers: 'always' },
+      { path: 'users/:id/view', component: UserDetailComponent, canActivate: [permissionGuard], data: { permissions: ['MANAGE_USERS', 'MANAGE_CHILD_USERS'] }, runGuardsAndResolvers: 'always' },
       
       // Role management - permission guarded
       { path: 'roles', component: RoleListComponent, canActivate: [permissionGuard], data: { permission: 'MANAGE_ROLES' }, runGuardsAndResolvers: 'always' },

@@ -3,7 +3,7 @@
     <div>
       <h1>Merchant Detail</h1>
       <div class="breadcrumb">
-        <a routerLink="/merchants">Inquiries › Merchants</a> › #{{ merchantId }}
+        <a routerLink="/merchants">Inquiries › Merchants</a> › {{ merchantId }}
       </div>
     </div>
     <div class="header-actions">
@@ -36,7 +36,7 @@
     <div class="card" style="padding:48px;text-align:center;">
       <div style="font-size:3rem;margin-bottom:12px;">🔍</div>
       <h3 style="color:#888;">Merchant Not Found</h3>
-      <p style="color:#aaa;margin:8px 0 20px;">The merchant #{{ merchantId }} could not be found.</p>
+      <p style="color:#aaa;margin:8px 0 20px;">The merchant {{ merchantId }} could not be found.</p>
       <a routerLink="/merchants" class="btn btn-primary">← Back to Merchants</a>
     </div>
   }
@@ -62,7 +62,7 @@
       </div>
       <div class="detail-row">
         <label>Merchant ID</label>
-        <span class="id-cell">#{{ merchant.merchantId }}</span>
+        <span class="id-cell">{{ merchant.merchantId }}</span>
       </div>
       <div class="detail-row">
         <label>Merchant Name</label>
@@ -103,45 +103,14 @@
     </div>
 
     <!-- Linked Users Card (admin only) -->
-    @if (isAdmin) {
+    @if (canManageUsers) {
       <div class="card linked-users-card">
         <div class="card-header">
           <h3>Linked Users</h3>
-          <span class="user-count-badge">{{ mappedUsers.length }}</span>
-        </div>
-
-        <!-- Search to add user -->
-        <div class="user-search-wrap">
-          <div class="search-input-wrap">
-            <span class="search-prefix">🔍</span>
-            <input
-              type="text"
-              placeholder="Search user by name or email to add…"
-              [(ngModel)]="userSearchQuery"
-              (input)="onUserSearch(userSearchQuery)"
-              autocomplete="off">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="user-count-badge">{{ mappedUsers.length }}</span>
+            <a routerLink="/users" class="btn btn-sm btn-outline">✏️ Manage Users</a>
           </div>
-          @if (searching) {
-            <div class="search-hint">Searching…</div>
-          }
-          @if (searchResults.length > 0) {
-            <ul class="user-dropdown">
-              @for (u of searchResults; track u.userId) {
-                <li (click)="assignUser(u)">
-                  <span class="user-avatar-sm">{{ (u.firstName || '?').charAt(0) }}</span>
-                  <span class="user-info">
-                    <strong>{{ displayName(u) }}</strong>
-                    <small>{{ u.email }}</small>
-                  </span>
-                  <span class="role-tag">{{ u.role }}</span>
-                  <span class="add-icon">＋</span>
-                </li>
-              }
-            </ul>
-          }
-          @if (userSearchQuery.length >= 2 && !searching && searchResults.length === 0) {
-            <div class="search-hint">No users found</div>
-          }
         </div>
 
         <!-- Mapped users list -->
@@ -163,7 +132,6 @@
                   'badge-warning': u.status === 'INACTIVE',
                   'badge-danger':  u.status === 'SUSPENDED'
                 }">{{ u.status }}</span>
-                <button class="btn btn-sm btn-danger-ghost" (click)="removeUser(u)" title="Remove">✕</button>
               </li>
             }
           </ul>

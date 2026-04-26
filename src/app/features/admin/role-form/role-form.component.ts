@@ -142,10 +142,10 @@ export class RoleFormComponent implements OnInit {
               this.toast.success('Role updated successfully');
               setTimeout(() => this.router.navigate(['/roles']), 1000);
             },
-            error: () => this.errorMessage = 'Role saved but permissions update failed'
+            error: () => this.toast.error('Role saved but permissions update failed')
           });
         },
-        error: (err) => this.errorMessage = err.error?.message || 'Error updating role'
+        error: (err) => this.toast.error(err.error?.message || 'Error updating role')
       });
     } else {
       this.roleService.createRole(this.formData).subscribe({
@@ -155,10 +155,10 @@ export class RoleFormComponent implements OnInit {
               this.toast.success('Role created successfully');
               setTimeout(() => this.router.navigate(['/roles']), 1000);
             },
-            error: () => this.errorMessage = 'Role created but permissions assignment failed'
+            error: () => this.toast.error('Role created but permissions assignment failed')
           });
         },
-        error: (err) => this.errorMessage = err.error?.message || 'Error creating role'
+        error: (err) => this.toast.error(err.error?.message || 'Error creating role')
       });
     }
   }
@@ -174,7 +174,7 @@ export class RoleFormComponent implements OnInit {
           this.toast.success('Role deleted successfully');
           this.router.navigate(['/roles']);
         },
-        error: (err) => this.errorMessage = err.error?.message || 'Failed to delete role'
+        error: (err) => this.toast.error(err.error?.message || 'Failed to delete role')
       });
     }
     this.showDeleteDialog = false;

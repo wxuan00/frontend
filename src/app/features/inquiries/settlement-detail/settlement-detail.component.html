@@ -4,8 +4,8 @@
       <h1>Settlement Detail</h1>
       <div class="breadcrumb">
         <a routerLink="/credit-advices">Inquiries &rsaquo; Credit Advice</a>
-        <span *ngIf="settlement?.creditAdviceId"> &rsaquo; <a [routerLink]="['/credit-advices', settlement.creditAdviceId]">CA #{{ settlement.creditAdviceId }}</a></span>
-        &rsaquo; Settlement #{{ settlementId }}
+        <span *ngIf="settlement?.creditAdviceId"> &rsaquo; <a [routerLink]="['/credit-advices', settlement.creditAdviceId]">CA {{ settlement.creditAdviceId }}</a></span>
+        &rsaquo; Settlement {{ settlementId }}
       </div>
     </div>
     <div class="header-actions">
@@ -37,7 +37,7 @@
     <div class="card" style="padding:48px;text-align:center;">
       <div style="font-size:3rem;margin-bottom:12px;">🔍</div>
       <h3 style="color:#888;">Settlement Not Found</h3>
-      <p style="color:#aaa;margin:8px 0 20px;">The settlement #{{ settlementId }} could not be found.</p>
+      <p style="color:#aaa;margin:8px 0 20px;">The settlement {{ settlementId }} could not be found.</p>
       <a routerLink="/settlements" class="btn btn-primary">← Back to Settlements</a>
     </div>
   }
@@ -62,7 +62,7 @@
       </div>
       <div class="detail-row">
         <label>Settlement ID</label>
-        <span class="id-cell">#{{ settlement.settlementId }}</span>
+        <span class="id-cell">{{ settlement.settlementId }}</span>
       </div>
       <div class="detail-row">
         <label>Settlement No</label>
@@ -116,7 +116,7 @@
       </thead>
       <tbody>
         <tr *ngFor="let t of transactions">
-          <td class="id-cell">#{{ t.transactionId }}</td>
+          <td class="id-cell">{{ t.transactionId }}</td>
           <td>{{ t.merchantName || '-' }}</td>
           <td>{{ t.cardNo | maskCard }}</td>
           <td>{{ t.paymentChannel || '-' }}</td>

@@ -25,6 +25,7 @@ export class MerchantListComponent implements OnInit {
   searchTerm: string = '';
   filterStatus: string = '';
   isAdmin = false;
+  hasManageUsers = false;
 
   // Pagination
   pagination = { currentPage: 1, pageSize: 10, totalPages: 1, totalItems: 0 };
@@ -47,6 +48,7 @@ export class MerchantListComponent implements OnInit {
 
   ngOnInit() {
     this.isAdmin = this.authService.isAdmin();
+    this.hasManageUsers = this.authService.hasPermission('MANAGE_USERS');
     this.loadMerchants();
   }
 

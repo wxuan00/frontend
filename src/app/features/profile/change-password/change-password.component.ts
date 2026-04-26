@@ -87,7 +87,7 @@ export class ChangePasswordComponent implements OnInit {
 
   cancel() {
     if (this.isForced) {
-      this.errorMessage = 'You must change your password before continuing.';
+      this.router.navigate(['/dashboard']);
     } else {
       this.router.navigate(['/profile']);
     }

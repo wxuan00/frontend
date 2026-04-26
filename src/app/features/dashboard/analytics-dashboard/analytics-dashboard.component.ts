@@ -30,6 +30,13 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   // Admin merchant selector
   merchants: any[] = [];
   selectedMerchantId: number | null = null;
+  dashboardMerchantId: number | null = null;
+  isAdmin = false;
+
+  // Dashboard date filter
+  dashboardFilterFrom: string = '';
+  dashboardFilterTo: string = '';
+  dashboardFilterApplied = false;
 
   totalUsers: number = 0;
   totalMerchants: number = 0;
@@ -118,9 +125,16 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.loadDashboardStats();
 
-    if (this.userRole === 'ADMIN') {
+    this.isAdmin = this.userRole === 'ADMIN';
+    if (this.isAdmin) {
       this.merchantService.getAllMerchants().subscribe({
         next: (data) => { this.merchants = data; }
+      });
+    } else {
+      this.merchantService.getMyMerchants().subscribe({
+        next: (data: any[]) => {
+          this.merchants = data.map(m => ({ merchantId: m.merchantId, merchantName: m.merchantName || ('Merchant #' + m.merchantId) }));
+        }
       });
     }
 
@@ -135,7 +149,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit() {
-    this.dashboardService.getChartData().subscribe({
+    this.dashboardService.getChartData(this.dashboardMerchantId ?? undefined, this.dashboardFilterFrom || undefined, this.dashboardFilterTo || undefined).subscribe({
       next: (data) => {
         this.chartData = data;
         this.chartsLoading = false;
@@ -169,12 +183,18 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // ===== Dashboard Data =====
 
+  private initialMerchantStatsLoaded = false;
+
   private loadDashboardStats() {
-    this.dashboardService.getStats().subscribe({
+    this.dashboardService.getStats(this.dashboardMerchantId ?? undefined, this.dashboardFilterFrom || undefined, this.dashboardFilterTo || undefined).subscribe({
       next: (stats) => {
-        this.totalMerchants = stats.totalMerchants || 0;
-        this.activeMerchants = stats.activeMerchants || 0;
-        this.pendingMerchants = stats.pendingMerchants || 0;
+        // Merchant counts should always reflect the overall total, not filtered by selected merchant
+        if (!this.initialMerchantStatsLoaded || this.dashboardMerchantId == null) {
+          this.totalMerchants = stats.totalMerchants || 0;
+          this.activeMerchants = stats.activeMerchants || 0;
+          this.pendingMerchants = stats.pendingMerchants || 0;
+          this.initialMerchantStatsLoaded = true;
+        }
         this.totalTransactions = stats.totalTransactions || 0;
         this.totalSettlements = stats.totalSettlements || 0;
 
@@ -209,6 +229,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   clearDateFilter() {
     this.filterFrom = ''; this.filterTo = ''; this.filterApplied = false;
+    this.selectedMerchantId = null;
     this.rfmData = null; this.churnData = null; this.forecastData = null;
     this.destroyCharts();
     this.loadRfm(); this.loadChurn(); this.loadForecast();
@@ -218,6 +239,84 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     this.rfmData = null; this.churnData = null; this.forecastData = null;
     this.destroyCharts();
     this.loadRfm(); this.loadChurn(); this.loadForecast();
+  }
+
+  onDashboardMerchantChange() {
+    this.chartsLoading = true;
+    this.destroyCharts();
+    this.loadDashboardStats();
+    this.dashboardService.getChartData(this.dashboardMerchantId ?? undefined, this.dashboardFilterFrom || undefined, this.dashboardFilterTo || undefined).subscribe({
+      next: (data) => {
+        this.chartData = data;
+        this.chartsLoading = false;
+        setTimeout(() => this.renderDashboardCharts(), 50);
+      },
+      error: () => { this.chartsLoading = false; }
+    });
+  }
+
+  onDashboardDateChange() {
+    this.dashboardFilterApplied = !!(this.dashboardFilterFrom || this.dashboardFilterTo);
+    this.chartsLoading = true;
+    this.destroyCharts();
+    this.loadDashboardStats();
+    this.dashboardService.getChartData(this.dashboardMerchantId ?? undefined, this.dashboardFilterFrom || undefined, this.dashboardFilterTo || undefined).subscribe({
+      next: (data) => {
+        this.chartData = data;
+        this.chartsLoading = false;
+        setTimeout(() => this.renderDashboardCharts(), 50);
+      },
+      error: () => { this.chartsLoading = false; }
+    });
+  }
+
+  clearDashboardDateFilter() {
+    this.dashboardFilterFrom = '';
+    this.dashboardFilterTo = '';
+    this.dashboardFilterApplied = false;
+    this.dashboardMerchantId = null;
+    this.onDashboardDateChange();
+  }
+
+  getDashboardMerchantName(): string {
+    if (this.dashboardMerchantId == null) return '';
+    return this.merchants.find(m => m.merchantId === this.dashboardMerchantId)?.merchantName || '';
+  }
+
+  getVolumeChartTitle(): string {
+    if (this.dashboardFilterFrom || this.dashboardFilterTo) {
+      const from = this.dashboardFilterFrom || '...';
+      const to = this.dashboardFilterTo || '...';
+      return `Transaction Volume (${from} — ${to})`;
+    }
+    return 'Transaction Volume (Last 7 Days)';
+  }
+
+  getRevenueChartTitle(): string {
+    if (this.dashboardFilterFrom || this.dashboardFilterTo) {
+      const from = this.dashboardFilterFrom || '...';
+      const to = this.dashboardFilterTo || '...';
+      return `Daily Revenue (${from} — ${to}) (MYR)`;
+    }
+    return 'Daily Revenue — Last 7 Days (MYR)';
+  }
+
+  getDataAsOfLabel(): string {
+    if (this.filterFrom && this.filterTo) {
+      return `${this.filterFrom} → ${this.filterTo}`;
+    } else if (this.filterFrom) {
+      return `${this.filterFrom} → Present`;
+    } else if (this.filterTo) {
+      return `Up to ${this.filterTo}`;
+    }
+    // Show actual date range from RFM data if available
+    if (this.rfmData?.dateRange) {
+      return `${this.rfmData.dateRange.from} → ${this.rfmData.dateRange.to}`;
+    }
+    if (this.rfmData?.snapshotDate) {
+      return this.rfmData.snapshotDate;
+    }
+    return 'All Data';
   }
 
   getSelectedMerchantName(): string {
@@ -452,13 +551,14 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     if (this.dailyVolumeCanvas && this.chartData.dailyTransactionVolume) {
-      const data = this.chartData.dailyTransactionVolume;
+      const rawData = this.chartData.dailyTransactionVolume;
+      const binned = this.binChartData(rawData);
       this.charts.push(new Chart(this.dailyVolumeCanvas.nativeElement, {
         type: 'line',
         data: {
-          labels: Object.keys(data),
+          labels: Object.keys(binned),
           datasets: [{
-            label: 'Transactions', data: Object.values(data) as number[],
+            label: 'Transactions', data: Object.values(binned) as number[],
             borderColor: '#111', backgroundColor: 'rgba(17, 17, 17, 0.08)',
             fill: true, tension: 0.4, pointBackgroundColor: '#111',
             pointBorderColor: '#fff', pointBorderWidth: 2, pointRadius: 5
@@ -505,14 +605,15 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     if (this.dailyRevenueCanvas && this.chartData.dailyRevenue) {
-      const data = this.chartData.dailyRevenue;
+      const rawData = this.chartData.dailyRevenue;
+      const binned = this.binChartData(rawData);
       this.charts.push(new Chart(this.dailyRevenueCanvas.nativeElement, {
         type: 'bar',
         data: {
-          labels: Object.keys(data),
+          labels: Object.keys(binned),
           datasets: [{
             label: 'Revenue (MYR)',
-            data: Object.values(data) as number[],
+            data: Object.values(binned) as number[],
             backgroundColor: '#111',
             borderRadius: 6,
             barPercentage: 0.55,
@@ -551,6 +652,58 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     const owned = this.modelCharts.get(model) || [];
     owned.forEach(c => c.destroy());
     this.modelCharts.set(model, []);
+  }
+
+  /**
+   * Dynamically bins chart data based on date range span:
+   * - <= 21 days: per day (no binning)
+   * - <= 90 days: per 7-day bin
+   * - > 90 days: per month bin
+   */
+  private binChartData(data: Record<string, number>): Record<string, number> {
+    const keys = Object.keys(data);
+    if (keys.length <= 21) return data;
+
+    const binned: Record<string, number> = {};
+    if (keys.length <= 90) {
+      // Bin by 7-day chunks
+      let chunkLabel = '';
+      let chunkSum = 0;
+      let chunkStart = '';
+      keys.forEach((key, i) => {
+        if (i % 7 === 0) {
+          if (chunkStart) {
+            binned[`${chunkStart} – ${keys[i - 1]}`] = chunkSum;
+          }
+          chunkStart = key;
+          chunkSum = 0;
+        }
+        chunkSum += (data[key] as number) || 0;
+      });
+      if (chunkStart) {
+        binned[`${chunkStart} – ${keys[keys.length - 1]}`] = chunkSum;
+      }
+    } else {
+      // Bin by month — group by "MMM yyyy" or first 3 chars of key
+      // Keys are typically "MMM dd" format
+      let currentMonth = '';
+      let monthSum = 0;
+      keys.forEach((key) => {
+        const month = key.split(' ')[0]; // e.g. "Apr" from "Apr 01"
+        if (month !== currentMonth) {
+          if (currentMonth) {
+            binned[currentMonth] = monthSum;
+          }
+          currentMonth = month;
+          monthSum = 0;
+        }
+        monthSum += (data[key] as number) || 0;
+      });
+      if (currentMonth) {
+        binned[currentMonth] = monthSum;
+      }
+    }
+    return binned;
   }
 
   private destroyCharts() {

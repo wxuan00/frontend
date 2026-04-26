@@ -17,6 +17,8 @@ export class UserDetailComponent implements OnInit {
   user: any = null;
   loading = true;
   error = '';
+  canManageThisUser = false;
+  canViewRoles = false;
 
   // Delete user dialog
   showDeleteDialog = false;
@@ -46,6 +48,23 @@ export class UserDetailComponent implements OnInit {
         next: (data) => {
           this.user = data;
           this.loading = false;
+          // Determine if current user can manage this user
+          const isAdmin = this.authService.isAdmin();
+          const hasManageUsers = this.authService.hasPermission('MANAGE_USERS');
+          const hasManageChildUsers = this.authService.hasPermission('MANAGE_CHILD_USERS');
+          this.canViewRoles = this.authService.hasPermission('MANAGE_ROLES');
+          const currentEmail = this.authService.getCurrentUserEmail();
+          // Never allow edit/delete on own account
+          if (this.user.email === currentEmail) {
+            this.canManageThisUser = false;
+          // Never allow edit/delete on System Admin (super admin with no createdBy)
+          } else if (this.user.role === 'ADMIN' && (!this.user.createdBy || this.user.createdBy === '')) {
+            this.canManageThisUser = false;
+          } else if (isAdmin || hasManageUsers) {
+            this.canManageThisUser = true;
+          } else if (hasManageChildUsers) {
+            this.canManageThisUser = this.user.createdBy === currentEmail;
+          }
         },
         error: () => {
           this.error = 'Failed to load user details.';

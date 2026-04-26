@@ -58,4 +58,14 @@ export class MerchantService {
   searchUsers(q: string): Observable<any[]> {
     return this.http.get<any[]>(`${this.usersUrl}/search`, { params: new HttpParams().set('q', q) });
   }
+
+  // Get all merchants the current logged-in user is linked to
+  getMyMerchants(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.usersUrl}/my-merchants`);
+  }
+
+  // Sync user's linked merchants (replace all with provided list)
+  syncUserMerchants(userId: number, merchantIds: number[]): Observable<any> {
+    return this.http.put<any>(`${this.usersUrl}/${userId}/merchants`, merchantIds);
+  }
 }

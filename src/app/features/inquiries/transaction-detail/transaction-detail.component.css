@@ -135,3 +135,92 @@
 .radio-desc { font-size: 0.78rem; color: #888; }
 .field-error { color: #e74c3c; font-size: 0.78rem; margin-top: 4px; }
 .field-hint { color: #aaa; font-size: 0.75rem; margin-top: 4px; }
+
+/* ── Refund Modal ────────────────────────────────────────── */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-card {
+  background: #fff;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 460px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px 14px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-header h3 { margin: 0; font-size: 1rem; font-weight: 700; }
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  color: #9ca3af;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: color 0.15s;
+}
+.modal-close:hover { color: #111; }
+
+.modal-body { padding: 20px 22px; }
+
+.modal-info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  font-size: 0.86rem;
+}
+.modal-info-label { color: #6b7280; }
+.modal-info-value { font-weight: 600; color: #111; }
+
+.modal-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.modal-form-group label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 22px 18px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.btn-warning {
+  background: #d97706;
+  color: #fff;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-warning:hover:not(:disabled) { background: #b45309; }
+.btn-warning:disabled { opacity: 0.6; cursor: not-allowed; }

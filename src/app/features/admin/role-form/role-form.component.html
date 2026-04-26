@@ -21,10 +21,9 @@
 
     <form (ngSubmit)="onSubmit()">
 
-      <div *ngIf="errorMessage" class="form-error-banner">⚠️ {{ errorMessage }}</div>
       <div class="form-grid">
         <div class="form-group">
-          <label>Role Name *</label>
+          <label>Role Name <span style="color:#dc2626;">*</span></label>
           <input type="text" class="form-control" [class.input-error]="errorMessage && !formData.roleName.trim()" [(ngModel)]="formData.roleName" name="roleName" placeholder="e.g., ADMIN, MERCHANT">
         </div>
 
@@ -48,7 +47,7 @@
       <!-- Permissions Section -->
       <div class="permissions-section">
         <div class="permissions-header">
-          <h4>🔒 Permissions</h4>
+          <h4>🔒 Permissions <span style="color:#dc2626;">*</span></h4>
           <div class="perm-actions">
             <button type="button" class="btn btn-sm btn-ghost" (click)="selectAll()">Select All</button>
             <button type="button" class="btn btn-sm btn-ghost" (click)="clearAll()">Clear All</button>

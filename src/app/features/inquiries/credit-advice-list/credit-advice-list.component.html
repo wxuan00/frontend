@@ -18,10 +18,10 @@
       </div>
     </div>
     <div class="filter-item">
-      <label class="filter-label">Account Number</label>
+      <label class="filter-label">Account ID</label>
       <div class="search-input-wrap">
         <span class="search-prefix">🔍</span>
-        <input type="text" placeholder="Enter account number" [(ngModel)]="filterAccountNo" (input)="onFilterChange()">
+        <input type="text" placeholder="Enter account ID" [(ngModel)]="filterAccountId" (input)="onFilterChange()">
       </div>
     </div>
     <div class="filter-item">
@@ -65,7 +65,7 @@
         <tbody>
           @for (ca of creditAdvices; track ca.creditAdviceId) {
             <tr>
-              <td class="id-cell">#{{ ca.creditAdviceId }}</td>
+              <td class="id-cell">{{ ca.creditAdviceId }}</td>
               <td><strong>{{ ca.merchantName || '-' }}</strong></td>
               <td class="amount-cell">{{ ca.currency }} {{ ca.amount | number:'1.2-2' }}</td>
               <td>{{ ca.accountNo || '-' }}</td>

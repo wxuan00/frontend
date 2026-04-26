@@ -18,7 +18,7 @@ export class CreditAdviceListComponent implements OnInit {
   totalPages = 0;
 
   filterMerchant = '';
-  filterAccountNo = '';
+  filterAccountId = '';
   filterStatus = '';
   dateFrom = '';
   dateTo = '';
@@ -50,7 +50,7 @@ export class CreditAdviceListComponent implements OnInit {
       sortBy: this.sortField,
       sortDir: this.sortDirection,
       merchantName: this.filterMerchant || undefined,
-      accountNo: this.filterAccountNo || undefined,
+      accountId: this.filterAccountId || undefined,
       dateFrom: this.dateFrom || undefined,
       dateTo: this.dateTo || undefined,
     }).subscribe({
@@ -93,7 +93,7 @@ export class CreditAdviceListComponent implements OnInit {
 
   clearFilters() {
     this.filterMerchant = '';
-    this.filterAccountNo = '';
+    this.filterAccountId = '';
     this.filterStatus = '';
     this.dateFrom = '';
     this.dateTo = '';

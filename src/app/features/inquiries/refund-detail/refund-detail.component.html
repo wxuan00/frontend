@@ -3,7 +3,7 @@
     <div>
       <h1>Refund Detail</h1>
       <div class="breadcrumb">
-        <a routerLink="/refunds">Inquiries &rsaquo; Refunds</a> &rsaquo; #{{ refundId }}
+        <a routerLink="/refunds">Inquiries &rsaquo; Refunds</a> &rsaquo; {{ refundId }}
       </div>
     </div>
     <div class="header-actions">
@@ -50,7 +50,7 @@
     <div class="card" style="padding:48px;text-align:center;">
       <div style="font-size:3rem;margin-bottom:12px;">&#128270;</div>
       <h3 style="color:#888;">Refund Not Found</h3>
-      <p style="color:#aaa;margin:8px 0 20px;">The refund #{{ refundId }} could not be found.</p>
+      <p style="color:#aaa;margin:8px 0 20px;">The refund {{ refundId }} could not be found.</p>
       <a routerLink="/refunds" class="btn btn-primary">&larr; Back to Refunds</a>
     </div>
   }
@@ -82,11 +82,11 @@
       </div>
       <div class="detail-row">
         <label>Refund ID</label>
-        <span class="id-cell">#{{ refund.refundId }}</span>
+        <span class="id-cell">{{ refund.refundId }}</span>
       </div>
       <div class="detail-row">
         <label>Transaction ID</label>
-        <span class="id-cell">#{{ refund.transactionId }}</span>
+        <span class="id-cell">{{ refund.transactionId }}</span>
       </div>
       <div class="detail-row">
         <label>Merchant</label>

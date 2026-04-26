@@ -10,6 +10,15 @@
   box-sizing: border-box;
 }
 
+.maintenance-card {
+  grid-column: 1 / -1;
+}
+.maintenance-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 32px;
+}
+
 /* Role info card spans both rows — left column */
 .role-info-card {
   grid-row: 1 / 3;

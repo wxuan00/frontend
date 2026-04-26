@@ -96,7 +96,7 @@
         <tbody>
           @for (r of refunds; track r.refundId) {
             <tr>
-              <td class="id-cell">#{{ r.refundId }}</td>
+              <td class="id-cell">{{ r.refundId }}</td>
               <td class="id-cell">{{ r.transactionId ? '#' + r.transactionId : '-' }}</td>
               <td><strong>{{ r.merchantName }}</strong></td>
               <td class="amount-cell refund-amount">{{ r.currency }} {{ r.refundAmount | number:'1.2-2' }}</td>

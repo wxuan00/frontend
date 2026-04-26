@@ -16,7 +16,7 @@ export class CreditAdviceService {
 
   getCreditAdvicesPage(params: {
     page: number; size: number; sortBy?: string; sortDir?: string;
-    merchantName?: string; accountNo?: string;
+    merchantName?: string; accountId?: string;
     dateFrom?: string; dateTo?: string;
   }): Observable<any> {
     let httpParams = new HttpParams()
@@ -25,7 +25,7 @@ export class CreditAdviceService {
       .set('sortBy', params.sortBy || 'paymentDate')
       .set('sortDir', params.sortDir || 'desc');
     if (params.merchantName) httpParams = httpParams.set('merchantName', params.merchantName);
-    if (params.accountNo) httpParams = httpParams.set('accountNo', params.accountNo);
+    if (params.accountId) httpParams = httpParams.set('accountId', params.accountId);
     if (params.dateFrom) httpParams = httpParams.set('dateFrom', params.dateFrom);
     if (params.dateTo) httpParams = httpParams.set('dateTo', params.dateTo);
     return this.http.get<any>(this.apiUrl, { params: httpParams });

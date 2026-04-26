@@ -85,6 +85,14 @@
         <label>Account Created</label>
         <span>{{ formatDate(user.createdAt) }}</span>
       </div>
+      <div class="detail-row" *ngIf="user.linkedMerchants && user.linkedMerchants.length > 0">
+        <label>Linked Merchants</label>
+        <div class="linked-merchants-list">
+          <span *ngFor="let m of user.linkedMerchants" class="badge badge-primary" style="margin-right:6px;margin-bottom:4px;">
+            🏪 {{ m.merchantName || ('Merchant #' + m.merchantId) }}
+          </span>
+        </div>
+      </div>
     </div>
 
     <!-- MFA Settings Card -->

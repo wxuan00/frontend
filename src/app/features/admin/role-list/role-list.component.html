@@ -16,6 +16,25 @@
     </button>
   </div>
 
+  <div class="filter-bar">
+    <div class="filter-item filter-search">
+      <label class="filter-label">ROLES</label>
+      <div class="search-input-wrap">
+        <span class="search-prefix">&#128269;</span>
+        <input
+          type="text"
+          [placeholder]="activeTab === 'bank' ? 'Enter bank role name' : 'Enter merchant role name'"
+          [(ngModel)]="searchTerm"
+          (input)="applyFilter()"
+        >
+      </div>
+    </div>
+    <div class="filter-item filter-action">
+      <label class="filter-label">&nbsp;</label>
+      <button class="btn btn-sm btn-ghost" (click)="clearFilters()">✕ Clear</button>
+    </div>
+  </div>
+
   <div class="card">
     @if (loading) {
       <div class="table-loading">Loading roles...</div>
@@ -40,7 +59,7 @@
       </thead>
       <tbody>
         <tr *ngFor="let role of roles">
-          <td class="id-cell">#{{ role.roleId }}</td>
+          <td class="id-cell">{{ role.roleId }}</td>
           <td><span class="badge badge-primary">{{ role.roleName }}</span></td>
           <td>{{ role.roleType || '-' }}</td>
           <td>{{ role.description || '-' }}</td>

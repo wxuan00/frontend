@@ -124,6 +124,8 @@
   transition: background 0.2s;
 }
 .btn-export-pdf:hover { background: #1e3a8a; }
+
+.btn-ghost {
   background: none;
   border: 1px solid #ddd;
   color: #888;

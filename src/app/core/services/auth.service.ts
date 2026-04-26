@@ -182,6 +182,18 @@ export class AuthService {
     return this.getPermissions().includes(permission);
   }
 
+  // Get current user's email from JWT token
+  getCurrentUserEmail(): string {
+    const token = this.getToken();
+    if (!token) return '';
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.sub || '';
+    } catch {
+      return '';
+    }
+  }
+
   // Logout - clear all stored data
   logout(): void {
     localStorage.removeItem('token');

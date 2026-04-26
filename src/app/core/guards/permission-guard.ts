@@ -12,9 +12,14 @@ export const permissionGuard: CanActivateFn = (route, state) => {
   }
 
   const requiredPermission: string = route.data?.['permission'];
-  if (!requiredPermission) return true;
+  const requiredPermissions: string[] = route.data?.['permissions'];
+  if (!requiredPermission && !requiredPermissions) return true;
 
-  if (authService.hasPermission(requiredPermission)) {
+  const hasAccess = requiredPermissions
+    ? requiredPermissions.some((p: string) => authService.hasPermission(p))
+    : authService.hasPermission(requiredPermission);
+
+  if (hasAccess) {
     return true;
   }
 

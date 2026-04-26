@@ -21,6 +21,7 @@ export class MerchantDetailComponent implements OnInit {
   loading = true;
   merchantId: number = 0;
   isAdmin = false;
+  canManageUsers = false;
 
   // User mapping
   mappedUsers: any[] = [];
@@ -44,13 +45,14 @@ export class MerchantDetailComponent implements OnInit {
 
   ngOnInit(): void {
     this.isAdmin = this.authService.isAdmin();
+    this.canManageUsers = this.isAdmin || this.authService.hasPermission('MANAGE_USERS') || this.authService.hasPermission('MANAGE_CHILD_USERS');
     this.merchantId = +this.route.snapshot.paramMap.get('id')!;
     this.merchantService.getMerchantById(this.merchantId).subscribe({
       next: (data) => { this.merchant = data; this.loading = false; },
       error: () => { this.loading = false; }
     });
 
-    if (this.isAdmin) {
+    if (this.canManageUsers) {
       this.loadMappedUsers();
       // Debounce user search input
       this.searchSubject.pipe(

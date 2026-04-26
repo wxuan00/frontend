@@ -76,7 +76,7 @@
         <tbody>
           @for (s of settlements; track s.settlementId) {
             <tr>
-              <td class="id-cell">{{ s.settlementNo || '#' + s.settlementId }}</td>
+              <td class="id-cell">{{ s.settlementNo || s.settlementId }}</td>
               <td><strong>{{ s.merchantName || '-' }}</strong></td>
               <td><span class="badge badge-info">{{ s.settlementType }}</span></td>
               <td class="amount-cell">{{ s.currency }} {{ s.settlementAmount | number:'1.2-2' }}</td>

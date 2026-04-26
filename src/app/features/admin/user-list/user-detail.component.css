@@ -19,6 +19,16 @@
   flex-direction: column;
 }
 
+/* Maintenance card full-width */
+.maintenance-card {
+  grid-column: 1 / -1;
+}
+.maintenance-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 32px;
+}
+
 .identity-card .detail-body {
   padding: 0;
   display: flex;
@@ -172,3 +182,18 @@
     grid-row: auto;
   }
 }
+
+/* Linked Merchants */
+.merchants-list { display: flex; flex-direction: column; gap: 8px; }
+.merchant-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+.merchant-row-info { display: flex; flex-direction: column; gap: 2px; }
+.merchant-row-name { font-weight: 600; font-size: 0.9rem; color: #111; }
+.merchant-row-id { font-size: 0.75rem; color: #6b7280; font-family: 'Courier New', monospace; }
