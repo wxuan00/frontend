@@ -218,11 +218,11 @@
         </div>
       }
       <div class="filter-item filter-search">
-        <label class="filter-label">From Date</label>
+        <label class="filter-label">View From</label>
         <input type="date" [(ngModel)]="filterFrom" (change)="onAnalyticsFilterChange()" />
       </div>
       <div class="filter-item filter-search">
-        <label class="filter-label">To Date</label>
+        <label class="filter-label">View To</label>
         <input type="date" [(ngModel)]="filterTo" (change)="onAnalyticsFilterChange()" />
       </div>
       <div class="filter-item filter-action">
@@ -240,7 +240,8 @@
 
     <!-- Print-only header -->
     <div class="print-date-banner">
-      📅 Report Period: <strong>{{ filterFrom || 'All time' }}</strong> → <strong>{{ filterTo || 'Today' }}</strong>
+      📅 Viewing: <strong>{{ filterFrom || 'All time' }}</strong> → <strong>{{ filterTo || 'Today' }}</strong>
+      &nbsp;&middot;&nbsp; Model trained on: <strong>{{ getDataAsOfLabel() }}</strong>
     </div>
     <!-- ───────────────────────────────────────────────────────── -->
 

@@ -7,8 +7,9 @@ describe('EditProfileComponent', () => {
   let fixture: ComponentFixture<EditProfileComponent>;
 
   beforeEach(async () => {
+    TestBed.resetTestingModule();
     await TestBed.configureTestingModule({
-      declarations: [ EditProfileComponent ]
+      imports: [ EditProfileComponent ]
     })
     .compileComponents();
   });

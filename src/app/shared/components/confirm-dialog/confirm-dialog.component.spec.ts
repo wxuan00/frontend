@@ -7,8 +7,9 @@ describe('ConfirmDialogComponent', () => {
   let fixture: ComponentFixture<ConfirmDialogComponent>;
 
   beforeEach(async () => {
+    TestBed.resetTestingModule();
     await TestBed.configureTestingModule({
-      declarations: [ ConfirmDialogComponent ]
+      imports: [ ConfirmDialogComponent ]
     })
     .compileComponents();
   });

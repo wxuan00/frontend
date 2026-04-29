@@ -7,8 +7,9 @@ describe('MerchantListComponent', () => {
   let fixture: ComponentFixture<MerchantListComponent>;
 
   beforeEach(async () => {
+    TestBed.resetTestingModule();
     await TestBed.configureTestingModule({
-      declarations: [ MerchantListComponent ]
+      imports: [ MerchantListComponent ]
     })
     .compileComponents();
   });

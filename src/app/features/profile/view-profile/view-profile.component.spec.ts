@@ -7,8 +7,9 @@ describe('ViewProfileComponent', () => {
   let fixture: ComponentFixture<ViewProfileComponent>;
 
   beforeEach(async () => {
+    TestBed.resetTestingModule();
     await TestBed.configureTestingModule({
-      declarations: [ ViewProfileComponent ]
+      imports: [ ViewProfileComponent ]
     })
     .compileComponents();
   });

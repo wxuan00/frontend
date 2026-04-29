@@ -7,8 +7,9 @@ describe('TransactionDetailComponent', () => {
   let fixture: ComponentFixture<TransactionDetailComponent>;
 
   beforeEach(async () => {
+    TestBed.resetTestingModule();
     await TestBed.configureTestingModule({
-      declarations: [ TransactionDetailComponent ]
+      imports: [ TransactionDetailComponent ]
     })
     .compileComponents();
   });

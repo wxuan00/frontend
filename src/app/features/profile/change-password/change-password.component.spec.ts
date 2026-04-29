@@ -7,8 +7,9 @@ describe('ChangePasswordComponent', () => {
   let fixture: ComponentFixture<ChangePasswordComponent>;
 
   beforeEach(async () => {
+    TestBed.resetTestingModule();
     await TestBed.configureTestingModule({
-      declarations: [ ChangePasswordComponent ]
+      imports: [ ChangePasswordComponent ]
     })
     .compileComponents();
   });

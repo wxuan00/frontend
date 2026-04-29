@@ -7,8 +7,9 @@ describe('SettlementDetailComponent', () => {
   let fixture: ComponentFixture<SettlementDetailComponent>;
 
   beforeEach(async () => {
+    TestBed.resetTestingModule();
     await TestBed.configureTestingModule({
-      declarations: [ SettlementDetailComponent ]
+      imports: [ SettlementDetailComponent ]
     })
     .compileComponents();
   });

@@ -7,8 +7,9 @@ describe('UserFormComponent', () => {
   let fixture: ComponentFixture<UserFormComponent>;
 
   beforeEach(async () => {
+    TestBed.resetTestingModule();
     await TestBed.configureTestingModule({
-      declarations: [ UserFormComponent ]
+      imports: [ UserFormComponent ]
     })
     .compileComponents();
   });

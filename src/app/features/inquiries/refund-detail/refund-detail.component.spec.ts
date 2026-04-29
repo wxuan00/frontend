@@ -7,8 +7,9 @@ describe('RefundDetailComponent', () => {
   let fixture: ComponentFixture<RefundDetailComponent>;
 
   beforeEach(async () => {
+    TestBed.resetTestingModule();
     await TestBed.configureTestingModule({
-      declarations: [ RefundDetailComponent ]
+      imports: [ RefundDetailComponent ]
     })
     .compileComponents();
   });

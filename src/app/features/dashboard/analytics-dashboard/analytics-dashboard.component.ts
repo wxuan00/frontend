@@ -48,7 +48,10 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   chartsLoading = true;
   chartData: any = null;
 
-  // AI Model data
+  // AI Model data — raw (full dataset) and view (date-filtered display)
+  rfmRawData: any = null;
+  churnRawData: any = null;
+  forecastRawData: any = null;
   rfmData: any = null;
   churnData: any = null;
   forecastData: any = null;
@@ -213,7 +216,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onAnalyticsFilterChange() {
     if (this.filterFrom && this.filterTo && this.filterFrom > this.filterTo) return;
-    this.applyDateFilter();
+    this.filterApplied = !!(this.filterFrom || this.filterTo);
+    this.applyViewFilter();
   }
 
   applyDateFilter() {
@@ -222,22 +226,21 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
     this.filterApplied = !!(this.filterFrom || this.filterTo);
-    this.rfmData = null; this.churnData = null; this.forecastData = null;
-    this.destroyCharts();
-    this.loadRfm(); this.loadChurn(); this.loadForecast();
+    // Re-apply in-memory view filter without re-fetching from the API
+    this.applyViewFilter();
   }
 
   clearDateFilter() {
     this.filterFrom = ''; this.filterTo = ''; this.filterApplied = false;
     this.selectedMerchantId = null;
-    this.rfmData = null; this.churnData = null; this.forecastData = null;
-    this.destroyCharts();
-    this.loadRfm(); this.loadChurn(); this.loadForecast();
+    // Re-apply in-memory view filter without re-fetching from the API
+    this.applyViewFilter();
   }
 
   onMerchantFilterChange() {
+    this.rfmRawData = null; this.churnRawData = null; this.forecastRawData = null;
     this.rfmData = null; this.churnData = null; this.forecastData = null;
-    this.destroyCharts();
+    this.destroyModelCharts('rfm'); this.destroyModelCharts('churn'); this.destroyModelCharts('forecast');
     this.loadRfm(); this.loadChurn(); this.loadForecast();
   }
 
@@ -302,21 +305,15 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   getDataAsOfLabel(): string {
-    if (this.filterFrom && this.filterTo) {
-      return `${this.filterFrom} → ${this.filterTo}`;
-    } else if (this.filterFrom) {
-      return `${this.filterFrom} → Present`;
-    } else if (this.filterTo) {
-      return `Up to ${this.filterTo}`;
+    // Always show the full DB range as the computation base
+    const dbRange = this.rfmRawData?.dateRange || this.rfmData?.dateRange;
+    const base = dbRange ? `${dbRange.from} → ${dbRange.to}` : (this.rfmData?.snapshotDate || 'All Data');
+    if (this.filterFrom || this.filterTo) {
+      const viewFrom = this.filterFrom || 'Start';
+      const viewTo   = this.filterTo   || 'Today';
+      return `${base} (showing ${viewFrom} → ${viewTo})`;
     }
-    // Show actual date range from RFM data if available
-    if (this.rfmData?.dateRange) {
-      return `${this.rfmData.dateRange.from} → ${this.rfmData.dateRange.to}`;
-    }
-    if (this.rfmData?.snapshotDate) {
-      return this.rfmData.snapshotDate;
-    }
-    return 'All Data';
+    return base;
   }
 
   getSelectedMerchantName(): string {
@@ -717,9 +714,11 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private loadRfm() {
     this.rfmLoading = true;
-    this.analyticsApi.getRfmSegments(this.filterFrom || undefined, this.filterTo || undefined, this.selectedMerchantId ?? undefined).subscribe({
+    // Always fetch full dataset — date params are for display filtering only
+    this.analyticsApi.getRfmSegments(undefined, undefined, this.selectedMerchantId ?? undefined).subscribe({
       next: (data) => {
-        this.rfmData = data;
+        this.rfmRawData = data;
+        this.rfmData = this.applyRfmViewFilter(data);
         this.rfmLoading = false;
         setTimeout(() => this.renderRfmChart(), 300);
         this.generateRfmTips();
@@ -730,11 +729,13 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private loadChurn() {
     this.churnLoading = true;
-    this.analyticsApi.getChurnRisk(90, this.filterFrom || undefined, this.filterTo || undefined, this.selectedMerchantId ?? undefined).subscribe({
+    // Always fetch full dataset — date params are for display filtering only
+    this.analyticsApi.getChurnRisk(90, undefined, undefined, this.selectedMerchantId ?? undefined).subscribe({
       next: (data) => {
-        this.churnData = data;
+        this.churnRawData = data;
+        this.churnData = this.applyChurnViewFilter(data);
         this.churnLoading = false;
-        if (data?.predictions?.length > 0 && data.predictions[0].shapBreakdown) {
+        if (this.churnData?.predictions?.length > 0 && this.churnData.predictions[0].shapBreakdown) {
           this.selectedCustomerIdx = 0;
         }
         this.generateChurnTips();
@@ -746,15 +747,83 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private loadForecast() {
     this.forecastLoading = true;
-    this.analyticsApi.getCashFlowForecast(30, this.filterFrom || undefined, this.filterTo || undefined, this.selectedMerchantId ?? undefined).subscribe({
+    // Always fetch full dataset — date params only filter the actual series shown
+    this.analyticsApi.getCashFlowForecast(30, undefined, undefined, this.selectedMerchantId ?? undefined).subscribe({
       next: (data) => {
-        this.forecastData = data;
+        this.forecastRawData = data;
+        this.forecastData = this.applyForecastViewFilter(data);
         this.forecastLoading = false;
         setTimeout(() => this.renderForecastChart(), 300);
         this.generateForecastTips();
       },
       error: () => { this.forecastLoading = false; }
     });
+  }
+
+  // ── In-memory view filter helpers ─────────────────────────────────────────
+
+  /** Re-filter all three models from raw data and re-render charts. */
+  private applyViewFilter() {
+    if (this.rfmRawData) {
+      this.rfmData = this.applyRfmViewFilter(this.rfmRawData);
+      this.destroyModelCharts('rfm');
+      if (this.isModelExpanded('rfm')) setTimeout(() => this.renderRfmChart(), 200);
+      this.generateRfmTips();
+    }
+    if (this.churnRawData) {
+      this.churnData = this.applyChurnViewFilter(this.churnRawData);
+      this.selectedCustomerIdx = this.churnData?.predictions?.length > 0 ? 0 : null;
+      this.destroyModelCharts('churn');
+      if (this.isModelExpanded('churn')) setTimeout(() => this.renderShapCharts(), 200);
+      this.generateChurnTips();
+    }
+    if (this.forecastRawData) {
+      this.forecastData = this.applyForecastViewFilter(this.forecastRawData);
+      this.destroyModelCharts('forecast');
+      if (this.isModelExpanded('forecast')) setTimeout(() => this.renderForecastChart(), 200);
+      this.generateForecastTips();
+    }
+  }
+
+  private applyRfmViewFilter(raw: any): any {
+    if (!raw) return null;
+    const from = this.filterFrom;
+    const to   = this.filterTo;
+    if (!from && !to) return raw;
+    const filtered = (raw.segments || []).filter((s: any) => {
+      if (!s.lastSeen) return true;
+      if (from && s.lastSeen < from) return false;
+      if (to   && s.lastSeen > to)   return false;
+      return true;
+    });
+    return { ...raw, segments: filtered, displayCustomers: filtered.length };
+  }
+
+  private applyChurnViewFilter(raw: any): any {
+    if (!raw) return null;
+    const from = this.filterFrom;
+    const to   = this.filterTo;
+    if (!from && !to) return raw;
+    const filtered = (raw.predictions || []).filter((p: any) => {
+      if (!p.lastSeen) return true;
+      if (from && p.lastSeen < from) return false;
+      if (to   && p.lastSeen > to)   return false;
+      return true;
+    });
+    return { ...raw, predictions: filtered, displayCustomers: filtered.length };
+  }
+
+  private applyForecastViewFilter(raw: any): any {
+    if (!raw) return null;
+    const from = this.filterFrom;
+    const to   = this.filterTo;
+    if (!from && !to) return raw;
+    const filteredActual = (raw.actual || []).filter((a: any) => {
+      if (from && a.ds < from) return false;
+      if (to   && a.ds > to)   return false;
+      return true;
+    });
+    return { ...raw, actual: filteredActual };
   }
 
   // ===== AI Chart Rendering =====
@@ -874,7 +943,14 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         },
         scales: {
           y: { beginAtZero: true, grid: { color: '#f0f0f0' }, ticks: { callback: (v) => 'RM ' + Number(v).toLocaleString() } },
-          x: { grid: { display: false }, ticks: { maxRotation: 45, font: { size: 10 }, maxTicksLimit: 20 } }
+          x: {
+            grid: { display: false },
+            ticks: {
+              maxRotation: 45,
+              font: { size: 10 },
+              callback: (_val: any, index: number) => index % 7 === 0 ? allLabels[index] : undefined
+            }
+          }
         }
       }
     });

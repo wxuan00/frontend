@@ -7,8 +7,9 @@ describe('MfaComponent', () => {
   let fixture: ComponentFixture<MfaComponent>;
 
   beforeEach(async () => {
+    TestBed.resetTestingModule();
     await TestBed.configureTestingModule({
-      declarations: [ MfaComponent ]
+      imports: [ MfaComponent ]
     })
     .compileComponents();
   });

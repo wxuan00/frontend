@@ -7,8 +7,9 @@ describe('RoleListComponent', () => {
   let fixture: ComponentFixture<RoleListComponent>;
 
   beforeEach(async () => {
+    TestBed.resetTestingModule();
     await TestBed.configureTestingModule({
-      declarations: [ RoleListComponent ]
+      imports: [ RoleListComponent ]
     })
     .compileComponents();
   });

@@ -7,8 +7,9 @@ describe('UserListComponent', () => {
   let fixture: ComponentFixture<UserListComponent>;
 
   beforeEach(async () => {
+    TestBed.resetTestingModule();
     await TestBed.configureTestingModule({
-      declarations: [ UserListComponent ]
+      imports: [ UserListComponent ]
     })
     .compileComponents();
   });

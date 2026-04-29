@@ -7,8 +7,9 @@ describe('CreditAdviceDetailComponent', () => {
   let fixture: ComponentFixture<CreditAdviceDetailComponent>;
 
   beforeEach(async () => {
+    TestBed.resetTestingModule();
     await TestBed.configureTestingModule({
-      declarations: [ CreditAdviceDetailComponent ]
+      imports: [ CreditAdviceDetailComponent ]
     })
     .compileComponents();
   });

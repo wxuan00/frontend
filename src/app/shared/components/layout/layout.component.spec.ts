@@ -7,8 +7,9 @@ describe('LayoutComponent', () => {
   let fixture: ComponentFixture<LayoutComponent>;
 
   beforeEach(async () => {
+    TestBed.resetTestingModule();
     await TestBed.configureTestingModule({
-      declarations: [ LayoutComponent ]
+      imports: [ LayoutComponent ]
     })
     .compileComponents();
   });

@@ -7,8 +7,9 @@ describe('RoleFormComponent', () => {
   let fixture: ComponentFixture<RoleFormComponent>;
 
   beforeEach(async () => {
+    TestBed.resetTestingModule();
     await TestBed.configureTestingModule({
-      declarations: [ RoleFormComponent ]
+      imports: [ RoleFormComponent ]
     })
     .compileComponents();
   });
